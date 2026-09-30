@@ -1,32 +1,10 @@
-# XRPBlocks: local modifications, replication guide
+# Historical replication snapshot: changes 1–28
 
-This document lets another Claude (or any developer) reproduce, from a clean
-checkout, every change made to a local copy of **XRPBlocks**, the block
-programming IDE for the XRP robot by Stichting STEAMup.
+[Documentation](docs/README.md) · [Development guide](docs/development.md) · [Change history](docs/CHANGELOG.md)
 
-- Upstream: <https://github.com/Stichting-STEAMup/XRPBlocks> (MIT licence)
-- Verified against upstream commit `cd39757` ("Made start event not selectable (#19)")
-- Target user: Edward Gentle, Subject Advisor for CAT and IT, Capricorn South
-  District, Limpopo Department of Education. The audience for the blocks is
-  school learners, including Coding and Robotics classes.
-- Hardware confirmed working: SparkFun XRP Controller, RP2350,
-  MicroPython v1.25.0-preview.beta06
-- Last updated: 20 September 2026, covering changes 1 to 28
+This is the source snapshot recorded on 20 September 2026 against upstream commit `cd39757` of [Stichting STEAMup/XRPBlocks](https://github.com/Stichting-STEAMup/XRPBlocks). It covers changes 1–28 only.
 
-Everything here has been executed and diffed. Copying in the files from Part A
-and running the two scripts in Part B against a clean clone of `cd39757`
-produces an installation identical to the working one.
-
-Since the previous revision of this guide the IDE has changed shape. Devices are
-no longer built into it: a device is now one JSON file in `devices/`, and the
-PCF8575 and NeoPixel categories have moved out of the source into that format.
-Read section 3.8 before 3.3 and 3.4 if that is unfamiliar.
-
----
-
-> Current update: [changes 19-28](docs/changes-2026-09-20.md) documents the final behavior, verification limits, and networking status. Embedded source snapshots below have been refreshed.
-
-> **Not yet regenerated past change 28.** Changes 29-43 are described in [docs/changes-2026-09-28.md](docs/changes-2026-09-28.md); the embedded source snapshots below do not include them, so this guide alone will not reproduce the current installation.
+**Historical reference:** the embedded code and test claims below describe that snapshot. They do not reproduce or verify the current application. Use the repository source and [development guide](docs/development.md) for maintenance, and [Testing status](docs/testing-status.md) for later evidence. The original snapshot is retained below for traceability.
 
 ## 1. What changed, and why
 

@@ -1,5 +1,7 @@
 # Mecanum wheels library
 
+[Documentation](README.md) · [Testing status](testing-status.md)
+
 In **Library**, add **Mecanum wheels (4 motors)**. Its driver is uploaded
 automatically when a program uses a Mecanum block.
 

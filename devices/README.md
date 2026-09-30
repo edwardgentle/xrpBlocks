@@ -1,12 +1,12 @@
 # Device libraries
 
+[Documentation](../docs/README.md) · [Testing status](../docs/testing-status.md)
+
 A device library is **one JSON file** that adds a category of blocks for one
 device: the blocks themselves, the Python each one generates, and the
 MicroPython driver to copy onto the robot.
 
-Nothing in the file is executed. It is data all the way down — strings,
-numbers, lists — so a library can be emailed, dropped in a folder or fetched
-from a URL without running anyone's code.
+The editor reads a manifest as JSON data. Its Python driver and generated program run on the robot when you use the library, so review libraries from sources you do not trust.
 
 Ten libraries ship here: `pcf8575.json`, `neopixel.json`,
 `ssd1315-oled.json`, `mecanum.json`, `remote-control.json`, `tcs34725.json`,
@@ -252,6 +252,8 @@ A manifest that does not validate is rejected whole, with a list of what is
 wrong, rather than half-loading and breaking the palette.
 
 ## Pictures and the designer
+
+Open the [OLED image designer](https://edwardgentle.github.io/xrpBlocks/oled-designer/) online.
 
 `tools/oled-designer.html` is a mouse-driven sketch pad the size of the OLED.
 Draw, press **Copy for XRP Blocks**, and paste the result into a `show picture`

@@ -1,10 +1,12 @@
 # Working programs: XRPBlocks test set
 
+[Documentation](../docs/README.md) · [Testing status](../docs/testing-status.md)
+
 Open any file with **Load** in XRPBlocks. Device libraries a program needs (OLED, LCD, colour sensor and so on) are added automatically when it loads. Each program has a comment on its "when program starts" block saying what you should see. Test programs 01 to 22 that move the robot wait for the board button first; the manual programs are copied exactly and start moving straight away.
 
 Built 26 September 2026; updated 30 September 2026 (programs 23 to 40, the phone programs, and the manual programs renumbered for manual v3.1). Every file was loaded into the real IDE (headless browser): all blocks kept, none disabled, no empty inputs, Python generated and compiled. The core, phone and new programs were also run for up to 60 simulated seconds against a stand-in robot and a scripted phone (`tools/wp_run.py`). **Only program 23 has been tried on the robot so far (the phone connected; driving not yet confirmed).**
 
-**Phone programs (23 to 31, 38 to 40)** need the Phone control (Bluetooth) library, an Android phone with Chrome, and the phone page at https://edwardgentle.github.io/xrpBlocks/phone/ . Disconnect any Bluetooth IDE first (USB is fine). They start as soon as they run and stop the robot when the phone disconnects, instead of waiting for the board button.
+**Phone programs (23 to 31, 38 to 40)** need the Phone control (Bluetooth) library, an Android phone with Chrome, and the phone page at [the phone controller](https://edwardgentle.github.io/xrpBlocks/phone/). Disconnect any Bluetooth IDE first (USB is fine). They start as soon as they run and stop the robot when the phone disconnects, instead of waiting for the board button.
 
 ## Core
 
@@ -67,6 +69,8 @@ Built 26 September 2026; updated 30 September 2026 (programs 23 to 40, the phone
 | 40 Phone - connection watchdog | Android phone, USB Console | green while connected, flashing red when not; counts connections; lock the phone to test |
 
 ## Manual programs
+
+Download the [learner manual](../XRP-Robotics-Learner-Manual-v3.pdf). The filenames below retain the page numbering recorded for manual v3.1.
 
 Every example program from *XRP Robotics Learner Manual v3.1* (PDF), rebuilt block for block. The number after p is the page in the v3.1 PDF (renumbered on 30 September 2026: Chapter 11 grew by five pages); a letter (a, b, c) means there is more than one program on that page. Each program's comment names its page (and section where known). Where the manual used a Wi-Fi name and password, the same ones are used here.
 

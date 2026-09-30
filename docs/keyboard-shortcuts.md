@@ -1,5 +1,7 @@
 # Keyboard shortcuts
 
+[Documentation](README.md) · [Testing status](testing-status.md)
+
 XRPBlocks has keyboard shortcuts for the actions learners and teachers use most.
 Open the full list at any time with the keyboard button on the toolbar, with
 **Ctrl + /**, or by pressing **?** while the workspace has focus.

@@ -1,6 +1,20 @@
 # XRP Blocks — Lesson Format Specification
 
+[Documentation](README.md) · [Testing status](testing-status.md)
+
 This document describes the JSON format used to author procedural tutorials for the XRP Blocks IDE.
+
+## Try a lesson
+
+Click **Lesson** in the editor and load one of these Dutch examples:
+
+| Lesson | Level | Topic |
+| --- | --- | --- |
+| [Hello robot](../examples/lessons/les-01-hallo-robot.json) | Beginner | Driving straight |
+| [Square](../examples/lessons/les-02-vierkant.json) | Intermediate | Driving in a square |
+| [Obstacle](../examples/lessons/les-03-obstakel.json) | Advanced | Avoiding obstacles |
+
+Save your current project first: a lesson can replace the workspace with its starter blocks.
 
 ## Overview
 

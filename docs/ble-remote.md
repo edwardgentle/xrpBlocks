@@ -1,5 +1,7 @@
 # Phone control over Bluetooth
 
+[Documentation](README.md) · [Testing status](testing-status.md)
+
 Add **Phone control (Bluetooth)** from Library. It lets an Android phone drive
 the robot with a joystick, a D-pad and six buttons, with no Wi-Fi network or
 hotspot. It is independent of motors and every other library: your program
@@ -136,6 +138,8 @@ tap A.
 
 ## Hosting the phone page
 
+Use the hosted [phone controller](https://edwardgentle.github.io/xrpBlocks/phone/) for this repository.
+
 Chrome only allows Web Bluetooth on a secure page. Options, in order of
 preference:
 
@@ -159,8 +163,7 @@ which is handy for testing without a phone.
   third-party Web Bluetooth browser; not tested.
 - One phone per robot, and not while a Bluetooth IDE is connected.
 - Relies on the Bluetooth REPL files installed by the official IDE and on
-  the robot's input being readable while a program runs; **not yet confirmed on
-  hardware** (see the checklist in the change record).
+  the robot's input being readable while a program runs. Program 23 has a recorded phone connection, but driving is not confirmed; see [Testing status](testing-status.md).
 - Short taps shorter than one message (about a tenth of a second on a busy
   link) could be missed by **just pressed**; use **held** for anything that
   must not be missed.

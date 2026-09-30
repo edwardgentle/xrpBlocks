@@ -1,70 +1,44 @@
 # XRP Blocks
 
-This is Edward Gentle's modified version of [XRPBlocks by Stichting STEAMup](https://github.com/Stichting-STEAMup/XRPBlocks). Credit for the original project goes to its authors; the original MIT licence applies to the upstream project.
+A browser-based block programming editor for the XRP robot. Build programs with Blockly and run the generated MicroPython on the robot.
 
-A browser-based block-programming IDE for the [XRP robot](https://experiencerobotics.org/), designed with a didactic focus for beginners.
+This is Edward Gentle's modified version of [Stichting STEAMup's XRPBlocks](https://github.com/Stichting-STEAMup/XRPBlocks). The original authors' copyright and [MIT license](LICENSE) are preserved.
 
-Built on [Blockly](https://developers.google.com/blockly), XRP Blocks lets students drag and drop blocks to write real MicroPython programs and run them directly on the robot over USB using the Web Serial API.
+## Open the tools
 
-## What is different in this fork?
+| Tool | Link |
+| --- | --- |
+| XRP Blocks editor | [Open the editor](https://edwardgentle.github.io/xrpBlocks/) |
+| OLED image designer | [Draw an OLED picture](https://edwardgentle.github.io/xrpBlocks/oled-designer/) |
+| Bluetooth phone controller | [Open on your phone](https://edwardgentle.github.io/xrpBlocks/phone/) |
 
-This repository is a local fork of the upstream project. It includes a substantial set of local classroom- and school-focused changes. The fork is not just a cosmetic variation; it adds significant functionality and deployment improvements intended for local classroom use.
+Use Chrome or Edge for a USB robot connection. The phone controller is documented for Android Chrome. The Wi-Fi remote controller runs on the robot; use the address printed in its Console.
 
-See [CHANGES.md](CHANGES.md) for a concise summary of what differs from upstream, including the change log and the local fork rationale.
+## Start learning
 
-## Features
+1. Follow [Getting started](docs/getting-started.md) to open the editor online or locally and connect your robot.
+2. Read the [XRP Robotics Learner Manual](XRP-Robotics-Learner-Manual-v3.pdf).
+3. Load a program from [Working programs](working%20programs/README.md), or follow a [guided lesson](docs/lessons.md).
 
-- 🧩 Block-based programming with XRP-specific categories and standard Blockly tools
-- 🐍 Live Python preview of generated MicroPython
-- 🤖 Direct robot connection over WebSerial in Chrome / Edge
-- 📖 Lesson system and toolbox filtering
-- 🌐 English and Dutch UI
-- 💾 Save / load workspace JSON
-- 🧪 Local classroom-focused additions: dark mode, device libraries, USB safety checks, better block cleanup, and more
+Loading a program replaces the workspace, so save your work first.
 
-## Getting started
+## What this edition adds
 
-Open the [OLED image designer](https://edwardgentle.github.io/xrpBlocks/oled-designer/) to draw pictures for the robot's OLED screen.
+See [Fork changes](CHANGES.md) for the classroom focus and a concise summary of differences from upstream.
 
-XRP Blocks runs entirely in the browser; no build step is required.
+- Device libraries for displays, lights, sensors, mecanum wheels, Wi-Fi and Bluetooth control.
+- Lists, live watches, keyboard shortcuts, workspace cleanup and export of blocks to PNG.
+- Adjustable acceleration, turn calibration and movement diagnostics.
+- A local Windows server and an experimental encrypted-pack build.
 
-1. Start the local server: double-click `XRP Robotics.exe` (a build of XRPServe, no Python needed), or run `python serve.py`.
-2. Click Connect XRP to pair with your robot over USB.
-3. Drag blocks onto the canvas and click Run to execute the program.
+See [Documentation](docs/README.md) for the complete guide map and [Testing status](docs/testing-status.md) for recorded hardware results and outstanding checks.
 
-## Documentation
+## Development and history
 
-For the main fork summary:
+Start with the [development guide](docs/development.md). The [change history](docs/CHANGELOG.md) combines the dated development notes; older embedded source snapshots are historical references, not installation instructions.
 
-- [CHANGES.md](CHANGES.md)
+## License and credits
 
-For detailed updates and technical notes:
-
-- [docs/changes-2026-09-20.md](docs/changes-2026-09-20.md)
-- [docs/changes-2026-09-28.md](docs/changes-2026-09-28.md)
-- [docs/lessons.md](docs/lessons.md)
-- [docs/mecanum.md](docs/mecanum.md)
-- [docs/remote-control.md](docs/remote-control.md)
-- [docs/ble-remote.md](docs/ble-remote.md)
-- [docs/triggers.md](docs/triggers.md)
-- [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md)
-- [devices/README.md](devices/README.md)
-- [delphiSource/README.md](delphiSource/README.md)
-
-## Historical reference
-
-The original replication guide is retained for historical context:
-
-- [XRPBlocks-replication-guide.md](XRPBlocks-replication-guide.md)
-
-This is the earlier, more detailed document covering changes 1-28. The addenda in `docs/changes-2026-09-20.md` and `docs/changes-2026-09-28.md` are the current authoritative summaries for later fork changes.
-
-## Browser support
-
-WebSerial is required to connect to the robot. Use Chrome 89+ or Edge 89+.
-
-The IDE itself (without robot connection) works in any modern browser.
-
-## License
-
-[MIT](LICENSE)
+- [Original MIT license and copyright](LICENSE)
+- [Bundled component licenses and preview terms](LICENCES.txt)
+- [Original project](https://github.com/Stichting-STEAMup/XRPBlocks) and [original lesson documentation](https://github.com/Stichting-STEAMup/XRPBlocks/blob/main/docs/lessons.md)

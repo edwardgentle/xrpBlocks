@@ -1,5 +1,7 @@
 # XRPBlocks local fork changes
 
+[Documentation](docs/README.md) · [Detailed change history](docs/CHANGELOG.md) · [Testing status](docs/testing-status.md)
+
 This repository is a fork of the upstream project at https://github.com/Stichting-STEAMup/XRPBlocks. The local fork keeps the upstream MIT-licensed project, but adds a set of classroom-focused, learner-friendly changes and local deployment work.
 
 ## Fork summary
@@ -47,7 +49,7 @@ Historical local changes documented in the original replication guide:
 
 ### Changes 19-28
 
-The addendum in `docs/changes-2026-09-20.md` records the next round of work:
+The [20 September record](docs/CHANGELOG.md#through-20-september-2026) covers:
 
 - Onboard RGB colour and brightness
 - Delete unused blocks
@@ -62,14 +64,14 @@ The addendum in `docs/changes-2026-09-20.md` records the next round of work:
 
 ### Changes 29-43
 
-The addendum in `docs/changes-2026-09-28.md` continues the fork evolution:
+The [28 September record](docs/CHANGELOG.md#through-28-september-2026) covers:
 
 - TCS34725 colour sensor library
 - Python no longer required to run the IDE locally (Delphi server)
 - Scratch-style lists in Variables category
 - Live variable/list watching
 - Wait block compatibility with stored text values
-- Improved XRPServe startup and no-window operation
+- Revised XRPServe startup; the windowless build described in historical notes differs from the current console source (see [server guide](delphiSource/README.md))
 - Character LCD 16x2 library
 - Character LCD 20x4 library
 - Encrypted pack and licensing banner
@@ -92,14 +94,14 @@ This fork is not a neutral upstream sync. It is a classroom-oriented local build
 
 ## Main documentation locations
 
-- `README.md` — project overview and entry point
-- `docs/changes-2026-09-20.md` — detailed change summary for changes 19-28
-- `docs/changes-2026-09-28.md` — detailed change summary for changes 29-43
-- `XRPBlocks-replication-guide.md` — historical replication guide for changes 1-28; kept for reference
-- `docs/` — deeper setup and usage notes for specific features
+- [Project overview](README.md) and [documentation index](docs/README.md)
+- [Getting started](docs/getting-started.md)
+- [Detailed change history](docs/CHANGELOG.md)
+- [Testing status](docs/testing-status.md)
+- [Historical replication snapshot](XRPBlocks-replication-guide.md)
 
 ## Upstream status
 
 This fork tracks the upstream XRPBlocks project but diverges in multiple areas. The most important differences are educational and operational rather than purely cosmetic: the fork focuses on classroom deployment, device expandability, and robot-safe runtime behaviour.
 
-If you need to document a local fork version for a school deployment, use this file together with the project README and the detailed change addenda in `docs/`.
+If you need to document a local fork version for a school deployment, use this file together with the project README and the [detailed change history](docs/CHANGELOG.md).

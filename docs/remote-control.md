@@ -1,5 +1,7 @@
 # Remote control
 
+[Documentation](README.md) · [Testing status](testing-status.md)
+
 Add **Remote control** from Library. This standalone library uses Wi-Fi and a
 robot-hosted HTML page. It has no motor, mecanum, servo, or LED dependencies.
 
@@ -67,6 +69,6 @@ Driver: `lib/RemoteControl.py`. Page: `tools/remote-control.html`. Run
 `devices/remote-control.json` contains both; no separate page upload is needed.
 The standalone driver source has a page placeholder; the embedded manifest driver
 is the deployable copy. Run `python tools/test_remote_control.py` for protocol tests.
-Hardware Wi-Fi validation remains outstanding.
+Joining a home network was later reported working; full controller validation remains incomplete. See [Testing status](testing-status.md).
 
 Reference: https://docs.micropython.org/en/latest/library/network.WLAN.html

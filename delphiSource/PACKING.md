@@ -1,5 +1,7 @@
 # Encrypted pack test (XRPServePack)
 
+[Documentation](../docs/README.md) · [Testing status](../docs/testing-status.md)
+
 A test build of XRPServe that serves the IDE from one encrypted file,
 `xrpblocks.pak`, so schools get no loose HTML/JS/CSS to edit. The current
 `XRPServe.dpr` and `XRP Robotics.exe` are untouched.
@@ -13,6 +15,10 @@ A test build of XRPServe that serves the IDE from one encrypted file,
 - `delphiSource/XRPServePack.dpr` - the test server (copy of XRPServe plus pack
   loading). `XRPServePack.res` is a copy of XRPServe.res for the icon.
 - `packtest/xrpblocks.pak` - the built pack.
+
+## Create a local key
+
+The private key and packed executable are intentionally excluded from this repository. For a new local build, run `python tools/build_pack.py --genkey` once from the repository root, then compile the server and build its matching pack. Keep the key private. A newly generated key cannot open packs encrypted with a different key.
 
 ## Test steps
 

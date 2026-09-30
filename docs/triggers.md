@@ -1,5 +1,7 @@
 # Triggers library (lights and servos)
 
+[Documentation](README.md) · [Testing status](testing-status.md)
+
 Version 1.0.0. Library file `devices/triggers.json`, driver `lib/XRPTriggers.py`.
 
 The Triggers library lets a program say "when this happens, do that" once, at
