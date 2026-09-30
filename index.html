@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10151e">
+<title>XRP phone control</title>
+<!--
+  XRP phone control over Bluetooth (XRP Blocks, Phone control library 1.0.0).
+  Talks to the robot's own Bluetooth link (Nordic UART Service, the same one an
+  IDE uses) with Web Bluetooth. Needs Chrome on Android and an https:// address.
+  Protocol: see lib/BLERemote.py. Only ASCII digits, letters and spaces are ever
+  sent, never Ctrl+C or the IDE's stop string, so it cannot interrupt the robot.
+-->
+<style>
+:root{color-scheme:dark;--bg:#10151e;--panel:#182231;--btn:#202d40;--line:#354459;--text:#edf4ff;--muted:#a9b7cd;--live:#79e2b1;--warn:#ffcf70;--held:#2d6596;--heldline:#9dcfff;--a:#284736;--b:#443156;--danger:#542633}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+main{max-width:680px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:24px;margin:4px 0;overflow-wrap:anywhere}
+button,select{font:inherit;color:inherit}
+button{border:1px solid var(--line);background:var(--btn);border-radius:14px;padding:12px 16px;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid #83b7ff;outline-offset:3px}
+#connect{flex:none;background:#2d6596;border-color:var(--heldline);font-weight:600}
+#status{font-size:14px;color:var(--muted);min-height:1.4em;margin:6px 0}
+#status.live{color:var(--live)}#status.warn{color:var(--warn)}
+#message{min-height:1.4em;margin:4px 0 10px;padding:8px 12px;border-radius:10px;background:var(--panel);font-variant-numeric:tabular-nums;display:none}
+#message.show{display:block}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+select{padding:10px;background:var(--btn);border:1px solid var(--line);border-radius:10px}
+.pad{touch-action:none;user-select:none;-webkit-user-select:none;min-height:88px;font-size:18px;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pad small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.pad .sym{font-size:24px;line-height:1;margin-bottom:4px}
+.pad.held{background:var(--held);border-color:var(--heldline)}
+.pad:disabled,.stick.off{opacity:.45}
+#controls{margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dpad .p1{grid-area:1/2}.dpad .p2{grid-area:2/1}.dpad .p3{grid-area:2/3}.dpad .p4{grid-area:3/2}.dpad .p5{grid-area:4/1;background:var(--a)}.dpad .p6{grid-area:4/3;background:var(--b)}
+.dpad .p5.held,.dpad .p6.held,.joy .p5.held,.joy .p6.held{background:var(--held)}
+.joy{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;align-items:center}
+.joy .side{display:grid;gap:12px}
+.joy .p5{background:var(--a);min-height:110px}.joy .p6{background:var(--b);min-height:110px}
+.joy .small{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;grid-column:1/-1}
+.joy .small .pad{min-height:64px;font-size:14px}
+.stick{position:relative;width:100%;max-width:300px;aspect-ratio:1;margin:auto;border-radius:50%;background:radial-gradient(circle,#223249 0 58%,#1a2638 59%);border:2px solid var(--line);touch-action:none;user-select:none}
+.stick::before,.stick::after{content:"";position:absolute;background:#2f3e55;left:50%;top:8%;bottom:8%;width:2px;transform:translateX(-50%)}
+.stick::after{top:50%;left:8%;right:8%;bottom:auto;height:2px;width:auto;transform:translateY(-50%)}
+.knob{position:absolute;left:50%;top:50%;width:34%;height:34%;margin:-17% 0 0 -17%;border-radius:50%;background:#3d7ec0;border:2px solid var(--heldline);box-shadow:0 4px 14px #0008;z-index:1;transition:transform .08s}
+.stick.active .knob{transition:none}
+#readout{text-align:center;color:var(--muted);font-size:13px;margin-top:6px;font-variant-numeric:tabular-nums}
+#release{width:100%;background:var(--danger);border-color:#a74660;margin-top:14px}
+details{margin-top:20px;color:var(--muted)}summary{cursor:pointer;padding:6px 0}
+details p,details li{line-height:1.5}
+footer{font-size:12px;color:#8293ac;margin-top:18px;line-height:1.5}
+.hidden{display:none!important}
+@media (orientation:landscape) and (max-height:520px){body{padding:8px 16px}h1{font-size:19px}#status{margin:2px 0}#message{margin:2px 0 4px;padding:4px 10px}.row{margin:4px 0}select{padding:6px}#controls{margin:6px 0}.stick{max-width:44vh}.pad{min-height:54px}.pad small{display:none}.joy .p5,.joy .p6{min-height:64px}.joy .small .pad{min-height:48px}}
+@media (max-width:360px){.pad{font-size:15px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">XRP phone control</h1>
+    <button id="connect">Connect</button>
+  </header>
+  <div id="status" role="status" aria-live="polite">Not connected.</div>
+  <div id="message" aria-live="polite"></div>
+
+  <div class="row">
+    <label for="layout">Layout</label>
+    <select id="layout">
+      <option value="joy">Joystick</option>
+      <option value="dpad">Game D-pad</option>
+      <option value="grid">Button grid</option>
+    </select>
+  </div>
+
+  <section id="controls" aria-label="Controls"></section>
+  <button id="release">Release everything</button>
+
+  <details>
+    <summary>How to use</summary>
+    <ol>
+      <li>Close any IDE that is connected to the robot over Bluetooth (USB is fine).</li>
+      <li>Start a program that uses <b>phone control over Bluetooth: start</b>: switch the robot on with it saved as main.py, or click Run over USB.</li>
+      <li>Tap <b>Connect</b> and choose the robot (its name starts with XRP-).</li>
+    </ol>
+    <p>Joystick: up is forward (+), right is right (+), both -100 to 100. D-pad: Up = 1, Left = 2, Right = 3, Down = 4, A = 5, B = 6. Your program decides what each input does.</p>
+    <p>If you switch apps, lock the phone or lose the link, every input is released and the robot sees "not connected" within a second. The program must stop the motors itself.</p>
+  </details>
+  <footer id="support"></footer>
+</main>
+
+<script>
+(() => {
+'use strict';
+const NUS = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';   // phone -> robot (write)
+const RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';   // robot -> phone (indicate)
+const $ = id => document.getElementById(id);
+const enc = new TextEncoder(), dec = new TextDecoder();
+
+let device = null, txChar = null, rxChar = null;
+let linked = false;          // GATT connected
+let lastOk = 0;              // last "#xrp ok" from a listening program
+let lastHello = 0, lastSent = 0, sentKey = '', writing = false, pendingKey = null;
+let rxLine = '', replSeen = false, lastRx = 0;
+let labels = ['Up', 'Left', 'Right', 'Down', 'A', 'B'];
+const held = new Map();      // pointerId -> button index
+const keysHeld = new Set();
+let stick = {x: 0, y: 0};
+const pads = [];
+
+// ---------- storage (per-viewer convenience only) ----------
+function load(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } }
+function save(k, v) { try { localStorage.setItem(k, v); } catch {} }
+
+// ---------- status ----------
+function status(text, cls) { const s = $('status'); s.textContent = text; s.className = cls || ''; }
+function listening() { return linked && Date.now() - lastOk < 1500; }
+
+// ---------- build controls ----------
+const SYM = ['▲', '◀', '▶', '▼', 'A', 'B'];
+function makePad(i, extraClass) {
+  const b = document.createElement('button');
+  b.className = 'pad p' + (i + 1) + (extraClass ? ' ' + extraClass : '');
+  b.type = 'button';
+  const sym = document.createElement('span'); sym.className = 'sym'; sym.textContent = SYM[i]; sym.setAttribute('aria-hidden', 'true');
+  const name = document.createElement('span'); name.className = 'name';
+  const hint = document.createElement('small'); hint.textContent = 'button ' + (i + 1);
+  b.append(sym, name, hint);
+  b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture(e.pointerId); held.set(e.pointerId, i); changed(); });
+  const up = e => { if (held.delete(e.pointerId)) changed(); };
+  b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+  b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); keysHeld.add(i); changed(); } });
+  b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); keysHeld.delete(i); changed(); } });
+  b.addEventListener('blur', () => { if (keysHeld.delete(i)) changed(); });
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  pads.push({i, el: b});
+  return b;
+}
+
+function makeStick() {
+  const s = document.createElement('div');
+  s.className = 'stick'; s.setAttribute('role', 'application');
+  s.setAttribute('aria-label', 'Joystick. Drag, or use the arrow keys.'); s.tabIndex = 0;
+  const knob = document.createElement('div'); knob.className = 'knob'; s.append(knob);
+  let pid = null;
+  const setFrom = e => {
+    const r = s.getBoundingClientRect();
+    let dx = (e.clientX - r.left - r.width / 2) / (r.width * 0.36);
+    let dy = (e.clientY - r.top - r.height / 2) / (r.height * 0.36);
+    const len = Math.hypot(dx, dy); if (len > 1) { dx /= len; dy /= len; }
+    setStick(dx, -dy);
+  };
+  s.addEventListener('pointerdown', e => { e.preventDefault(); pid = e.pointerId; s.setPointerCapture(pid); s.classList.add('active'); setFrom(e); });
+  s.addEventListener('pointermove', e => { if (e.pointerId === pid) setFrom(e); });
+  const end = e => { if (e.pointerId !== pid) return; pid = null; s.classList.remove('active'); setStick(0, 0); };
+  s.addEventListener('pointerup', end); s.addEventListener('pointercancel', end); s.addEventListener('lostpointercapture', end);
+  const arrows = {ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0]};
+  const down = new Set();
+  const fromKeys = () => { let x = 0, y = 0; down.forEach(k => { x += arrows[k][0]; y += arrows[k][1]; }); const l = Math.hypot(x, y) || 1; setStick(x / l, y / l); };
+  s.addEventListener('keydown', e => { if (arrows[e.key]) { e.preventDefault(); down.add(e.key); fromKeys(); } });
+  s.addEventListener('keyup', e => { if (arrows[e.key]) { e.preventDefault(); down.delete(e.key); fromKeys(); } });
+  s.addEventListener('blur', () => { down.clear(); setStick(0, 0); });
+  s.addEventListener('contextmenu', e => e.preventDefault());
+  s._knob = knob;
+  return s;
+}
+
+function setStick(fx, fy) {
+  // Dead zone of 8 so a resting thumb reads 0.
+  let x = Math.round(fx * 100), y = Math.round(fy * 100);
+  if (Math.hypot(x, y) < 8) { x = 0; y = 0; }
+  stick = {x, y};
+  const s = document.querySelector('.stick');
+  if (s) s._knob.style.transform = `translate(${fx * 106}%, ${-fy * 106}%)`;
+  changed();
+}
+
+function build(layout) {
+  releaseAll(false);
+  pads.length = 0;
+  const c = $('controls'); c.textContent = '';
+  if (layout === 'joy') {
+    const wrap = document.createElement('div'); wrap.className = 'joy';
+    const left = document.createElement('div');
+    left.append(makeStick());
+    const ro = document.createElement('div'); ro.id = 'readout'; left.append(ro);
+    const side = document.createElement('div'); side.className = 'side';
+    side.append(makePad(4), makePad(5));
+    const small = document.createElement('div'); small.className = 'small';
+    for (let i = 0; i < 4; i++) small.append(makePad(i));
+    wrap.append(left, side, small);
+    c.append(wrap);
+  } else {
+    const wrap = document.createElement('div'); wrap.className = layout === 'dpad' ? 'dpad' : 'grid';
+    for (let i = 0; i < 6; i++) wrap.append(makePad(i));
+    c.append(wrap);
+  }
+  paint();
+}
+
+function paint() {
+  const on = listening();
+  const mask = currentMask();
+  pads.forEach(({i, el}) => {
+    el.querySelector('.name').textContent = labels[i] || ('Button ' + (i + 1));
+    const h = !!(mask & (1 << i));
+    el.classList.toggle('held', h); el.setAttribute('aria-pressed', String(h));
+  });
+  const s = document.querySelector('.stick'); if (s) s.classList.toggle('off', !on);
+  const ro = $('readout'); if (ro) ro.textContent = `forward ${stick.y}   right ${stick.x}`;
+}
+
+// ---------- state ----------
+function currentMask() {
+  let m = 0;
+  held.forEach(i => { m |= 1 << i; });
+  keysHeld.forEach(i => { m |= 1 << i; });
+  return m;
+}
+function stateKey() { return `${currentMask()} ${stick.x} ${stick.y}`; }
+function changed() { paint(); tick(true); }
+
+function releaseAll(send = true) {
+  held.clear(); keysHeld.clear(); stick = {x: 0, y: 0};
+  const s = document.querySelector('.stick'); if (s) s._knob.style.transform = '';
+  paint(); if (send) tick(true);
+}
+
+// ---------- Bluetooth ----------
+async function write(text) {
+  if (!txChar) return;
+  // Robot side (ble_uart_peripheral) only accepts write-with-response.
+  const data = enc.encode(text);
+  if (txChar.writeValueWithResponse) await txChar.writeValueWithResponse(data);
+  else await txChar.writeValue(data);
+}
+
+async function tick(force) {
+  if (!linked || writing) { if (force && linked) pendingKey = 'x'; return; }
+  const now = Date.now();
+  let line = null;
+  if (!listening()) {
+    // Say hello until a program answers. Slower once we know only the
+    // REPL is there, so its screen is not flooded with echoes.
+    const gap = replSeen ? 2000 : 1000;
+    if (now - lastHello >= gap) { lastHello = now; line = '#xrp h\r\n'; }
+  } else {
+    const key = stateKey();
+    if (key !== sentKey || now - lastSent >= 250 || (force && key !== sentKey)) {
+      line = `#xrp s ${key}\r\n`; sentKey = key; lastSent = now;
+    }
+  }
+  if (!line) return;
+  writing = true;
+  try { await write(line); }
+  catch (e) { /* a failed write is followed by a disconnect event or the next tick */ }
+  finally {
+    writing = false;
+    if (pendingKey) { pendingKey = null; setTimeout(() => tick(true), 0); }
+  }
+}
+
+function onLine(line) {
+  line = line.replace(/\r$/, '');
+  if (line.startsWith('#xrp ok')) {
+    if (!listening()) { status('Connected: program listening.', 'live'); }
+    lastOk = Date.now(); replSeen = false; paint();
+  } else if (line.startsWith('#xrp cfg ')) {
+    const parts = line.slice(9).split('|');
+    if (parts[0]) { $('title').textContent = parts[0]; document.title = parts[0]; }
+    for (let i = 0; i < 6; i++) if (parts[i + 1] !== undefined) labels[i] = parts[i + 1].trim() || ('Button ' + (i + 1));
+    paint();
+  } else if (line.startsWith('#xrp m ')) {
+    const m = $('message'); m.textContent = line.slice(7); m.classList.add('show');
+  }
+}
+
+function onNotify(e) {
+  const v = e.target.value;
+  const text = dec.decode(new Uint8Array(v.buffer, v.byteOffset, v.byteLength), {stream: true});
+  lastRx = Date.now();
+  if (text.includes('>>>')) replSeen = true;
+  rxLine += text;
+  let n;
+  while ((n = rxLine.indexOf('\n')) !== -1) { onLine(rxLine.slice(0, n)); rxLine = rxLine.slice(n + 1); }
+  if (rxLine.length > 400) rxLine = '';
+}
+
+function onDisconnect() {
+  linked = false; txChar = rxChar = null; lastOk = 0;
+  releaseAll(false);
+  status('Disconnected. Tap Reconnect.', 'warn');
+  $('connect').textContent = 'Reconnect';
+}
+
+async function connect() {
+  if (!('bluetooth' in navigator)) { unsupported(); return; }
+  $('connect').disabled = true;
+  try {
+    if (!device || !device.gatt) {
+      status('Choose your robot (XRP-…) in the list.');
+      device = await navigator.bluetooth.requestDevice({filters: [{namePrefix: 'XRP'}], optionalServices: [NUS]});
+      device.addEventListener('gattserverdisconnected', onDisconnect);
+    }
+    status('Connecting to ' + (device.name || 'robot') + '…');
+    const server = await device.gatt.connect();
+    const svc = await server.getPrimaryService(NUS);
+    txChar = await svc.getCharacteristic(TX);
+    rxChar = await svc.getCharacteristic(RX);
+    await rxChar.startNotifications();
+    rxChar.addEventListener('characteristicvaluechanged', onNotify);
+    linked = true; lastHello = 0; replSeen = false; rxLine = '';
+    status('Connected to ' + (device.name || 'robot') + '. Waiting for a program…', 'warn');
+    $('connect').textContent = 'Disconnect';
+    tick(true);
+  } catch (e) {
+    if (e && e.name === 'NotFoundError') status('No robot chosen.');
+    else status('Could not connect: ' + (e && e.message ? e.message : e) + '. Is an IDE still connected over Bluetooth?', 'warn');
+    $('connect').textContent = device ? 'Reconnect' : 'Connect';
+  } finally { $('connect').disabled = false; }
+}
+
+async function toggle() {
+  if (linked && device) {
+    releaseAll(false);
+    try { await write(`#xrp s 0 0 0\r\n`); } catch {}
+    device.gatt.disconnect();
+    device = null; $('connect').textContent = 'Connect'; status('Not connected.');
+  } else connect();
+}
+
+function unsupported() {
+  const secure = window.isSecureContext;
+  status(secure ? 'This browser cannot use Bluetooth. Use Chrome on an Android phone.'
+                : 'Bluetooth needs a secure page. Open this page from an https:// address.', 'warn');
+  $('support').textContent = 'Web Bluetooth works in Chrome on Android (and Chrome or Edge on a laptop). iPhone Safari does not support it.';
+}
+
+// ---------- wiring ----------
+$('connect').addEventListener('click', toggle);
+$('release').addEventListener('click', () => releaseAll(true));
+$('layout').addEventListener('change', () => { save('xrp-phone-layout', $('layout').value); build($('layout').value); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(true); });
+window.addEventListener('blur', () => releaseAll(true));
+window.addEventListener('pagehide', () => { releaseAll(false); if (linked) { write('#xrp s 0 0 0\r\n').catch(() => {}); } });
+
+setInterval(() => {
+  if (linked && lastOk && !listening()) {
+    lastOk = 0; releaseAll(false);
+    status(replSeen ? 'Connected, but no program is listening. Start a program that uses phone control.'
+                    : 'Connected. Waiting for a program…', 'warn');
+  } else if (linked && !lastOk && replSeen) {
+    status('Connected, but no program is listening. Start a program that uses phone control.', 'warn');
+  }
+  tick(false);
+}, 100);
+
+let layout = load('xrp-phone-layout', 'joy');
+if (!['joy', 'dpad', 'grid'].includes(layout)) layout = 'joy';
+$('layout').value = layout;
+build(layout);
+if (!('bluetooth' in navigator)) unsupported();
+})();
+</script>
+</body>
+</html>
