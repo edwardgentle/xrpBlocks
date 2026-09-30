@@ -1,0 +1,461 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0161",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Retests changes 33 and 34. The list has NO 'set' block, only 'add' (used to crash with NoneType). Items are text like '0.2' fed to wait (used to crash with TypeError). Expect 8 flashes, printed 1 to 8. Right-click the TEST block and choose Watch to test change 32.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0136",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0137",
+                  "fields": {
+                    "TEXT": "Test 03: list starts empty, text items used as wait times"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "procedures_callnoreturn",
+                "id": "tp0138",
+                "extraState": {
+                  "name": "populate LIST"
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_print",
+                    "id": "tp0142",
+                    "inputs": {
+                      "TEXT": {
+                        "block": {
+                          "type": "text_join",
+                          "id": "tp0141",
+                          "extraState": {
+                            "itemCount": 2
+                          },
+                          "inputs": {
+                            "ADD0": {
+                              "block": {
+                                "type": "text",
+                                "id": "tp0139",
+                                "fields": {
+                                  "TEXT": "Length (expect 8): "
+                                }
+                              }
+                            },
+                            "ADD1": {
+                              "block": {
+                                "type": "xrp_list_length",
+                                "id": "tp0140",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_TEST"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "controls_for",
+                        "id": "tp0156",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_i"
+                          }
+                        },
+                        "inputs": {
+                          "FROM": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0157",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          },
+                          "TO": {
+                            "block": {
+                              "type": "xrp_list_length",
+                              "id": "tp0143",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_TEST"
+                                }
+                              }
+                            }
+                          },
+                          "BY": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0158",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "xrp_led_on",
+                              "id": "tp0144",
+                              "next": {
+                                "block": {
+                                  "type": "xrp_wait_seconds",
+                                  "id": "tp0147",
+                                  "inputs": {
+                                    "SECONDS": {
+                                      "block": {
+                                        "type": "xrp_list_item",
+                                        "id": "tp0146",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_TEST"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "INDEX": {
+                                            "block": {
+                                              "type": "variables_get",
+                                              "id": "tp0145",
+                                              "fields": {
+                                                "VAR": {
+                                                  "id": "v_i"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_led_off",
+                                      "id": "tp0148",
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_wait_seconds",
+                                          "id": "tp0149",
+                                          "inputs": {
+                                            "SECONDS": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "tp0150",
+                                                "fields": {
+                                                  "NUM": 0.2
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_print",
+                                              "id": "tp0155",
+                                              "inputs": {
+                                                "TEXT": {
+                                                  "block": {
+                                                    "type": "text_join",
+                                                    "id": "tp0154",
+                                                    "extraState": {
+                                                      "itemCount": 3
+                                                    },
+                                                    "inputs": {
+                                                      "ADD0": {
+                                                        "block": {
+                                                          "type": "text",
+                                                          "id": "tp0151",
+                                                          "fields": {
+                                                            "TEXT": "Flash "
+                                                          }
+                                                        }
+                                                      },
+                                                      "ADD1": {
+                                                        "block": {
+                                                          "type": "variables_get",
+                                                          "id": "tp0152",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_i"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "ADD2": {
+                                                        "block": {
+                                                          "type": "text",
+                                                          "id": "tp0153",
+                                                          "fields": {
+                                                            "TEXT": " done"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_print",
+                            "id": "tp0159",
+                            "inputs": {
+                              "TEXT": {
+                                "shadow": {
+                                  "type": "text",
+                                  "id": "tp0160",
+                                  "fields": {
+                                    "TEXT": "Test 03 done: 8 flashes means changes 33 and 34 work"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "tp0135",
+        "x": 737,
+        "y": 40,
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "populate LIST"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "xrp_list_add_item",
+              "id": "tp0119",
+              "fields": {
+                "VAR": {
+                  "id": "v_TEST"
+                }
+              },
+              "inputs": {
+                "ITEM": {
+                  "shadow": {
+                    "type": "text",
+                    "id": "tp0120",
+                    "fields": {
+                      "TEXT": "0.2"
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "xrp_list_add_item",
+                  "id": "tp0121",
+                  "fields": {
+                    "VAR": {
+                      "id": "v_TEST"
+                    }
+                  },
+                  "inputs": {
+                    "ITEM": {
+                      "shadow": {
+                        "type": "text",
+                        "id": "tp0122",
+                        "fields": {
+                          "TEXT": "1.2"
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_list_add_item",
+                      "id": "tp0123",
+                      "fields": {
+                        "VAR": {
+                          "id": "v_TEST"
+                        }
+                      },
+                      "inputs": {
+                        "ITEM": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "tp0124",
+                            "fields": {
+                              "TEXT": "0.2"
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "xrp_list_add_item",
+                          "id": "tp0125",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_TEST"
+                            }
+                          },
+                          "inputs": {
+                            "ITEM": {
+                              "shadow": {
+                                "type": "text",
+                                "id": "tp0126",
+                                "fields": {
+                                  "TEXT": "1.2"
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_list_add_item",
+                              "id": "tp0127",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_TEST"
+                                }
+                              },
+                              "inputs": {
+                                "ITEM": {
+                                  "shadow": {
+                                    "type": "text",
+                                    "id": "tp0128",
+                                    "fields": {
+                                      "TEXT": "0.2"
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_list_add_item",
+                                  "id": "tp0129",
+                                  "fields": {
+                                    "VAR": {
+                                      "id": "v_TEST"
+                                    }
+                                  },
+                                  "inputs": {
+                                    "ITEM": {
+                                      "shadow": {
+                                        "type": "text",
+                                        "id": "tp0130",
+                                        "fields": {
+                                          "TEXT": "0.2"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_list_add_item",
+                                      "id": "tp0131",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_TEST"
+                                        }
+                                      },
+                                      "inputs": {
+                                        "ITEM": {
+                                          "shadow": {
+                                            "type": "text",
+                                            "id": "tp0132",
+                                            "fields": {
+                                              "TEXT": "0.5"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_list_add_item",
+                                          "id": "tp0133",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_TEST"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "ITEM": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "tp0134",
+                                                "fields": {
+                                                  "TEXT": "1"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "TEST",
+      "id": "v_TEST",
+      "type": "List"
+    },
+    {
+      "name": "i",
+      "id": "v_i"
+    }
+  ]
+}

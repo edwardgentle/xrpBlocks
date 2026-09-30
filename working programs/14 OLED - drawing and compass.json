@@ -1,0 +1,676 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0912",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Box with diagonals, circles and dots; then four icons; then a gyro compass drawn in manual update mode (also a rough redraw-speed test).",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_oled_setup",
+            "id": "tp0841",
+            "fields": {
+              "ADDR": "0x3c"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_oled_clear",
+                "id": "tp0842",
+                "next": {
+                  "block": {
+                    "type": "xrp_oled_rect",
+                    "id": "tp0843",
+                    "fields": {
+                      "FILL": "OUTLINE"
+                    },
+                    "inputs": {
+                      "X": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp0844",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      },
+                      "Y": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp0845",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      },
+                      "W": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp0846",
+                          "fields": {
+                            "NUM": 128
+                          }
+                        }
+                      },
+                      "H": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp0847",
+                          "fields": {
+                            "NUM": 64
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_oled_draw_line",
+                        "id": "tp0848",
+                        "inputs": {
+                          "X1": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0849",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          },
+                          "Y1": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0850",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          },
+                          "X2": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0851",
+                              "fields": {
+                                "NUM": 127
+                              }
+                            }
+                          },
+                          "Y2": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0852",
+                              "fields": {
+                                "NUM": 63
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_oled_draw_line",
+                            "id": "tp0853",
+                            "inputs": {
+                              "X1": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0854",
+                                  "fields": {
+                                    "NUM": 127
+                                  }
+                                }
+                              },
+                              "Y1": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0855",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              },
+                              "X2": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0856",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              },
+                              "Y2": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0857",
+                                  "fields": {
+                                    "NUM": 63
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_oled_circle",
+                                "id": "tp0858",
+                                "fields": {
+                                  "FILL": "OUTLINE"
+                                },
+                                "inputs": {
+                                  "X": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0859",
+                                      "fields": {
+                                        "NUM": 64
+                                      }
+                                    }
+                                  },
+                                  "Y": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0860",
+                                      "fields": {
+                                        "NUM": 32
+                                      }
+                                    }
+                                  },
+                                  "R": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0861",
+                                      "fields": {
+                                        "NUM": 20
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_oled_circle",
+                                    "id": "tp0862",
+                                    "fields": {
+                                      "FILL": "FILLED"
+                                    },
+                                    "inputs": {
+                                      "X": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0863",
+                                          "fields": {
+                                            "NUM": 64
+                                          }
+                                        }
+                                      },
+                                      "Y": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0864",
+                                          "fields": {
+                                            "NUM": 32
+                                          }
+                                        }
+                                      },
+                                      "R": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0865",
+                                          "fields": {
+                                            "NUM": 6
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_oled_rect",
+                                        "id": "tp0866",
+                                        "fields": {
+                                          "FILL": "FILLED"
+                                        },
+                                        "inputs": {
+                                          "X": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp0867",
+                                              "fields": {
+                                                "NUM": 4
+                                              }
+                                            }
+                                          },
+                                          "Y": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp0868",
+                                              "fields": {
+                                                "NUM": 4
+                                              }
+                                            }
+                                          },
+                                          "W": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp0869",
+                                              "fields": {
+                                                "NUM": 12
+                                              }
+                                            }
+                                          },
+                                          "H": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp0870",
+                                              "fields": {
+                                                "NUM": 8
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "controls_for",
+                                            "id": "tp0874",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_x"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "FROM": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "tp0875",
+                                                  "fields": {
+                                                    "NUM": 100
+                                                  }
+                                                }
+                                              },
+                                              "TO": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "tp0876",
+                                                  "fields": {
+                                                    "NUM": 124
+                                                  }
+                                                }
+                                              },
+                                              "BY": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "tp0877",
+                                                  "fields": {
+                                                    "NUM": 2
+                                                  }
+                                                }
+                                              },
+                                              "DO": {
+                                                "block": {
+                                                  "type": "xrp_oled_pixel",
+                                                  "id": "tp0872",
+                                                  "fields": {
+                                                    "STATE": "ON"
+                                                  },
+                                                  "inputs": {
+                                                    "X": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "tp0871",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_x"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "Y": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "tp0873",
+                                                        "fields": {
+                                                          "NUM": 58
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_oled_at",
+                                                "id": "tp0878",
+                                                "inputs": {
+                                                  "MESSAGE": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "tp0879",
+                                                      "fields": {
+                                                        "TEXT": "draw"
+                                                      }
+                                                    }
+                                                  },
+                                                  "X": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "tp0880",
+                                                      "fields": {
+                                                        "NUM": 90
+                                                      }
+                                                    }
+                                                  },
+                                                  "Y": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "tp0881",
+                                                      "fields": {
+                                                        "NUM": 4
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_wait_seconds",
+                                                    "id": "tp0882",
+                                                    "inputs": {
+                                                      "SECONDS": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0883",
+                                                          "fields": {
+                                                            "NUM": 3
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_oled_clear",
+                                                        "id": "tp0884",
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_oled_icon",
+                                                            "id": "tp0885",
+                                                            "fields": {
+                                                              "ICON": "board",
+                                                              "SIZE": "1"
+                                                            },
+                                                            "inputs": {
+                                                              "X": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "tp0886",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                }
+                                                              },
+                                                              "Y": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "tp0887",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_oled_icon",
+                                                                "id": "tp0888",
+                                                                "fields": {
+                                                                  "ICON": "drive",
+                                                                  "SIZE": "1"
+                                                                },
+                                                                "inputs": {
+                                                                  "X": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp0889",
+                                                                      "fields": {
+                                                                        "NUM": 32
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "Y": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp0890",
+                                                                      "fields": {
+                                                                        "NUM": 0
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_oled_icon",
+                                                                    "id": "tp0891",
+                                                                    "fields": {
+                                                                      "ICON": "sensors",
+                                                                      "SIZE": "1"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "X": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp0892",
+                                                                          "fields": {
+                                                                            "NUM": 64
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "Y": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp0893",
+                                                                          "fields": {
+                                                                            "NUM": 0
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_oled_icon",
+                                                                        "id": "tp0894",
+                                                                        "fields": {
+                                                                          "ICON": "servo",
+                                                                          "SIZE": "1"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "X": {
+                                                                            "shadow": {
+                                                                              "type": "math_number",
+                                                                              "id": "tp0895",
+                                                                              "fields": {
+                                                                                "NUM": 96
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "Y": {
+                                                                            "shadow": {
+                                                                              "type": "math_number",
+                                                                              "id": "tp0896",
+                                                                              "fields": {
+                                                                                "NUM": 0
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_wait_seconds",
+                                                                            "id": "tp0897",
+                                                                            "inputs": {
+                                                                              "SECONDS": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "tp0898",
+                                                                                  "fields": {
+                                                                                    "NUM": 3
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_print",
+                                                                                "id": "tp0899",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "shadow": {
+                                                                                      "type": "text",
+                                                                                      "id": "tp0900",
+                                                                                      "fields": {
+                                                                                        "TEXT": "Compass: rotate the robot, arrow should keep pointing to the start direction"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_oled_auto_show",
+                                                                                    "id": "tp0901",
+                                                                                    "fields": {
+                                                                                      "MODE": "False"
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_imu_reset_yaw",
+                                                                                        "id": "tp0902",
+                                                                                        "fields": {
+                                                                                          "AXIS": "yaw"
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_forever",
+                                                                                            "id": "tp0911",
+                                                                                            "inputs": {
+                                                                                              "DO": {
+                                                                                                "block": {
+                                                                                                  "type": "xrp_oled_clear",
+                                                                                                  "id": "tp0903",
+                                                                                                  "next": {
+                                                                                                    "block": {
+                                                                                                      "type": "xrp_oled_arrow",
+                                                                                                      "id": "tp0907",
+                                                                                                      "inputs": {
+                                                                                                        "ANGLE": {
+                                                                                                          "block": {
+                                                                                                            "type": "math_arithmetic",
+                                                                                                            "id": "tp0906",
+                                                                                                            "fields": {
+                                                                                                              "OP": "MINUS"
+                                                                                                            },
+                                                                                                            "inputs": {
+                                                                                                              "A": {
+                                                                                                                "block": {
+                                                                                                                  "type": "math_number",
+                                                                                                                  "id": "tp0904",
+                                                                                                                  "fields": {
+                                                                                                                    "NUM": 0
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "B": {
+                                                                                                                "block": {
+                                                                                                                  "type": "xrp_imu_angle",
+                                                                                                                  "id": "tp0905",
+                                                                                                                  "fields": {
+                                                                                                                    "READING": "get_heading"
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "next": {
+                                                                                                        "block": {
+                                                                                                          "type": "xrp_oled_show",
+                                                                                                          "id": "tp0908",
+                                                                                                          "next": {
+                                                                                                            "block": {
+                                                                                                              "type": "xrp_wait_seconds",
+                                                                                                              "id": "tp0909",
+                                                                                                              "inputs": {
+                                                                                                                "SECONDS": {
+                                                                                                                  "shadow": {
+                                                                                                                    "type": "math_number",
+                                                                                                                    "id": "tp0910",
+                                                                                                                    "fields": {
+                                                                                                                      "NUM": 0.05
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "x",
+      "id": "v_x"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Basis",
+  "steps": [""],
+  "toolbox": {
+    "Drive": [],
+    "Motors": [],
+    "Servo": [],
+    "Board": ["xrp_wait_seconds"]
+  },
+  "template": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "xrp_start",
+          "id": "les1_start",
+          "x": 60,
+          "y": 60
+        }
+      ]
+    }
+  }
+}

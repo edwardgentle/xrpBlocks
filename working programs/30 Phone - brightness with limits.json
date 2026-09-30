@@ -1,0 +1,509 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w30_053",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Brightness with limits (the fixed version of the brightness test program). Tap Up or Down to change the red brightness by 5. It stops at 0 and 255 and the log says so, instead of the program stopping with an error. Hold A to mix in blue. The tile shows the value live.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w30_046",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w30_045",
+                  "fields": {
+                    "TEXT": "XRP brightness"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "w30_048",
+                "fields": {
+                  "BUTTON": "5"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "w30_047",
+                      "fields": {
+                        "TEXT": "Blue mix"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "w30_050",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_brightness"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "block": {
+                          "type": "math_number",
+                          "id": "w30_049",
+                          "fields": {
+                            "NUM": 100
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_ble_start",
+                        "id": "w30_051",
+                        "next": {
+                          "block": {
+                            "type": "xrp_forever",
+                            "id": "w30_052",
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "controls_if",
+                                  "id": "w30_004",
+                                  "inputs": {
+                                    "IF0": {
+                                      "block": {
+                                        "type": "xrp_ble_clicked",
+                                        "id": "w30_001",
+                                        "fields": {
+                                          "BUTTON": "1"
+                                        }
+                                      }
+                                    },
+                                    "DO0": {
+                                      "block": {
+                                        "type": "math_change",
+                                        "id": "w30_003",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_brightness"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "DELTA": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w30_002",
+                                              "fields": {
+                                                "NUM": 5
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "controls_if",
+                                      "id": "w30_008",
+                                      "inputs": {
+                                        "IF0": {
+                                          "block": {
+                                            "type": "xrp_ble_clicked",
+                                            "id": "w30_005",
+                                            "fields": {
+                                              "BUTTON": "4"
+                                            }
+                                          }
+                                        },
+                                        "DO0": {
+                                          "block": {
+                                            "type": "math_change",
+                                            "id": "w30_007",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_brightness"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "DELTA": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w30_006",
+                                                  "fields": {
+                                                    "NUM": -5
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "controls_if",
+                                          "id": "w30_017",
+                                          "inputs": {
+                                            "IF0": {
+                                              "block": {
+                                                "type": "logic_compare",
+                                                "id": "w30_011",
+                                                "fields": {
+                                                  "OP": "GT"
+                                                },
+                                                "inputs": {
+                                                  "A": {
+                                                    "block": {
+                                                      "type": "variables_get",
+                                                      "id": "w30_009",
+                                                      "fields": {
+                                                        "VAR": {
+                                                          "id": "v_brightness"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "B": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w30_010",
+                                                      "fields": {
+                                                        "NUM": 255
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "DO0": {
+                                              "block": {
+                                                "type": "variables_set",
+                                                "id": "w30_013",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_brightness"
+                                                  }
+                                                },
+                                                "inputs": {
+                                                  "VALUE": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w30_012",
+                                                      "fields": {
+                                                        "NUM": 255
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_ble_print",
+                                                    "id": "w30_016",
+                                                    "inputs": {
+                                                      "TEXT": {
+                                                        "shadow": {
+                                                          "type": "text",
+                                                          "id": "w30_015",
+                                                          "fields": {
+                                                            "TEXT": ""
+                                                          }
+                                                        },
+                                                        "block": {
+                                                          "type": "text",
+                                                          "id": "w30_014",
+                                                          "fields": {
+                                                            "TEXT": "Top of the range: 255"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "controls_if",
+                                              "id": "w30_026",
+                                              "inputs": {
+                                                "IF0": {
+                                                  "block": {
+                                                    "type": "logic_compare",
+                                                    "id": "w30_020",
+                                                    "fields": {
+                                                      "OP": "LT"
+                                                    },
+                                                    "inputs": {
+                                                      "A": {
+                                                        "block": {
+                                                          "type": "variables_get",
+                                                          "id": "w30_018",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_brightness"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "B": {
+                                                        "block": {
+                                                          "type": "math_number",
+                                                          "id": "w30_019",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "DO0": {
+                                                  "block": {
+                                                    "type": "variables_set",
+                                                    "id": "w30_022",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_brightness"
+                                                      }
+                                                    },
+                                                    "inputs": {
+                                                      "VALUE": {
+                                                        "block": {
+                                                          "type": "math_number",
+                                                          "id": "w30_021",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_ble_print",
+                                                        "id": "w30_025",
+                                                        "inputs": {
+                                                          "TEXT": {
+                                                            "shadow": {
+                                                              "type": "text",
+                                                              "id": "w30_024",
+                                                              "fields": {
+                                                                "TEXT": ""
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "text",
+                                                              "id": "w30_023",
+                                                              "fields": {
+                                                                "TEXT": "Bottom of the range: 0"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "controls_if",
+                                                  "id": "w30_038",
+                                                  "extraState": {
+                                                    "hasElse": true
+                                                  },
+                                                  "inputs": {
+                                                    "IF0": {
+                                                      "block": {
+                                                        "type": "xrp_ble_pressed",
+                                                        "id": "w30_027",
+                                                        "fields": {
+                                                          "BUTTON": "5"
+                                                        }
+                                                      }
+                                                    },
+                                                    "DO0": {
+                                                      "block": {
+                                                        "type": "xrp_rgb_led",
+                                                        "id": "w30_032",
+                                                        "inputs": {
+                                                          "RED": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w30_029",
+                                                              "fields": {
+                                                                "NUM": 100
+                                                              }
+                                                            }
+                                                          },
+                                                          "GREEN": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w30_030",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            }
+                                                          },
+                                                          "BLUE": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w30_031",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "variables_get",
+                                                              "id": "w30_028",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_brightness"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "ELSE": {
+                                                      "block": {
+                                                        "type": "xrp_rgb_led",
+                                                        "id": "w30_037",
+                                                        "inputs": {
+                                                          "RED": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w30_034",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "variables_get",
+                                                              "id": "w30_033",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_brightness"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "GREEN": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w30_035",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            }
+                                                          },
+                                                          "BLUE": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w30_036",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "xrp_ble_value",
+                                                      "id": "w30_042",
+                                                      "inputs": {
+                                                        "NAME": {
+                                                          "shadow": {
+                                                            "type": "text",
+                                                            "id": "w30_040",
+                                                            "fields": {
+                                                              "TEXT": "Brightness"
+                                                            }
+                                                          }
+                                                        },
+                                                        "VALUE": {
+                                                          "shadow": {
+                                                            "type": "math_number",
+                                                            "id": "w30_041",
+                                                            "fields": {
+                                                              "NUM": 0
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "variables_get",
+                                                            "id": "w30_039",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_brightness"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "xrp_wait_seconds",
+                                                          "id": "w30_044",
+                                                          "inputs": {
+                                                            "SECONDS": {
+                                                              "shadow": {
+                                                                "type": "math_number",
+                                                                "id": "w30_043",
+                                                                "fields": {
+                                                                  "NUM": 0.02
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "brightness",
+      "id": "v_brightness"
+    }
+  ]
+}

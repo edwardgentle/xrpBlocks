@@ -1,0 +1,596 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1129",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "PCF8575 at 0x20. Adjust pin numbers to match your wiring. Note whether LEDs are wired to sink (LED on = pin low) or source current.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp1067",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp1068",
+                  "fields": {
+                    "TEXT": "Test 19: LEDs on P00-P07, a button from P10 (pin 8) to GND"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_pcf_setup",
+                "id": "tp1069",
+                "fields": {
+                  "ADDR": "0x20"
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_pcf_pin_mode",
+                    "id": "tp1070",
+                    "fields": {
+                      "PIN": "0",
+                      "MODE": "OUTPUT"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_pcf_pin_mode",
+                        "id": "tp1071",
+                        "fields": {
+                          "PIN": "1",
+                          "MODE": "OUTPUT"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_pcf_pin_mode",
+                            "id": "tp1072",
+                            "fields": {
+                              "PIN": "2",
+                              "MODE": "OUTPUT"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_pcf_pin_mode",
+                                "id": "tp1073",
+                                "fields": {
+                                  "PIN": "3",
+                                  "MODE": "OUTPUT"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_pcf_pin_mode",
+                                    "id": "tp1074",
+                                    "fields": {
+                                      "PIN": "4",
+                                      "MODE": "OUTPUT"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_pcf_pin_mode",
+                                        "id": "tp1075",
+                                        "fields": {
+                                          "PIN": "5",
+                                          "MODE": "OUTPUT"
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_pcf_pin_mode",
+                                            "id": "tp1076",
+                                            "fields": {
+                                              "PIN": "6",
+                                              "MODE": "OUTPUT"
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_pcf_pin_mode",
+                                                "id": "tp1077",
+                                                "fields": {
+                                                  "PIN": "7",
+                                                  "MODE": "OUTPUT"
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_pcf_pin_mode",
+                                                    "id": "tp1078",
+                                                    "fields": {
+                                                      "PIN": "8",
+                                                      "MODE": "INPUT"
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_pcf_all_off",
+                                                        "id": "tp1079",
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "controls_repeat_ext",
+                                                            "id": "tp1112",
+                                                            "inputs": {
+                                                              "TIMES": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "tp1113",
+                                                                  "fields": {
+                                                                    "NUM": 3
+                                                                  }
+                                                                }
+                                                              },
+                                                              "DO": {
+                                                                "block": {
+                                                                  "type": "xrp_pcf_led",
+                                                                  "id": "tp1080",
+                                                                  "fields": {
+                                                                    "PIN": "0",
+                                                                    "STATE": "ON"
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "xrp_wait_seconds",
+                                                                      "id": "tp1081",
+                                                                      "inputs": {
+                                                                        "SECONDS": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "tp1082",
+                                                                            "fields": {
+                                                                              "NUM": 0.1
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "xrp_pcf_led",
+                                                                          "id": "tp1083",
+                                                                          "fields": {
+                                                                            "PIN": "0",
+                                                                            "STATE": "OFF"
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "xrp_pcf_led",
+                                                                              "id": "tp1084",
+                                                                              "fields": {
+                                                                                "PIN": "1",
+                                                                                "STATE": "ON"
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "xrp_wait_seconds",
+                                                                                  "id": "tp1085",
+                                                                                  "inputs": {
+                                                                                    "SECONDS": {
+                                                                                      "shadow": {
+                                                                                        "type": "math_number",
+                                                                                        "id": "tp1086",
+                                                                                        "fields": {
+                                                                                          "NUM": 0.1
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "xrp_pcf_led",
+                                                                                      "id": "tp1087",
+                                                                                      "fields": {
+                                                                                        "PIN": "1",
+                                                                                        "STATE": "OFF"
+                                                                                      },
+                                                                                      "next": {
+                                                                                        "block": {
+                                                                                          "type": "xrp_pcf_led",
+                                                                                          "id": "tp1088",
+                                                                                          "fields": {
+                                                                                            "PIN": "2",
+                                                                                            "STATE": "ON"
+                                                                                          },
+                                                                                          "next": {
+                                                                                            "block": {
+                                                                                              "type": "xrp_wait_seconds",
+                                                                                              "id": "tp1089",
+                                                                                              "inputs": {
+                                                                                                "SECONDS": {
+                                                                                                  "shadow": {
+                                                                                                    "type": "math_number",
+                                                                                                    "id": "tp1090",
+                                                                                                    "fields": {
+                                                                                                      "NUM": 0.1
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              },
+                                                                                              "next": {
+                                                                                                "block": {
+                                                                                                  "type": "xrp_pcf_led",
+                                                                                                  "id": "tp1091",
+                                                                                                  "fields": {
+                                                                                                    "PIN": "2",
+                                                                                                    "STATE": "OFF"
+                                                                                                  },
+                                                                                                  "next": {
+                                                                                                    "block": {
+                                                                                                      "type": "xrp_pcf_led",
+                                                                                                      "id": "tp1092",
+                                                                                                      "fields": {
+                                                                                                        "PIN": "3",
+                                                                                                        "STATE": "ON"
+                                                                                                      },
+                                                                                                      "next": {
+                                                                                                        "block": {
+                                                                                                          "type": "xrp_wait_seconds",
+                                                                                                          "id": "tp1093",
+                                                                                                          "inputs": {
+                                                                                                            "SECONDS": {
+                                                                                                              "shadow": {
+                                                                                                                "type": "math_number",
+                                                                                                                "id": "tp1094",
+                                                                                                                "fields": {
+                                                                                                                  "NUM": 0.1
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          },
+                                                                                                          "next": {
+                                                                                                            "block": {
+                                                                                                              "type": "xrp_pcf_led",
+                                                                                                              "id": "tp1095",
+                                                                                                              "fields": {
+                                                                                                                "PIN": "3",
+                                                                                                                "STATE": "OFF"
+                                                                                                              },
+                                                                                                              "next": {
+                                                                                                                "block": {
+                                                                                                                  "type": "xrp_pcf_led",
+                                                                                                                  "id": "tp1096",
+                                                                                                                  "fields": {
+                                                                                                                    "PIN": "4",
+                                                                                                                    "STATE": "ON"
+                                                                                                                  },
+                                                                                                                  "next": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_wait_seconds",
+                                                                                                                      "id": "tp1097",
+                                                                                                                      "inputs": {
+                                                                                                                        "SECONDS": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "math_number",
+                                                                                                                            "id": "tp1098",
+                                                                                                                            "fields": {
+                                                                                                                              "NUM": 0.1
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "next": {
+                                                                                                                        "block": {
+                                                                                                                          "type": "xrp_pcf_led",
+                                                                                                                          "id": "tp1099",
+                                                                                                                          "fields": {
+                                                                                                                            "PIN": "4",
+                                                                                                                            "STATE": "OFF"
+                                                                                                                          },
+                                                                                                                          "next": {
+                                                                                                                            "block": {
+                                                                                                                              "type": "xrp_pcf_led",
+                                                                                                                              "id": "tp1100",
+                                                                                                                              "fields": {
+                                                                                                                                "PIN": "5",
+                                                                                                                                "STATE": "ON"
+                                                                                                                              },
+                                                                                                                              "next": {
+                                                                                                                                "block": {
+                                                                                                                                  "type": "xrp_wait_seconds",
+                                                                                                                                  "id": "tp1101",
+                                                                                                                                  "inputs": {
+                                                                                                                                    "SECONDS": {
+                                                                                                                                      "shadow": {
+                                                                                                                                        "type": "math_number",
+                                                                                                                                        "id": "tp1102",
+                                                                                                                                        "fields": {
+                                                                                                                                          "NUM": 0.1
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  },
+                                                                                                                                  "next": {
+                                                                                                                                    "block": {
+                                                                                                                                      "type": "xrp_pcf_led",
+                                                                                                                                      "id": "tp1103",
+                                                                                                                                      "fields": {
+                                                                                                                                        "PIN": "5",
+                                                                                                                                        "STATE": "OFF"
+                                                                                                                                      },
+                                                                                                                                      "next": {
+                                                                                                                                        "block": {
+                                                                                                                                          "type": "xrp_pcf_led",
+                                                                                                                                          "id": "tp1104",
+                                                                                                                                          "fields": {
+                                                                                                                                            "PIN": "6",
+                                                                                                                                            "STATE": "ON"
+                                                                                                                                          },
+                                                                                                                                          "next": {
+                                                                                                                                            "block": {
+                                                                                                                                              "type": "xrp_wait_seconds",
+                                                                                                                                              "id": "tp1105",
+                                                                                                                                              "inputs": {
+                                                                                                                                                "SECONDS": {
+                                                                                                                                                  "shadow": {
+                                                                                                                                                    "type": "math_number",
+                                                                                                                                                    "id": "tp1106",
+                                                                                                                                                    "fields": {
+                                                                                                                                                      "NUM": 0.1
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              },
+                                                                                                                                              "next": {
+                                                                                                                                                "block": {
+                                                                                                                                                  "type": "xrp_pcf_led",
+                                                                                                                                                  "id": "tp1107",
+                                                                                                                                                  "fields": {
+                                                                                                                                                    "PIN": "6",
+                                                                                                                                                    "STATE": "OFF"
+                                                                                                                                                  },
+                                                                                                                                                  "next": {
+                                                                                                                                                    "block": {
+                                                                                                                                                      "type": "xrp_pcf_led",
+                                                                                                                                                      "id": "tp1108",
+                                                                                                                                                      "fields": {
+                                                                                                                                                        "PIN": "7",
+                                                                                                                                                        "STATE": "ON"
+                                                                                                                                                      },
+                                                                                                                                                      "next": {
+                                                                                                                                                        "block": {
+                                                                                                                                                          "type": "xrp_wait_seconds",
+                                                                                                                                                          "id": "tp1109",
+                                                                                                                                                          "inputs": {
+                                                                                                                                                            "SECONDS": {
+                                                                                                                                                              "shadow": {
+                                                                                                                                                                "type": "math_number",
+                                                                                                                                                                "id": "tp1110",
+                                                                                                                                                                "fields": {
+                                                                                                                                                                  "NUM": 0.1
+                                                                                                                                                                }
+                                                                                                                                                              }
+                                                                                                                                                            }
+                                                                                                                                                          },
+                                                                                                                                                          "next": {
+                                                                                                                                                            "block": {
+                                                                                                                                                              "type": "xrp_pcf_led",
+                                                                                                                                                              "id": "tp1111",
+                                                                                                                                                              "fields": {
+                                                                                                                                                                "PIN": "7",
+                                                                                                                                                                "STATE": "OFF"
+                                                                                                                                                              }
+                                                                                                                                                            }
+                                                                                                                                                          }
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_pcf_set_pin",
+                                                                "id": "tp1114",
+                                                                "fields": {
+                                                                  "PIN": "0",
+                                                                  "LEVEL": "HIGH"
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_print",
+                                                                    "id": "tp1118",
+                                                                    "inputs": {
+                                                                      "TEXT": {
+                                                                        "block": {
+                                                                          "type": "text_join",
+                                                                          "id": "tp1117",
+                                                                          "extraState": {
+                                                                            "itemCount": 2
+                                                                          },
+                                                                          "inputs": {
+                                                                            "ADD0": {
+                                                                              "block": {
+                                                                                "type": "text",
+                                                                                "id": "tp1115",
+                                                                                "fields": {
+                                                                                  "TEXT": "P00 level after set high: "
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "ADD1": {
+                                                                              "block": {
+                                                                                "type": "xrp_pcf_read_pin",
+                                                                                "id": "tp1116",
+                                                                                "fields": {
+                                                                                  "PIN": "0"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_pcf_set_pin",
+                                                                        "id": "tp1119",
+                                                                        "fields": {
+                                                                          "PIN": "0",
+                                                                          "LEVEL": "LOW"
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_print",
+                                                                            "id": "tp1120",
+                                                                            "inputs": {
+                                                                              "TEXT": {
+                                                                                "shadow": {
+                                                                                  "type": "text",
+                                                                                  "id": "tp1121",
+                                                                                  "fields": {
+                                                                                    "TEXT": "Press the P10 button: LED 0 lights while held. Stop to end."
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_forever",
+                                                                                "id": "tp1128",
+                                                                                "inputs": {
+                                                                                  "DO": {
+                                                                                    "block": {
+                                                                                      "type": "controls_if",
+                                                                                      "id": "tp1125",
+                                                                                      "extraState": {
+                                                                                        "hasElse": true
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "IF0": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_pcf_button",
+                                                                                            "id": "tp1122",
+                                                                                            "fields": {
+                                                                                              "PIN": "8"
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "DO0": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_pcf_led",
+                                                                                            "id": "tp1123",
+                                                                                            "fields": {
+                                                                                              "PIN": "0",
+                                                                                              "STATE": "ON"
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "ELSE": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_pcf_led",
+                                                                                            "id": "tp1124",
+                                                                                            "fields": {
+                                                                                              "PIN": "0",
+                                                                                              "STATE": "OFF"
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "next": {
+                                                                                        "block": {
+                                                                                          "type": "xrp_wait_seconds",
+                                                                                          "id": "tp1126",
+                                                                                          "inputs": {
+                                                                                            "SECONDS": {
+                                                                                              "shadow": {
+                                                                                                "type": "math_number",
+                                                                                                "id": "tp1127",
+                                                                                                "fields": {
+                                                                                                  "NUM": 0.05
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

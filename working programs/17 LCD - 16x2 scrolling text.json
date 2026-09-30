@@ -1,0 +1,111 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1031",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Line 1 stays still, line 2 scrolls at 4 characters a second.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_lcd_setup",
+            "id": "tp1021",
+            "fields": {
+              "ADDR": "AUTO"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_lcd_clear",
+                "id": "tp1022",
+                "next": {
+                  "block": {
+                    "type": "xrp_lcd_line",
+                    "id": "tp1023",
+                    "fields": {
+                      "LINE": "1"
+                    },
+                    "inputs": {
+                      "MESSAGE": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "tp1024",
+                          "fields": {
+                            "TEXT": "Scroll test"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_forever",
+                        "id": "tp1030",
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "xrp_lcd_scroll_text",
+                              "id": "tp1025",
+                              "fields": {
+                                "LINE": "2"
+                              },
+                              "inputs": {
+                                "MESSAGE": {
+                                  "shadow": {
+                                    "type": "text",
+                                    "id": "tp1026",
+                                    "fields": {
+                                      "TEXT": "This message is longer than sixteen characters"
+                                    }
+                                  }
+                                },
+                                "SPEED": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1027",
+                                    "fields": {
+                                      "NUM": 4
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_wait_seconds",
+                                  "id": "tp1028",
+                                  "inputs": {
+                                    "SECONDS": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "tp1029",
+                                        "fields": {
+                                          "NUM": 0.05
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

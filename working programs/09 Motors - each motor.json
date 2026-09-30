@@ -1,0 +1,962 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0645",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Motors 3 and 4 only move if something is plugged in. Check each reported rpm is positive for forward.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0636",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0637",
+                  "fields": {
+                    "TEXT": "Test 09: each motor port in turn. Lift the robot."
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_print",
+                "id": "tp0638",
+                "inputs": {
+                  "TEXT": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "tp0639",
+                      "fields": {
+                        "TEXT": "Press the board button to start"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_for_button",
+                    "id": "tp0640",
+                    "next": {
+                      "block": {
+                        "type": "xrp_wait_seconds",
+                        "id": "tp0641",
+                        "inputs": {
+                          "SECONDS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0642",
+                              "fields": {
+                                "NUM": 0.5
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_print",
+                            "id": "tp0541",
+                            "inputs": {
+                              "TEXT": {
+                                "shadow": {
+                                  "type": "text",
+                                  "id": "tp0542",
+                                  "fields": {
+                                    "TEXT": "Motor LEFT: effort 50 for 1 s, then brake"
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_motor_reset_encoder",
+                                "id": "tp0543",
+                                "fields": {
+                                  "MOTOR": "LEFT"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_motor_set_effort_percent",
+                                    "id": "tp0544",
+                                    "fields": {
+                                      "MOTOR": "LEFT"
+                                    },
+                                    "inputs": {
+                                      "PERCENT": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0545",
+                                          "fields": {
+                                            "NUM": 50
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_wait_seconds",
+                                        "id": "tp0546",
+                                        "inputs": {
+                                          "SECONDS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp0547",
+                                              "fields": {
+                                                "NUM": 1
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_print",
+                                            "id": "tp0556",
+                                            "inputs": {
+                                              "TEXT": {
+                                                "block": {
+                                                  "type": "text_join",
+                                                  "id": "tp0555",
+                                                  "extraState": {
+                                                    "itemCount": 6
+                                                  },
+                                                  "inputs": {
+                                                    "ADD0": {
+                                                      "block": {
+                                                        "type": "text",
+                                                        "id": "tp0548",
+                                                        "fields": {
+                                                          "TEXT": "  rpm "
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD1": {
+                                                      "block": {
+                                                        "type": "math_round",
+                                                        "id": "tp0550",
+                                                        "fields": {
+                                                          "OP": "ROUND"
+                                                        },
+                                                        "inputs": {
+                                                          "NUM": {
+                                                            "block": {
+                                                              "type": "xrp_motor_get_speed",
+                                                              "id": "tp0549",
+                                                              "fields": {
+                                                                "MOTOR": "LEFT"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD2": {
+                                                      "block": {
+                                                        "type": "text",
+                                                        "id": "tp0551",
+                                                        "fields": {
+                                                          "TEXT": "  turns "
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD3": {
+                                                      "block": {
+                                                        "type": "xrp_motor_get_position",
+                                                        "id": "tp0552",
+                                                        "fields": {
+                                                          "MOTOR": "LEFT"
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD4": {
+                                                      "block": {
+                                                        "type": "text",
+                                                        "id": "tp0553",
+                                                        "fields": {
+                                                          "TEXT": "  counts "
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD5": {
+                                                      "block": {
+                                                        "type": "xrp_motor_get_counts",
+                                                        "id": "tp0554",
+                                                        "fields": {
+                                                          "MOTOR": "LEFT"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_motor_brake",
+                                                "id": "tp0557",
+                                                "fields": {
+                                                  "MOTOR": "LEFT"
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_wait_seconds",
+                                                    "id": "tp0558",
+                                                    "inputs": {
+                                                      "SECONDS": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0559",
+                                                          "fields": {
+                                                            "NUM": 0.5
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_print",
+                                                        "id": "tp0560",
+                                                        "inputs": {
+                                                          "TEXT": {
+                                                            "shadow": {
+                                                              "type": "text",
+                                                              "id": "tp0561",
+                                                              "fields": {
+                                                                "TEXT": "Motor RIGHT: effort 50 for 1 s, then brake"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_motor_reset_encoder",
+                                                            "id": "tp0562",
+                                                            "fields": {
+                                                              "MOTOR": "RIGHT"
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_motor_set_effort_percent",
+                                                                "id": "tp0563",
+                                                                "fields": {
+                                                                  "MOTOR": "RIGHT"
+                                                                },
+                                                                "inputs": {
+                                                                  "PERCENT": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp0564",
+                                                                      "fields": {
+                                                                        "NUM": 50
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_wait_seconds",
+                                                                    "id": "tp0565",
+                                                                    "inputs": {
+                                                                      "SECONDS": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp0566",
+                                                                          "fields": {
+                                                                            "NUM": 1
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_print",
+                                                                        "id": "tp0575",
+                                                                        "inputs": {
+                                                                          "TEXT": {
+                                                                            "block": {
+                                                                              "type": "text_join",
+                                                                              "id": "tp0574",
+                                                                              "extraState": {
+                                                                                "itemCount": 6
+                                                                              },
+                                                                              "inputs": {
+                                                                                "ADD0": {
+                                                                                  "block": {
+                                                                                    "type": "text",
+                                                                                    "id": "tp0567",
+                                                                                    "fields": {
+                                                                                      "TEXT": "  rpm "
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD1": {
+                                                                                  "block": {
+                                                                                    "type": "math_round",
+                                                                                    "id": "tp0569",
+                                                                                    "fields": {
+                                                                                      "OP": "ROUND"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "NUM": {
+                                                                                        "block": {
+                                                                                          "type": "xrp_motor_get_speed",
+                                                                                          "id": "tp0568",
+                                                                                          "fields": {
+                                                                                            "MOTOR": "RIGHT"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD2": {
+                                                                                  "block": {
+                                                                                    "type": "text",
+                                                                                    "id": "tp0570",
+                                                                                    "fields": {
+                                                                                      "TEXT": "  turns "
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD3": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_motor_get_position",
+                                                                                    "id": "tp0571",
+                                                                                    "fields": {
+                                                                                      "MOTOR": "RIGHT"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD4": {
+                                                                                  "block": {
+                                                                                    "type": "text",
+                                                                                    "id": "tp0572",
+                                                                                    "fields": {
+                                                                                      "TEXT": "  counts "
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD5": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_motor_get_counts",
+                                                                                    "id": "tp0573",
+                                                                                    "fields": {
+                                                                                      "MOTOR": "RIGHT"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_motor_brake",
+                                                                            "id": "tp0576",
+                                                                            "fields": {
+                                                                              "MOTOR": "RIGHT"
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_wait_seconds",
+                                                                                "id": "tp0577",
+                                                                                "inputs": {
+                                                                                  "SECONDS": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "tp0578",
+                                                                                      "fields": {
+                                                                                        "NUM": 0.5
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_print",
+                                                                                    "id": "tp0579",
+                                                                                    "inputs": {
+                                                                                      "TEXT": {
+                                                                                        "shadow": {
+                                                                                          "type": "text",
+                                                                                          "id": "tp0580",
+                                                                                          "fields": {
+                                                                                            "TEXT": "Motor MOTOR3: effort 50 for 1 s, then brake"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_motor_reset_encoder",
+                                                                                        "id": "tp0581",
+                                                                                        "fields": {
+                                                                                          "MOTOR": "MOTOR3"
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_motor_set_effort_percent",
+                                                                                            "id": "tp0582",
+                                                                                            "fields": {
+                                                                                              "MOTOR": "MOTOR3"
+                                                                                            },
+                                                                                            "inputs": {
+                                                                                              "PERCENT": {
+                                                                                                "shadow": {
+                                                                                                  "type": "math_number",
+                                                                                                  "id": "tp0583",
+                                                                                                  "fields": {
+                                                                                                    "NUM": 50
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_wait_seconds",
+                                                                                                "id": "tp0584",
+                                                                                                "inputs": {
+                                                                                                  "SECONDS": {
+                                                                                                    "shadow": {
+                                                                                                      "type": "math_number",
+                                                                                                      "id": "tp0585",
+                                                                                                      "fields": {
+                                                                                                        "NUM": 1
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_print",
+                                                                                                    "id": "tp0594",
+                                                                                                    "inputs": {
+                                                                                                      "TEXT": {
+                                                                                                        "block": {
+                                                                                                          "type": "text_join",
+                                                                                                          "id": "tp0593",
+                                                                                                          "extraState": {
+                                                                                                            "itemCount": 6
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "ADD0": {
+                                                                                                              "block": {
+                                                                                                                "type": "text",
+                                                                                                                "id": "tp0586",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "  rpm "
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD1": {
+                                                                                                              "block": {
+                                                                                                                "type": "math_round",
+                                                                                                                "id": "tp0588",
+                                                                                                                "fields": {
+                                                                                                                  "OP": "ROUND"
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "NUM": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_motor_get_speed",
+                                                                                                                      "id": "tp0587",
+                                                                                                                      "fields": {
+                                                                                                                        "MOTOR": "MOTOR3"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD2": {
+                                                                                                              "block": {
+                                                                                                                "type": "text",
+                                                                                                                "id": "tp0589",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "  turns "
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD3": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_motor_get_position",
+                                                                                                                "id": "tp0590",
+                                                                                                                "fields": {
+                                                                                                                  "MOTOR": "MOTOR3"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD4": {
+                                                                                                              "block": {
+                                                                                                                "type": "text",
+                                                                                                                "id": "tp0591",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "  counts "
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD5": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_motor_get_counts",
+                                                                                                                "id": "tp0592",
+                                                                                                                "fields": {
+                                                                                                                  "MOTOR": "MOTOR3"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "block": {
+                                                                                                        "type": "xrp_motor_brake",
+                                                                                                        "id": "tp0595",
+                                                                                                        "fields": {
+                                                                                                          "MOTOR": "MOTOR3"
+                                                                                                        },
+                                                                                                        "next": {
+                                                                                                          "block": {
+                                                                                                            "type": "xrp_wait_seconds",
+                                                                                                            "id": "tp0596",
+                                                                                                            "inputs": {
+                                                                                                              "SECONDS": {
+                                                                                                                "shadow": {
+                                                                                                                  "type": "math_number",
+                                                                                                                  "id": "tp0597",
+                                                                                                                  "fields": {
+                                                                                                                    "NUM": 0.5
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "next": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_print",
+                                                                                                                "id": "tp0598",
+                                                                                                                "inputs": {
+                                                                                                                  "TEXT": {
+                                                                                                                    "shadow": {
+                                                                                                                      "type": "text",
+                                                                                                                      "id": "tp0599",
+                                                                                                                      "fields": {
+                                                                                                                        "TEXT": "Motor MOTOR4: effort 50 for 1 s, then brake"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "next": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "xrp_motor_reset_encoder",
+                                                                                                                    "id": "tp0600",
+                                                                                                                    "fields": {
+                                                                                                                      "MOTOR": "MOTOR4"
+                                                                                                                    },
+                                                                                                                    "next": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "xrp_motor_set_effort_percent",
+                                                                                                                        "id": "tp0601",
+                                                                                                                        "fields": {
+                                                                                                                          "MOTOR": "MOTOR4"
+                                                                                                                        },
+                                                                                                                        "inputs": {
+                                                                                                                          "PERCENT": {
+                                                                                                                            "shadow": {
+                                                                                                                              "type": "math_number",
+                                                                                                                              "id": "tp0602",
+                                                                                                                              "fields": {
+                                                                                                                                "NUM": 50
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "next": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "xrp_wait_seconds",
+                                                                                                                            "id": "tp0603",
+                                                                                                                            "inputs": {
+                                                                                                                              "SECONDS": {
+                                                                                                                                "shadow": {
+                                                                                                                                  "type": "math_number",
+                                                                                                                                  "id": "tp0604",
+                                                                                                                                  "fields": {
+                                                                                                                                    "NUM": 1
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            },
+                                                                                                                            "next": {
+                                                                                                                              "block": {
+                                                                                                                                "type": "xrp_print",
+                                                                                                                                "id": "tp0613",
+                                                                                                                                "inputs": {
+                                                                                                                                  "TEXT": {
+                                                                                                                                    "block": {
+                                                                                                                                      "type": "text_join",
+                                                                                                                                      "id": "tp0612",
+                                                                                                                                      "extraState": {
+                                                                                                                                        "itemCount": 6
+                                                                                                                                      },
+                                                                                                                                      "inputs": {
+                                                                                                                                        "ADD0": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "text",
+                                                                                                                                            "id": "tp0605",
+                                                                                                                                            "fields": {
+                                                                                                                                              "TEXT": "  rpm "
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "ADD1": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "math_round",
+                                                                                                                                            "id": "tp0607",
+                                                                                                                                            "fields": {
+                                                                                                                                              "OP": "ROUND"
+                                                                                                                                            },
+                                                                                                                                            "inputs": {
+                                                                                                                                              "NUM": {
+                                                                                                                                                "block": {
+                                                                                                                                                  "type": "xrp_motor_get_speed",
+                                                                                                                                                  "id": "tp0606",
+                                                                                                                                                  "fields": {
+                                                                                                                                                    "MOTOR": "MOTOR4"
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "ADD2": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "text",
+                                                                                                                                            "id": "tp0608",
+                                                                                                                                            "fields": {
+                                                                                                                                              "TEXT": "  turns "
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "ADD3": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "xrp_motor_get_position",
+                                                                                                                                            "id": "tp0609",
+                                                                                                                                            "fields": {
+                                                                                                                                              "MOTOR": "MOTOR4"
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "ADD4": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "text",
+                                                                                                                                            "id": "tp0610",
+                                                                                                                                            "fields": {
+                                                                                                                                              "TEXT": "  counts "
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "ADD5": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "xrp_motor_get_counts",
+                                                                                                                                            "id": "tp0611",
+                                                                                                                                            "fields": {
+                                                                                                                                              "MOTOR": "MOTOR4"
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                },
+                                                                                                                                "next": {
+                                                                                                                                  "block": {
+                                                                                                                                    "type": "xrp_motor_brake",
+                                                                                                                                    "id": "tp0614",
+                                                                                                                                    "fields": {
+                                                                                                                                      "MOTOR": "MOTOR4"
+                                                                                                                                    },
+                                                                                                                                    "next": {
+                                                                                                                                      "block": {
+                                                                                                                                        "type": "xrp_wait_seconds",
+                                                                                                                                        "id": "tp0615",
+                                                                                                                                        "inputs": {
+                                                                                                                                          "SECONDS": {
+                                                                                                                                            "shadow": {
+                                                                                                                                              "type": "math_number",
+                                                                                                                                              "id": "tp0616",
+                                                                                                                                              "fields": {
+                                                                                                                                                "NUM": 0.5
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "next": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "xrp_print",
+                                                                                                                                            "id": "tp0617",
+                                                                                                                                            "inputs": {
+                                                                                                                                              "TEXT": {
+                                                                                                                                                "shadow": {
+                                                                                                                                                  "type": "text",
+                                                                                                                                                  "id": "tp0618",
+                                                                                                                                                  "fields": {
+                                                                                                                                                    "TEXT": "LEFT motor at 60 rpm (speed control) for 2 s"
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            },
+                                                                                                                                            "next": {
+                                                                                                                                              "block": {
+                                                                                                                                                "type": "xrp_motor_set_speed",
+                                                                                                                                                "id": "tp0619",
+                                                                                                                                                "fields": {
+                                                                                                                                                  "MOTOR": "LEFT"
+                                                                                                                                                },
+                                                                                                                                                "inputs": {
+                                                                                                                                                  "SPEED": {
+                                                                                                                                                    "shadow": {
+                                                                                                                                                      "type": "math_number",
+                                                                                                                                                      "id": "tp0620",
+                                                                                                                                                      "fields": {
+                                                                                                                                                        "NUM": 60
+                                                                                                                                                      }
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                },
+                                                                                                                                                "next": {
+                                                                                                                                                  "block": {
+                                                                                                                                                    "type": "xrp_wait_seconds",
+                                                                                                                                                    "id": "tp0621",
+                                                                                                                                                    "inputs": {
+                                                                                                                                                      "SECONDS": {
+                                                                                                                                                        "shadow": {
+                                                                                                                                                          "type": "math_number",
+                                                                                                                                                          "id": "tp0622",
+                                                                                                                                                          "fields": {
+                                                                                                                                                            "NUM": 2
+                                                                                                                                                          }
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    },
+                                                                                                                                                    "next": {
+                                                                                                                                                      "block": {
+                                                                                                                                                        "type": "xrp_print",
+                                                                                                                                                        "id": "tp0627",
+                                                                                                                                                        "inputs": {
+                                                                                                                                                          "TEXT": {
+                                                                                                                                                            "block": {
+                                                                                                                                                              "type": "text_join",
+                                                                                                                                                              "id": "tp0626",
+                                                                                                                                                              "extraState": {
+                                                                                                                                                                "itemCount": 2
+                                                                                                                                                              },
+                                                                                                                                                              "inputs": {
+                                                                                                                                                                "ADD0": {
+                                                                                                                                                                  "block": {
+                                                                                                                                                                    "type": "text",
+                                                                                                                                                                    "id": "tp0623",
+                                                                                                                                                                    "fields": {
+                                                                                                                                                                      "TEXT": "  measured rpm "
+                                                                                                                                                                    }
+                                                                                                                                                                  }
+                                                                                                                                                                },
+                                                                                                                                                                "ADD1": {
+                                                                                                                                                                  "block": {
+                                                                                                                                                                    "type": "math_round",
+                                                                                                                                                                    "id": "tp0625",
+                                                                                                                                                                    "fields": {
+                                                                                                                                                                      "OP": "ROUND"
+                                                                                                                                                                    },
+                                                                                                                                                                    "inputs": {
+                                                                                                                                                                      "NUM": {
+                                                                                                                                                                        "block": {
+                                                                                                                                                                          "type": "xrp_motor_get_speed",
+                                                                                                                                                                          "id": "tp0624",
+                                                                                                                                                                          "fields": {
+                                                                                                                                                                            "MOTOR": "LEFT"
+                                                                                                                                                                          }
+                                                                                                                                                                        }
+                                                                                                                                                                      }
+                                                                                                                                                                    }
+                                                                                                                                                                  }
+                                                                                                                                                                }
+                                                                                                                                                              }
+                                                                                                                                                            }
+                                                                                                                                                          }
+                                                                                                                                                        },
+                                                                                                                                                        "next": {
+                                                                                                                                                          "block": {
+                                                                                                                                                            "type": "xrp_motor_speed_off",
+                                                                                                                                                            "id": "tp0628",
+                                                                                                                                                            "fields": {
+                                                                                                                                                              "MOTOR": "LEFT"
+                                                                                                                                                            },
+                                                                                                                                                            "next": {
+                                                                                                                                                              "block": {
+                                                                                                                                                                "type": "xrp_motor_set_effort_percent",
+                                                                                                                                                                "id": "tp0629",
+                                                                                                                                                                "fields": {
+                                                                                                                                                                  "MOTOR": "LEFT"
+                                                                                                                                                                },
+                                                                                                                                                                "inputs": {
+                                                                                                                                                                  "PERCENT": {
+                                                                                                                                                                    "shadow": {
+                                                                                                                                                                      "type": "math_number",
+                                                                                                                                                                      "id": "tp0630",
+                                                                                                                                                                      "fields": {
+                                                                                                                                                                        "NUM": 60
+                                                                                                                                                                      }
+                                                                                                                                                                    }
+                                                                                                                                                                  }
+                                                                                                                                                                },
+                                                                                                                                                                "next": {
+                                                                                                                                                                  "block": {
+                                                                                                                                                                    "type": "xrp_wait_seconds",
+                                                                                                                                                                    "id": "tp0631",
+                                                                                                                                                                    "inputs": {
+                                                                                                                                                                      "SECONDS": {
+                                                                                                                                                                        "shadow": {
+                                                                                                                                                                          "type": "math_number",
+                                                                                                                                                                          "id": "tp0632",
+                                                                                                                                                                          "fields": {
+                                                                                                                                                                            "NUM": 0.5
+                                                                                                                                                                          }
+                                                                                                                                                                        }
+                                                                                                                                                                      }
+                                                                                                                                                                    },
+                                                                                                                                                                    "next": {
+                                                                                                                                                                      "block": {
+                                                                                                                                                                        "type": "xrp_print",
+                                                                                                                                                                        "id": "tp0633",
+                                                                                                                                                                        "inputs": {
+                                                                                                                                                                          "TEXT": {
+                                                                                                                                                                            "shadow": {
+                                                                                                                                                                              "type": "text",
+                                                                                                                                                                              "id": "tp0634",
+                                                                                                                                                                              "fields": {
+                                                                                                                                                                                "TEXT": "coast (spins down freely)"
+                                                                                                                                                                              }
+                                                                                                                                                                            }
+                                                                                                                                                                          }
+                                                                                                                                                                        },
+                                                                                                                                                                        "next": {
+                                                                                                                                                                          "block": {
+                                                                                                                                                                            "type": "xrp_motor_coast",
+                                                                                                                                                                            "id": "tp0635",
+                                                                                                                                                                            "fields": {
+                                                                                                                                                                              "MOTOR": "LEFT"
+                                                                                                                                                                            },
+                                                                                                                                                                            "next": {
+                                                                                                                                                                              "block": {
+                                                                                                                                                                                "type": "xrp_print",
+                                                                                                                                                                                "id": "tp0643",
+                                                                                                                                                                                "inputs": {
+                                                                                                                                                                                  "TEXT": {
+                                                                                                                                                                                    "shadow": {
+                                                                                                                                                                                      "type": "text",
+                                                                                                                                                                                      "id": "tp0644",
+                                                                                                                                                                                      "fields": {
+                                                                                                                                                                                        "TEXT": "Test 09 done"
+                                                                                                                                                                                      }
+                                                                                                                                                                                    }
+                                                                                                                                                                                  }
+                                                                                                                                                                                }
+                                                                                                                                                                              }
+                                                                                                                                                                            }
+                                                                                                                                                                          }
+                                                                                                                                                                        }
+                                                                                                                                                                      }
+                                                                                                                                                                    }
+                                                                                                                                                                  }
+                                                                                                                                                                }
+                                                                                                                                                              }
+                                                                                                                                                            }
+                                                                                                                                                          }
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

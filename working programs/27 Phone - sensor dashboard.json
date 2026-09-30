@@ -1,0 +1,440 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w27_052",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Sensor dashboard. On the phone choose the Messages layout: eight tiles (the most the phone shows) for distance, both line sensors, yaw, heading, pitch, roll and the board button. Tilt the robot, move a hand in front, press the board button. Switch to Joystick and tap A to set yaw to zero. The robot does not move.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w27_044",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w27_043",
+                  "fields": {
+                    "TEXT": "XRP dashboard"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "w27_046",
+                "fields": {
+                  "BUTTON": "5"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "w27_045",
+                      "fields": {
+                        "TEXT": "Zero yaw"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_start",
+                    "id": "w27_047",
+                    "next": {
+                      "block": {
+                        "type": "xrp_ble_print",
+                        "id": "w27_050",
+                        "inputs": {
+                          "TEXT": {
+                            "shadow": {
+                              "type": "text",
+                              "id": "w27_049",
+                              "fields": {
+                                "TEXT": ""
+                              }
+                            },
+                            "block": {
+                              "type": "text",
+                              "id": "w27_048",
+                              "fields": {
+                                "TEXT": "Dashboard started"
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_forever",
+                            "id": "w27_051",
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "xrp_ble_value",
+                                  "id": "w27_006",
+                                  "inputs": {
+                                    "NAME": {
+                                      "shadow": {
+                                        "type": "text",
+                                        "id": "w27_004",
+                                        "fields": {
+                                          "TEXT": "Distance cm"
+                                        }
+                                      }
+                                    },
+                                    "VALUE": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w27_005",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "math_round",
+                                        "id": "w27_003",
+                                        "fields": {
+                                          "OP": "ROUND"
+                                        },
+                                        "inputs": {
+                                          "NUM": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w27_002",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "xrp_distance_sensor",
+                                              "id": "w27_001"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_ble_value",
+                                      "id": "w27_010",
+                                      "inputs": {
+                                        "NAME": {
+                                          "shadow": {
+                                            "type": "text",
+                                            "id": "w27_008",
+                                            "fields": {
+                                              "TEXT": "Line left"
+                                            }
+                                          }
+                                        },
+                                        "VALUE": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "w27_009",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "xrp_line_reflectance",
+                                            "id": "w27_007",
+                                            "fields": {
+                                              "SIDE": "left"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_ble_value",
+                                          "id": "w27_014",
+                                          "inputs": {
+                                            "NAME": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "w27_012",
+                                                "fields": {
+                                                  "TEXT": "Line right"
+                                                }
+                                              }
+                                            },
+                                            "VALUE": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w27_013",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "xrp_line_reflectance",
+                                                "id": "w27_011",
+                                                "fields": {
+                                                  "SIDE": "right"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_ble_value",
+                                              "id": "w27_018",
+                                              "inputs": {
+                                                "NAME": {
+                                                  "shadow": {
+                                                    "type": "text",
+                                                    "id": "w27_016",
+                                                    "fields": {
+                                                      "TEXT": "Yaw"
+                                                    }
+                                                  }
+                                                },
+                                                "VALUE": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w27_017",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "xrp_imu_angle",
+                                                    "id": "w27_015",
+                                                    "fields": {
+                                                      "READING": "get_yaw"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "xrp_ble_value",
+                                                  "id": "w27_022",
+                                                  "inputs": {
+                                                    "NAME": {
+                                                      "shadow": {
+                                                        "type": "text",
+                                                        "id": "w27_020",
+                                                        "fields": {
+                                                          "TEXT": "Heading"
+                                                        }
+                                                      }
+                                                    },
+                                                    "VALUE": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w27_021",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      },
+                                                      "block": {
+                                                        "type": "xrp_imu_angle",
+                                                        "id": "w27_019",
+                                                        "fields": {
+                                                          "READING": "get_heading"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "xrp_ble_value",
+                                                      "id": "w27_026",
+                                                      "inputs": {
+                                                        "NAME": {
+                                                          "shadow": {
+                                                            "type": "text",
+                                                            "id": "w27_024",
+                                                            "fields": {
+                                                              "TEXT": "Pitch"
+                                                            }
+                                                          }
+                                                        },
+                                                        "VALUE": {
+                                                          "shadow": {
+                                                            "type": "math_number",
+                                                            "id": "w27_025",
+                                                            "fields": {
+                                                              "NUM": 0
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "xrp_imu_angle",
+                                                            "id": "w27_023",
+                                                            "fields": {
+                                                              "READING": "get_pitch"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "xrp_ble_value",
+                                                          "id": "w27_030",
+                                                          "inputs": {
+                                                            "NAME": {
+                                                              "shadow": {
+                                                                "type": "text",
+                                                                "id": "w27_028",
+                                                                "fields": {
+                                                                  "TEXT": "Roll"
+                                                                }
+                                                              }
+                                                            },
+                                                            "VALUE": {
+                                                              "shadow": {
+                                                                "type": "math_number",
+                                                                "id": "w27_029",
+                                                                "fields": {
+                                                                  "NUM": 0
+                                                                }
+                                                              },
+                                                              "block": {
+                                                                "type": "xrp_imu_angle",
+                                                                "id": "w27_027",
+                                                                "fields": {
+                                                                  "READING": "get_roll"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "xrp_ble_value",
+                                                              "id": "w27_034",
+                                                              "inputs": {
+                                                                "NAME": {
+                                                                  "shadow": {
+                                                                    "type": "text",
+                                                                    "id": "w27_032",
+                                                                    "fields": {
+                                                                      "TEXT": "Button"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "VALUE": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w27_033",
+                                                                    "fields": {
+                                                                      "NUM": 0
+                                                                    }
+                                                                  },
+                                                                  "block": {
+                                                                    "type": "xrp_button_is_pressed",
+                                                                    "id": "w27_031"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "controls_if",
+                                                                  "id": "w27_040",
+                                                                  "inputs": {
+                                                                    "IF0": {
+                                                                      "block": {
+                                                                        "type": "xrp_ble_clicked",
+                                                                        "id": "w27_035",
+                                                                        "fields": {
+                                                                          "BUTTON": "5"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "DO0": {
+                                                                      "block": {
+                                                                        "type": "xrp_imu_reset_yaw",
+                                                                        "id": "w27_036",
+                                                                        "fields": {
+                                                                          "AXIS": "yaw"
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_ble_print",
+                                                                            "id": "w27_039",
+                                                                            "inputs": {
+                                                                              "TEXT": {
+                                                                                "shadow": {
+                                                                                  "type": "text",
+                                                                                  "id": "w27_038",
+                                                                                  "fields": {
+                                                                                    "TEXT": ""
+                                                                                  }
+                                                                                },
+                                                                                "block": {
+                                                                                  "type": "text",
+                                                                                  "id": "w27_037",
+                                                                                  "fields": {
+                                                                                    "TEXT": "Yaw set to zero"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "xrp_wait_seconds",
+                                                                      "id": "w27_042",
+                                                                      "inputs": {
+                                                                        "SECONDS": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "w27_041",
+                                                                            "fields": {
+                                                                              "NUM": 0.1
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

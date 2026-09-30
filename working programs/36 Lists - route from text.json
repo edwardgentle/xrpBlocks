@@ -1,0 +1,329 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w36_034",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Path from text with a list. The text \"20,90,30,-90,20,180\" is split into a list and read two items at a time: drive that many cm, then turn that many degrees. Press the board button to run it. Change the text to make your own route. Also checks that list items made from text work in drive and turn blocks.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_list_set",
+            "id": "w36_018",
+            "fields": {
+              "VAR": {
+                "id": "v_path"
+              }
+            },
+            "inputs": {
+              "VALUE": {
+                "block": {
+                  "type": "xrp_list_from_text",
+                  "id": "w36_017",
+                  "inputs": {
+                    "TEXT": {
+                      "shadow": {
+                        "type": "text",
+                        "id": "w36_015",
+                        "fields": {
+                          "TEXT": "20,90,30,-90,20,180"
+                        }
+                      }
+                    },
+                    "DELIM": {
+                      "shadow": {
+                        "type": "text",
+                        "id": "w36_016",
+                        "fields": {
+                          "TEXT": ","
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_print",
+                "id": "w36_024",
+                "inputs": {
+                  "TEXT": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "w36_023",
+                      "fields": {
+                        "TEXT": ""
+                      }
+                    },
+                    "block": {
+                      "type": "text_join",
+                      "id": "w36_022",
+                      "extraState": {
+                        "itemCount": 2
+                      },
+                      "inputs": {
+                        "ADD0": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "w36_020",
+                            "fields": {
+                              "TEXT": "Steps: "
+                            }
+                          }
+                        },
+                        "ADD1": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "w36_021",
+                            "fields": {
+                              "TEXT": ""
+                            }
+                          },
+                          "block": {
+                            "type": "xrp_list_length",
+                            "id": "w36_019",
+                            "fields": {
+                              "VAR": {
+                                "id": "v_path"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_for_button",
+                    "id": "w36_025",
+                    "next": {
+                      "block": {
+                        "type": "controls_for",
+                        "id": "w36_030",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_i"
+                          }
+                        },
+                        "inputs": {
+                          "FROM": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w36_026",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          },
+                          "TO": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w36_028",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            },
+                            "block": {
+                              "type": "xrp_list_length",
+                              "id": "w36_027",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_path"
+                                }
+                              }
+                            }
+                          },
+                          "BY": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w36_029",
+                              "fields": {
+                                "NUM": 2
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "xrp_drive_straight",
+                              "id": "w36_005",
+                              "inputs": {
+                                "DISTANCE": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "w36_004",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  },
+                                  "block": {
+                                    "type": "xrp_list_item",
+                                    "id": "w36_003",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_path"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "INDEX": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w36_002",
+                                          "fields": {
+                                            "NUM": 1
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "variables_get",
+                                          "id": "w36_001",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_i"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_drive_turn",
+                                  "id": "w36_014",
+                                  "inputs": {
+                                    "ANGLE": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w36_013",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "xrp_list_item",
+                                        "id": "w36_012",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_path"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "INDEX": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w36_011",
+                                              "fields": {
+                                                "NUM": 1
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "math_arithmetic",
+                                              "id": "w36_010",
+                                              "fields": {
+                                                "OP": "ADD"
+                                              },
+                                              "inputs": {
+                                                "A": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w36_008",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "variables_get",
+                                                    "id": "w36_006",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_i"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "B": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w36_009",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "math_number",
+                                                    "id": "w36_007",
+                                                    "fields": {
+                                                      "NUM": 1
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_stop",
+                            "id": "w36_031",
+                            "next": {
+                              "block": {
+                                "type": "xrp_print",
+                                "id": "w36_033",
+                                "inputs": {
+                                  "TEXT": {
+                                    "shadow": {
+                                      "type": "text",
+                                      "id": "w36_032",
+                                      "fields": {
+                                        "TEXT": "Route finished"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "path",
+      "id": "v_path",
+      "type": "List"
+    },
+    {
+      "name": "i",
+      "id": "v_i"
+    }
+  ]
+}

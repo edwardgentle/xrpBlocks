@@ -1,0 +1,1256 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0397",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Each line prints its expected answer in brackets. Also retests change 17 (function definitions generated).",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0296",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0297",
+                  "fields": {
+                    "TEXT": "Test 05: functions, maths, logic, text"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "variables_set",
+                "id": "tp0298",
+                "fields": {
+                  "VAR": {
+                    "id": "v_a"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp0299",
+                      "fields": {
+                        "NUM": 7
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "tp0300",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_b"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp0301",
+                          "fields": {
+                            "NUM": 3
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "procedures_callnoreturn",
+                        "id": "tp0306",
+                        "extraState": {
+                          "name": "show line",
+                          "params": [
+                            "label",
+                            "value"
+                          ]
+                        },
+                        "inputs": {
+                          "ARG0": {
+                            "block": {
+                              "type": "text",
+                              "id": "tp0302",
+                              "fields": {
+                                "TEXT": "a + b (10)"
+                              }
+                            }
+                          },
+                          "ARG1": {
+                            "block": {
+                              "type": "math_arithmetic",
+                              "id": "tp0305",
+                              "fields": {
+                                "OP": "ADD"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "block": {
+                                    "type": "variables_get",
+                                    "id": "tp0303",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_a"
+                                      }
+                                    }
+                                  }
+                                },
+                                "B": {
+                                  "block": {
+                                    "type": "variables_get",
+                                    "id": "tp0304",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_b"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "procedures_callnoreturn",
+                            "id": "tp0311",
+                            "extraState": {
+                              "name": "show line",
+                              "params": [
+                                "label",
+                                "value"
+                              ]
+                            },
+                            "inputs": {
+                              "ARG0": {
+                                "block": {
+                                  "type": "text",
+                                  "id": "tp0307",
+                                  "fields": {
+                                    "TEXT": "a - b (4)"
+                                  }
+                                }
+                              },
+                              "ARG1": {
+                                "block": {
+                                  "type": "math_arithmetic",
+                                  "id": "tp0310",
+                                  "fields": {
+                                    "OP": "MINUS"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "tp0308",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_a"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "B": {
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "tp0309",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_b"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "procedures_callnoreturn",
+                                "id": "tp0316",
+                                "extraState": {
+                                  "name": "show line",
+                                  "params": [
+                                    "label",
+                                    "value"
+                                  ]
+                                },
+                                "inputs": {
+                                  "ARG0": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0312",
+                                      "fields": {
+                                        "TEXT": "a x b (21)"
+                                      }
+                                    }
+                                  },
+                                  "ARG1": {
+                                    "block": {
+                                      "type": "math_arithmetic",
+                                      "id": "tp0315",
+                                      "fields": {
+                                        "OP": "MULTIPLY"
+                                      },
+                                      "inputs": {
+                                        "A": {
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "tp0313",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_a"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "B": {
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "tp0314",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_b"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "procedures_callnoreturn",
+                                    "id": "tp0322",
+                                    "extraState": {
+                                      "name": "show line",
+                                      "params": [
+                                        "label",
+                                        "value"
+                                      ]
+                                    },
+                                    "inputs": {
+                                      "ARG0": {
+                                        "block": {
+                                          "type": "text",
+                                          "id": "tp0317",
+                                          "fields": {
+                                            "TEXT": "a / b rounded (2)"
+                                          }
+                                        }
+                                      },
+                                      "ARG1": {
+                                        "block": {
+                                          "type": "math_round",
+                                          "id": "tp0321",
+                                          "fields": {
+                                            "OP": "ROUND"
+                                          },
+                                          "inputs": {
+                                            "NUM": {
+                                              "block": {
+                                                "type": "math_arithmetic",
+                                                "id": "tp0320",
+                                                "fields": {
+                                                  "OP": "DIVIDE"
+                                                },
+                                                "inputs": {
+                                                  "A": {
+                                                    "block": {
+                                                      "type": "variables_get",
+                                                      "id": "tp0318",
+                                                      "fields": {
+                                                        "VAR": {
+                                                          "id": "v_a"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "B": {
+                                                    "block": {
+                                                      "type": "variables_get",
+                                                      "id": "tp0319",
+                                                      "fields": {
+                                                        "VAR": {
+                                                          "id": "v_b"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "procedures_callnoreturn",
+                                        "id": "tp0327",
+                                        "extraState": {
+                                          "name": "show line",
+                                          "params": [
+                                            "label",
+                                            "value"
+                                          ]
+                                        },
+                                        "inputs": {
+                                          "ARG0": {
+                                            "block": {
+                                              "type": "text",
+                                              "id": "tp0323",
+                                              "fields": {
+                                                "TEXT": "a mod b (1)"
+                                              }
+                                            }
+                                          },
+                                          "ARG1": {
+                                            "block": {
+                                              "type": "math_modulo",
+                                              "id": "tp0326",
+                                              "inputs": {
+                                                "DIVIDEND": {
+                                                  "block": {
+                                                    "type": "variables_get",
+                                                    "id": "tp0324",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_a"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "DIVISOR": {
+                                                  "block": {
+                                                    "type": "variables_get",
+                                                    "id": "tp0325",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_b"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "procedures_callnoreturn",
+                                            "id": "tp0332",
+                                            "extraState": {
+                                              "name": "show line",
+                                              "params": [
+                                                "label",
+                                                "value"
+                                              ]
+                                            },
+                                            "inputs": {
+                                              "ARG0": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp0328",
+                                                  "fields": {
+                                                    "TEXT": "a ^ b (343)"
+                                                  }
+                                                }
+                                              },
+                                              "ARG1": {
+                                                "block": {
+                                                  "type": "math_arithmetic",
+                                                  "id": "tp0331",
+                                                  "fields": {
+                                                    "OP": "POWER"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "tp0329",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_a"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "tp0330",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_b"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "procedures_callnoreturn",
+                                                "id": "tp0336",
+                                                "extraState": {
+                                                  "name": "show line",
+                                                  "params": [
+                                                    "label",
+                                                    "value"
+                                                  ]
+                                                },
+                                                "inputs": {
+                                                  "ARG0": {
+                                                    "block": {
+                                                      "type": "text",
+                                                      "id": "tp0333",
+                                                      "fields": {
+                                                        "TEXT": "double 21 (42)"
+                                                      }
+                                                    }
+                                                  },
+                                                  "ARG1": {
+                                                    "block": {
+                                                      "type": "procedures_callreturn",
+                                                      "id": "tp0335",
+                                                      "extraState": {
+                                                        "name": "double it",
+                                                        "params": [
+                                                          "x"
+                                                        ]
+                                                      },
+                                                      "inputs": {
+                                                        "ARG0": {
+                                                          "block": {
+                                                            "type": "math_number",
+                                                            "id": "tp0334",
+                                                            "fields": {
+                                                              "NUM": 21
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "variables_set",
+                                                    "id": "tp0337",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_result"
+                                                      }
+                                                    },
+                                                    "inputs": {
+                                                      "VALUE": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0338",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "controls_for",
+                                                        "id": "tp0341",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_k"
+                                                          }
+                                                        },
+                                                        "inputs": {
+                                                          "FROM": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp0342",
+                                                              "fields": {
+                                                                "NUM": 1
+                                                              }
+                                                            }
+                                                          },
+                                                          "TO": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp0343",
+                                                              "fields": {
+                                                                "NUM": 10
+                                                              }
+                                                            }
+                                                          },
+                                                          "BY": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp0344",
+                                                              "fields": {
+                                                                "NUM": 1
+                                                              }
+                                                            }
+                                                          },
+                                                          "DO": {
+                                                            "block": {
+                                                              "type": "math_change",
+                                                              "id": "tp0340",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_result"
+                                                                }
+                                                              },
+                                                              "inputs": {
+                                                                "DELTA": {
+                                                                  "block": {
+                                                                    "type": "variables_get",
+                                                                    "id": "tp0339",
+                                                                    "fields": {
+                                                                      "VAR": {
+                                                                        "id": "v_k"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "procedures_callnoreturn",
+                                                            "id": "tp0347",
+                                                            "extraState": {
+                                                              "name": "show line",
+                                                              "params": [
+                                                                "label",
+                                                                "value"
+                                                              ]
+                                                            },
+                                                            "inputs": {
+                                                              "ARG0": {
+                                                                "block": {
+                                                                  "type": "text",
+                                                                  "id": "tp0345",
+                                                                  "fields": {
+                                                                    "TEXT": "sum 1..10 (55)"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "ARG1": {
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "tp0346",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_result"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "controls_if",
+                                                                "id": "tp0360",
+                                                                "extraState": {
+                                                                  "elseIfCount": 1,
+                                                                  "hasElse": true
+                                                                },
+                                                                "inputs": {
+                                                                  "IF0": {
+                                                                    "block": {
+                                                                      "type": "logic_compare",
+                                                                      "id": "tp0349",
+                                                                      "fields": {
+                                                                        "OP": "GT"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "A": {
+                                                                          "block": {
+                                                                            "type": "variables_get",
+                                                                            "id": "tp0348",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_a"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "B": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "tp0350",
+                                                                            "fields": {
+                                                                              "NUM": 10
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "DO0": {
+                                                                    "block": {
+                                                                      "type": "xrp_print",
+                                                                      "id": "tp0351",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "shadow": {
+                                                                            "type": "text",
+                                                                            "id": "tp0352",
+                                                                            "fields": {
+                                                                              "TEXT": "wrong branch"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "IF1": {
+                                                                    "block": {
+                                                                      "type": "logic_compare",
+                                                                      "id": "tp0354",
+                                                                      "fields": {
+                                                                        "OP": "GT"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "A": {
+                                                                          "block": {
+                                                                            "type": "variables_get",
+                                                                            "id": "tp0353",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_a"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "B": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "tp0355",
+                                                                            "fields": {
+                                                                              "NUM": 5
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "DO1": {
+                                                                    "block": {
+                                                                      "type": "xrp_print",
+                                                                      "id": "tp0356",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "shadow": {
+                                                                            "type": "text",
+                                                                            "id": "tp0357",
+                                                                            "fields": {
+                                                                              "TEXT": "if / else if: correct branch (a > 5)"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "ELSE": {
+                                                                    "block": {
+                                                                      "type": "xrp_print",
+                                                                      "id": "tp0358",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "shadow": {
+                                                                            "type": "text",
+                                                                            "id": "tp0359",
+                                                                            "fields": {
+                                                                              "TEXT": "wrong branch"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "controls_if",
+                                                                    "id": "tp0371",
+                                                                    "inputs": {
+                                                                      "IF0": {
+                                                                        "block": {
+                                                                          "type": "logic_operation",
+                                                                          "id": "tp0368",
+                                                                          "fields": {
+                                                                            "OP": "AND"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "A": {
+                                                                              "block": {
+                                                                                "type": "logic_compare",
+                                                                                "id": "tp0362",
+                                                                                "fields": {
+                                                                                  "OP": "EQ"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "A": {
+                                                                                    "block": {
+                                                                                      "type": "variables_get",
+                                                                                      "id": "tp0361",
+                                                                                      "fields": {
+                                                                                        "VAR": {
+                                                                                          "id": "v_a"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "B": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "tp0363",
+                                                                                      "fields": {
+                                                                                        "NUM": 7
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "B": {
+                                                                              "block": {
+                                                                                "type": "logic_negate",
+                                                                                "id": "tp0367",
+                                                                                "inputs": {
+                                                                                  "BOOL": {
+                                                                                    "block": {
+                                                                                      "type": "logic_compare",
+                                                                                      "id": "tp0365",
+                                                                                      "fields": {
+                                                                                        "OP": "EQ"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "A": {
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "tp0364",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_b"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "B": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "tp0366",
+                                                                                            "fields": {
+                                                                                              "NUM": 7
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "DO0": {
+                                                                        "block": {
+                                                                          "type": "xrp_print",
+                                                                          "id": "tp0369",
+                                                                          "inputs": {
+                                                                            "TEXT": {
+                                                                              "shadow": {
+                                                                                "type": "text",
+                                                                                "id": "tp0370",
+                                                                                "fields": {
+                                                                                  "TEXT": "and / not: correct"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "procedures_callnoreturn",
+                                                                        "id": "tp0376",
+                                                                        "extraState": {
+                                                                          "name": "show line",
+                                                                          "params": [
+                                                                            "label",
+                                                                            "value"
+                                                                          ]
+                                                                        },
+                                                                        "inputs": {
+                                                                          "ARG0": {
+                                                                            "block": {
+                                                                              "type": "text",
+                                                                              "id": "tp0372",
+                                                                              "fields": {
+                                                                                "TEXT": "random 1 to 6"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "ARG1": {
+                                                                            "block": {
+                                                                              "type": "math_random_int",
+                                                                              "id": "tp0373",
+                                                                              "inputs": {
+                                                                                "FROM": {
+                                                                                  "shadow": {
+                                                                                    "type": "math_number",
+                                                                                    "id": "tp0374",
+                                                                                    "fields": {
+                                                                                      "NUM": 1
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "TO": {
+                                                                                  "shadow": {
+                                                                                    "type": "math_number",
+                                                                                    "id": "tp0375",
+                                                                                    "fields": {
+                                                                                      "NUM": 6
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "procedures_callnoreturn",
+                                                                            "id": "tp0380",
+                                                                            "extraState": {
+                                                                              "name": "show line",
+                                                                              "params": [
+                                                                                "label",
+                                                                                "value"
+                                                                              ]
+                                                                            },
+                                                                            "inputs": {
+                                                                              "ARG0": {
+                                                                                "block": {
+                                                                                  "type": "text",
+                                                                                  "id": "tp0377",
+                                                                                  "fields": {
+                                                                                    "TEXT": "text length of XRP (3)"
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "ARG1": {
+                                                                                "block": {
+                                                                                  "type": "text_length",
+                                                                                  "id": "tp0379",
+                                                                                  "inputs": {
+                                                                                    "VALUE": {
+                                                                                      "block": {
+                                                                                        "type": "text",
+                                                                                        "id": "tp0378",
+                                                                                        "fields": {
+                                                                                          "TEXT": "XRP"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "variables_set",
+                                                                                "id": "tp0381",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_k"
+                                                                                  }
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "VALUE": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "tp0382",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "controls_whileUntil",
+                                                                                    "id": "tp0391",
+                                                                                    "fields": {
+                                                                                      "MODE": "WHILE"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "BOOL": {
+                                                                                        "block": {
+                                                                                          "type": "logic_boolean",
+                                                                                          "id": "tp0383",
+                                                                                          "fields": {
+                                                                                            "BOOL": "TRUE"
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "DO": {
+                                                                                        "block": {
+                                                                                          "type": "math_change",
+                                                                                          "id": "tp0384",
+                                                                                          "fields": {
+                                                                                            "VAR": {
+                                                                                              "id": "v_k"
+                                                                                            }
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "DELTA": {
+                                                                                              "shadow": {
+                                                                                                "type": "math_number",
+                                                                                                "id": "tp0385",
+                                                                                                "fields": {
+                                                                                                  "NUM": 1
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "next": {
+                                                                                            "block": {
+                                                                                              "type": "controls_if",
+                                                                                              "id": "tp0390",
+                                                                                              "inputs": {
+                                                                                                "IF0": {
+                                                                                                  "block": {
+                                                                                                    "type": "logic_compare",
+                                                                                                    "id": "tp0387",
+                                                                                                    "fields": {
+                                                                                                      "OP": "GTE"
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "A": {
+                                                                                                        "block": {
+                                                                                                          "type": "variables_get",
+                                                                                                          "id": "tp0386",
+                                                                                                          "fields": {
+                                                                                                            "VAR": {
+                                                                                                              "id": "v_k"
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "B": {
+                                                                                                        "shadow": {
+                                                                                                          "type": "math_number",
+                                                                                                          "id": "tp0388",
+                                                                                                          "fields": {
+                                                                                                            "NUM": 3
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "DO0": {
+                                                                                                  "block": {
+                                                                                                    "type": "controls_flow_statements",
+                                                                                                    "id": "tp0389",
+                                                                                                    "fields": {
+                                                                                                      "FLOW": "BREAK"
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "procedures_callnoreturn",
+                                                                                        "id": "tp0394",
+                                                                                        "extraState": {
+                                                                                          "name": "show line",
+                                                                                          "params": [
+                                                                                            "label",
+                                                                                            "value"
+                                                                                          ]
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "ARG0": {
+                                                                                            "block": {
+                                                                                              "type": "text",
+                                                                                              "id": "tp0392",
+                                                                                              "fields": {
+                                                                                                "TEXT": "break out of while at (3)"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ARG1": {
+                                                                                            "block": {
+                                                                                              "type": "variables_get",
+                                                                                              "id": "tp0393",
+                                                                                              "fields": {
+                                                                                                "VAR": {
+                                                                                                  "id": "v_k"
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_print",
+                                                                                            "id": "tp0395",
+                                                                                            "inputs": {
+                                                                                              "TEXT": {
+                                                                                                "shadow": {
+                                                                                                  "type": "text",
+                                                                                                  "id": "tp0396",
+                                                                                                  "fields": {
+                                                                                                    "TEXT": "Test 05 done"
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defreturn",
+        "id": "tp0289",
+        "x": 766,
+        "y": 40,
+        "extraState": {
+          "params": [
+            {
+              "name": "x",
+              "id": "p_x"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "double it"
+        },
+        "inputs": {
+          "RETURN": {
+            "block": {
+              "type": "math_arithmetic",
+              "id": "tp0288",
+              "fields": {
+                "OP": "MULTIPLY"
+              },
+              "inputs": {
+                "A": {
+                  "block": {
+                    "type": "variables_get",
+                    "id": "tp0286",
+                    "fields": {
+                      "VAR": {
+                        "id": "p_x"
+                      }
+                    }
+                  }
+                },
+                "B": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "tp0287",
+                    "fields": {
+                      "NUM": 2
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "tp0295",
+        "x": 766,
+        "y": 257,
+        "extraState": {
+          "params": [
+            {
+              "name": "label",
+              "id": "p_label"
+            },
+            {
+              "name": "value",
+              "id": "p_value"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "show line"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "xrp_print",
+              "id": "tp0294",
+              "inputs": {
+                "TEXT": {
+                  "block": {
+                    "type": "text_join",
+                    "id": "tp0293",
+                    "extraState": {
+                      "itemCount": 3
+                    },
+                    "inputs": {
+                      "ADD0": {
+                        "block": {
+                          "type": "variables_get",
+                          "id": "tp0290",
+                          "fields": {
+                            "VAR": {
+                              "id": "p_label"
+                            }
+                          }
+                        }
+                      },
+                      "ADD1": {
+                        "block": {
+                          "type": "text",
+                          "id": "tp0291",
+                          "fields": {
+                            "TEXT": ": "
+                          }
+                        }
+                      },
+                      "ADD2": {
+                        "block": {
+                          "type": "variables_get",
+                          "id": "tp0292",
+                          "fields": {
+                            "VAR": {
+                              "id": "p_value"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "a",
+      "id": "v_a"
+    },
+    {
+      "name": "b",
+      "id": "v_b"
+    },
+    {
+      "name": "result",
+      "id": "v_result"
+    },
+    {
+      "name": "k",
+      "id": "v_k"
+    },
+    {
+      "name": "x",
+      "id": "p_x"
+    },
+    {
+      "name": "label",
+      "id": "p_label"
+    },
+    {
+      "name": "value",
+      "id": "p_value"
+    }
+  ]
+}

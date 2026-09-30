@@ -1,0 +1,532 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1020",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "I2C 20x4 LCD (PCF8574 backpack), address found automatically. Expect text, a star at column 10, blinking cursor, backlight and text off/on, wrapped print, then live distance and bar.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_lcd4_setup",
+            "id": "tp0964",
+            "fields": {
+              "ADDR": "AUTO"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_print",
+                "id": "tp0968",
+                "inputs": {
+                  "TEXT": {
+                    "block": {
+                      "type": "text_join",
+                      "id": "tp0967",
+                      "extraState": {
+                        "itemCount": 2
+                      },
+                      "inputs": {
+                        "ADD0": {
+                          "block": {
+                            "type": "text",
+                            "id": "tp0965",
+                            "fields": {
+                              "TEXT": "LCD connected: "
+                            }
+                          }
+                        },
+                        "ADD1": {
+                          "block": {
+                            "type": "xrp_lcd4_connected",
+                            "id": "tp0966"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_lcd4_clear",
+                    "id": "tp0969",
+                    "next": {
+                      "block": {
+                        "type": "xrp_lcd4_line",
+                        "id": "tp0970",
+                        "fields": {
+                          "LINE": "1"
+                        },
+                        "inputs": {
+                          "MESSAGE": {
+                            "shadow": {
+                              "type": "text",
+                              "id": "tp0971",
+                              "fields": {
+                                "TEXT": "Test 20x4"
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_lcd4_line",
+                            "id": "tp0972",
+                            "fields": {
+                              "LINE": "4"
+                            },
+                            "inputs": {
+                              "MESSAGE": {
+                                "shadow": {
+                                  "type": "text",
+                                  "id": "tp0973",
+                                  "fields": {
+                                    "TEXT": "line 4"
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_wait_seconds",
+                                "id": "tp0974",
+                                "inputs": {
+                                  "SECONDS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0975",
+                                      "fields": {
+                                        "NUM": 2
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_lcd4_at",
+                                    "id": "tp0976",
+                                    "fields": {
+                                      "LINE": "4"
+                                    },
+                                    "inputs": {
+                                      "MESSAGE": {
+                                        "shadow": {
+                                          "type": "text",
+                                          "id": "tp0977",
+                                          "fields": {
+                                            "TEXT": "*"
+                                          }
+                                        }
+                                      },
+                                      "COLUMN": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0978",
+                                          "fields": {
+                                            "NUM": 10
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_wait_seconds",
+                                        "id": "tp0979",
+                                        "inputs": {
+                                          "SECONDS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp0980",
+                                              "fields": {
+                                                "NUM": 1
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_lcd4_cursor",
+                                            "id": "tp0981",
+                                            "fields": {
+                                              "MODE": "BLINK"
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_wait_seconds",
+                                                "id": "tp0982",
+                                                "inputs": {
+                                                  "SECONDS": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "tp0983",
+                                                      "fields": {
+                                                        "NUM": 2
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_lcd4_cursor",
+                                                    "id": "tp0984",
+                                                    "fields": {
+                                                      "MODE": "OFF"
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_lcd4_backlight",
+                                                        "id": "tp0985",
+                                                        "fields": {
+                                                          "STATE": "OFF"
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_wait_seconds",
+                                                            "id": "tp0986",
+                                                            "inputs": {
+                                                              "SECONDS": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "tp0987",
+                                                                  "fields": {
+                                                                    "NUM": 1
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_lcd4_backlight",
+                                                                "id": "tp0988",
+                                                                "fields": {
+                                                                  "STATE": "ON"
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_lcd4_power",
+                                                                    "id": "tp0989",
+                                                                    "fields": {
+                                                                      "STATE": "OFF"
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_wait_seconds",
+                                                                        "id": "tp0990",
+                                                                        "inputs": {
+                                                                          "SECONDS": {
+                                                                            "shadow": {
+                                                                              "type": "math_number",
+                                                                              "id": "tp0991",
+                                                                              "fields": {
+                                                                                "NUM": 1
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_lcd4_power",
+                                                                            "id": "tp0992",
+                                                                            "fields": {
+                                                                              "STATE": "ON"
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_lcd4_clear",
+                                                                                "id": "tp0993",
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_lcd4_print",
+                                                                                    "id": "tp0994",
+                                                                                    "inputs": {
+                                                                                      "MESSAGE": {
+                                                                                        "shadow": {
+                                                                                          "type": "text",
+                                                                                          "id": "tp0995",
+                                                                                          "fields": {
+                                                                                            "TEXT": "print wraps to the next line when it runs out of room"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_wait_seconds",
+                                                                                        "id": "tp0996",
+                                                                                        "inputs": {
+                                                                                          "SECONDS": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "tp0997",
+                                                                                              "fields": {
+                                                                                                "NUM": 2
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_lcd4_clear",
+                                                                                            "id": "tp0998",
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "variables_set",
+                                                                                                "id": "tp0999",
+                                                                                                "fields": {
+                                                                                                  "VAR": {
+                                                                                                    "id": "v_n"
+                                                                                                  }
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "VALUE": {
+                                                                                                    "shadow": {
+                                                                                                      "type": "math_number",
+                                                                                                      "id": "tp1000",
+                                                                                                      "fields": {
+                                                                                                        "NUM": 0
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_forever",
+                                                                                                    "id": "tp1019",
+                                                                                                    "inputs": {
+                                                                                                      "DO": {
+                                                                                                        "block": {
+                                                                                                          "type": "xrp_lcd4_value",
+                                                                                                          "id": "tp1003",
+                                                                                                          "fields": {
+                                                                                                            "LINE": "1"
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "LABEL": {
+                                                                                                              "shadow": {
+                                                                                                                "type": "text",
+                                                                                                                "id": "tp1004",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "cm"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "VALUE": {
+                                                                                                              "block": {
+                                                                                                                "type": "math_round",
+                                                                                                                "id": "tp1002",
+                                                                                                                "fields": {
+                                                                                                                  "OP": "ROUND"
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "NUM": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_distance_sensor",
+                                                                                                                      "id": "tp1001"
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          },
+                                                                                                          "next": {
+                                                                                                            "block": {
+                                                                                                              "type": "xrp_lcd4_bar",
+                                                                                                              "id": "tp1006",
+                                                                                                              "fields": {
+                                                                                                                "LINE": "2"
+                                                                                                              },
+                                                                                                              "inputs": {
+                                                                                                                "VALUE": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "xrp_distance_sensor",
+                                                                                                                    "id": "tp1005"
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "MIN": {
+                                                                                                                  "shadow": {
+                                                                                                                    "type": "math_number",
+                                                                                                                    "id": "tp1007",
+                                                                                                                    "fields": {
+                                                                                                                      "NUM": 0
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "MAX": {
+                                                                                                                  "shadow": {
+                                                                                                                    "type": "math_number",
+                                                                                                                    "id": "tp1008",
+                                                                                                                    "fields": {
+                                                                                                                      "NUM": 100
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "next": {
+                                                                                                                "block": {
+                                                                                                                  "type": "xrp_lcd4_scroll_text",
+                                                                                                                  "id": "tp1009",
+                                                                                                                  "fields": {
+                                                                                                                    "LINE": "3"
+                                                                                                                  },
+                                                                                                                  "inputs": {
+                                                                                                                    "MESSAGE": {
+                                                                                                                      "shadow": {
+                                                                                                                        "type": "text",
+                                                                                                                        "id": "tp1010",
+                                                                                                                        "fields": {
+                                                                                                                          "TEXT": "Scrolling text on line 3 of the 20x4"
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                    "SPEED": {
+                                                                                                                      "shadow": {
+                                                                                                                        "type": "math_number",
+                                                                                                                        "id": "tp1011",
+                                                                                                                        "fields": {
+                                                                                                                          "NUM": 4
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "next": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_lcd4_value",
+                                                                                                                      "id": "tp1013",
+                                                                                                                      "fields": {
+                                                                                                                        "LINE": "4"
+                                                                                                                      },
+                                                                                                                      "inputs": {
+                                                                                                                        "LABEL": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "text",
+                                                                                                                            "id": "tp1014",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": "loops"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "VALUE": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "variables_get",
+                                                                                                                            "id": "tp1012",
+                                                                                                                            "fields": {
+                                                                                                                              "VAR": {
+                                                                                                                                "id": "v_n"
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "next": {
+                                                                                                                        "block": {
+                                                                                                                          "type": "math_change",
+                                                                                                                          "id": "tp1015",
+                                                                                                                          "fields": {
+                                                                                                                            "VAR": {
+                                                                                                                              "id": "v_n"
+                                                                                                                            }
+                                                                                                                          },
+                                                                                                                          "inputs": {
+                                                                                                                            "DELTA": {
+                                                                                                                              "shadow": {
+                                                                                                                                "type": "math_number",
+                                                                                                                                "id": "tp1016",
+                                                                                                                                "fields": {
+                                                                                                                                  "NUM": 1
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          },
+                                                                                                                          "next": {
+                                                                                                                            "block": {
+                                                                                                                              "type": "xrp_wait_seconds",
+                                                                                                                              "id": "tp1017",
+                                                                                                                              "inputs": {
+                                                                                                                                "SECONDS": {
+                                                                                                                                  "shadow": {
+                                                                                                                                    "type": "math_number",
+                                                                                                                                    "id": "tp1018",
+                                                                                                                                    "fields": {
+                                                                                                                                      "NUM": 0.05
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "n",
+      "id": "v_n"
+    }
+  ]
+}

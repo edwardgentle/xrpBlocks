@@ -1,0 +1,542 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w28_059",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Obstacle guard. Drive with the joystick; closer than 15 cm the robot refuses to go forward (it can still turn and reverse), the RGB turns red and the phone log shows \"Too close!\" once. Test slowly towards a wall.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w28_054",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w28_053",
+                  "fields": {
+                    "TEXT": "XRP guard"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "variables_set",
+                "id": "w28_056",
+                "fields": {
+                  "VAR": {
+                    "id": "v_warned"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "block": {
+                      "type": "logic_boolean",
+                      "id": "w28_055",
+                      "fields": {
+                        "BOOL": "FALSE"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_start",
+                    "id": "w28_057",
+                    "next": {
+                      "block": {
+                        "type": "xrp_forever",
+                        "id": "w28_058",
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "controls_if",
+                              "id": "w28_044",
+                              "extraState": {
+                                "hasElse": true
+                              },
+                              "inputs": {
+                                "IF0": {
+                                  "block": {
+                                    "type": "xrp_ble_connected",
+                                    "id": "w28_007"
+                                  }
+                                },
+                                "DO0": {
+                                  "block": {
+                                    "type": "controls_if",
+                                    "id": "w28_040",
+                                    "extraState": {
+                                      "hasElse": true
+                                    },
+                                    "inputs": {
+                                      "IF0": {
+                                        "block": {
+                                          "type": "logic_operation",
+                                          "id": "w28_008",
+                                          "fields": {
+                                            "OP": "AND"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "block": {
+                                                "type": "logic_compare",
+                                                "id": "w28_003",
+                                                "fields": {
+                                                  "OP": "LT"
+                                                },
+                                                "inputs": {
+                                                  "A": {
+                                                    "block": {
+                                                      "type": "xrp_distance_sensor",
+                                                      "id": "w28_001"
+                                                    }
+                                                  },
+                                                  "B": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w28_002",
+                                                      "fields": {
+                                                        "NUM": 15
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "block": {
+                                                "type": "logic_compare",
+                                                "id": "w28_006",
+                                                "fields": {
+                                                  "OP": "GT"
+                                                },
+                                                "inputs": {
+                                                  "A": {
+                                                    "block": {
+                                                      "type": "xrp_ble_joystick",
+                                                      "id": "w28_004",
+                                                      "fields": {
+                                                        "AXIS": "Y"
+                                                      }
+                                                    }
+                                                  },
+                                                  "B": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w28_005",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "DO0": {
+                                        "block": {
+                                          "type": "xrp_drive_arcade",
+                                          "id": "w28_016",
+                                          "inputs": {
+                                            "SPEED": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w28_014",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              }
+                                            },
+                                            "TURN": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w28_015",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "math_arithmetic",
+                                                "id": "w28_013",
+                                                "fields": {
+                                                  "OP": "MINUS"
+                                                },
+                                                "inputs": {
+                                                  "A": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w28_011",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w28_009",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  },
+                                                  "B": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w28_012",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "xrp_ble_joystick",
+                                                      "id": "w28_010",
+                                                      "fields": {
+                                                        "AXIS": "X"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_rgb_colour",
+                                              "id": "w28_018",
+                                              "fields": {
+                                                "COLOUR": "red"
+                                              },
+                                              "inputs": {
+                                                "BRIGHTNESS": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w28_017",
+                                                    "fields": {
+                                                      "NUM": 40
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "controls_if",
+                                                  "id": "w28_026",
+                                                  "inputs": {
+                                                    "IF0": {
+                                                      "block": {
+                                                        "type": "logic_negate",
+                                                        "id": "w28_020",
+                                                        "inputs": {
+                                                          "BOOL": {
+                                                            "block": {
+                                                              "type": "variables_get",
+                                                              "id": "w28_019",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_warned"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "DO0": {
+                                                      "block": {
+                                                        "type": "xrp_ble_print",
+                                                        "id": "w28_023",
+                                                        "inputs": {
+                                                          "TEXT": {
+                                                            "shadow": {
+                                                              "type": "text",
+                                                              "id": "w28_022",
+                                                              "fields": {
+                                                                "TEXT": ""
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "text",
+                                                              "id": "w28_021",
+                                                              "fields": {
+                                                                "TEXT": "Too close!"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "variables_set",
+                                                            "id": "w28_025",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_warned"
+                                                              }
+                                                            },
+                                                            "inputs": {
+                                                              "VALUE": {
+                                                                "block": {
+                                                                  "type": "logic_boolean",
+                                                                  "id": "w28_024",
+                                                                  "fields": {
+                                                                    "BOOL": "TRUE"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "ELSE": {
+                                        "block": {
+                                          "type": "xrp_drive_arcade",
+                                          "id": "w28_035",
+                                          "inputs": {
+                                            "SPEED": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w28_033",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "xrp_ble_joystick",
+                                                "id": "w28_027",
+                                                "fields": {
+                                                  "AXIS": "Y"
+                                                }
+                                              }
+                                            },
+                                            "TURN": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w28_034",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "math_arithmetic",
+                                                "id": "w28_032",
+                                                "fields": {
+                                                  "OP": "MINUS"
+                                                },
+                                                "inputs": {
+                                                  "A": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w28_030",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w28_028",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  },
+                                                  "B": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w28_031",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "xrp_ble_joystick",
+                                                      "id": "w28_029",
+                                                      "fields": {
+                                                        "AXIS": "X"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_rgb_colour",
+                                              "id": "w28_037",
+                                              "fields": {
+                                                "COLOUR": "green"
+                                              },
+                                              "inputs": {
+                                                "BRIGHTNESS": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w28_036",
+                                                    "fields": {
+                                                      "NUM": 20
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "variables_set",
+                                                  "id": "w28_039",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_warned"
+                                                    }
+                                                  },
+                                                  "inputs": {
+                                                    "VALUE": {
+                                                      "block": {
+                                                        "type": "logic_boolean",
+                                                        "id": "w28_038",
+                                                        "fields": {
+                                                          "BOOL": "FALSE"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "ELSE": {
+                                  "block": {
+                                    "type": "xrp_drive_stop",
+                                    "id": "w28_041",
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_rgb_colour",
+                                        "id": "w28_043",
+                                        "fields": {
+                                          "COLOUR": "off"
+                                        },
+                                        "inputs": {
+                                          "BRIGHTNESS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w28_042",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_ble_value",
+                                  "id": "w28_050",
+                                  "inputs": {
+                                    "NAME": {
+                                      "shadow": {
+                                        "type": "text",
+                                        "id": "w28_048",
+                                        "fields": {
+                                          "TEXT": "Distance cm"
+                                        }
+                                      }
+                                    },
+                                    "VALUE": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w28_049",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "math_round",
+                                        "id": "w28_047",
+                                        "fields": {
+                                          "OP": "ROUND"
+                                        },
+                                        "inputs": {
+                                          "NUM": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w28_046",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "xrp_distance_sensor",
+                                              "id": "w28_045"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_wait_seconds",
+                                      "id": "w28_052",
+                                      "inputs": {
+                                        "SECONDS": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "w28_051",
+                                            "fields": {
+                                              "NUM": 0.02
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "warned",
+      "id": "v_warned"
+    }
+  ]
+}

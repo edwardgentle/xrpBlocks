@@ -1,0 +1,141 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1473",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 31 (manual v3.1), section 6.3 Worked examples. Red only when something is close AND the button is held.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_forever",
+            "id": "tp1472",
+            "inputs": {
+              "DO": {
+                "block": {
+                  "type": "controls_if",
+                  "id": "tp1469",
+                  "extraState": {
+                    "hasElse": true
+                  },
+                  "inputs": {
+                    "IF0": {
+                      "block": {
+                        "type": "logic_operation",
+                        "id": "tp1464",
+                        "fields": {
+                          "OP": "AND"
+                        },
+                        "inputs": {
+                          "A": {
+                            "block": {
+                              "type": "logic_compare",
+                              "id": "tp1461",
+                              "fields": {
+                                "OP": "LT"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "block": {
+                                    "type": "xrp_distance_sensor",
+                                    "id": "tp1460"
+                                  }
+                                },
+                                "B": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1462",
+                                    "fields": {
+                                      "NUM": 20
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "B": {
+                            "block": {
+                              "type": "xrp_button_is_pressed",
+                              "id": "tp1463"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "DO0": {
+                      "block": {
+                        "type": "xrp_rgb_colour",
+                        "id": "tp1465",
+                        "fields": {
+                          "COLOUR": "red"
+                        },
+                        "inputs": {
+                          "BRIGHTNESS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1466",
+                              "fields": {
+                                "NUM": 30
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "xrp_rgb_colour",
+                        "id": "tp1467",
+                        "fields": {
+                          "COLOUR": "green"
+                        },
+                        "inputs": {
+                          "BRIGHTNESS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1468",
+                              "fields": {
+                                "NUM": 30
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_wait_seconds",
+                      "id": "tp1470",
+                      "inputs": {
+                        "SECONDS": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1471",
+                            "fields": {
+                              "NUM": 0.05
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

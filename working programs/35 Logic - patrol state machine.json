@@ -1,0 +1,632 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w35_064",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Patrol state machine. Press the board button. States: drive (until something is closer than 20 cm), turn (a random 100 to 160 degrees), done (after 5 turns). The RGB shows the state: green drive, orange turn, off done. Use an open floor with some walls or boxes.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "variables_set",
+            "id": "w35_046",
+            "fields": {
+              "VAR": {
+                "id": "v_state"
+              }
+            },
+            "inputs": {
+              "VALUE": {
+                "block": {
+                  "type": "text",
+                  "id": "w35_045",
+                  "fields": {
+                    "TEXT": "drive"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "variables_set",
+                "id": "w35_048",
+                "fields": {
+                  "VAR": {
+                    "id": "v_turns"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "block": {
+                      "type": "math_number",
+                      "id": "w35_047",
+                      "fields": {
+                        "NUM": 0
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_for_button",
+                    "id": "w35_049",
+                    "next": {
+                      "block": {
+                        "type": "controls_whileUntil",
+                        "id": "w35_053",
+                        "fields": {
+                          "MODE": "UNTIL"
+                        },
+                        "inputs": {
+                          "BOOL": {
+                            "block": {
+                              "type": "logic_compare",
+                              "id": "w35_052",
+                              "fields": {
+                                "OP": "EQ"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "block": {
+                                    "type": "variables_get",
+                                    "id": "w35_050",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_state"
+                                      }
+                                    }
+                                  }
+                                },
+                                "B": {
+                                  "block": {
+                                    "type": "text",
+                                    "id": "w35_051",
+                                    "fields": {
+                                      "TEXT": "done"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "controls_if",
+                              "id": "w35_042",
+                              "extraState": {
+                                "elseIfCount": 1
+                              },
+                              "inputs": {
+                                "IF0": {
+                                  "block": {
+                                    "type": "logic_compare",
+                                    "id": "w35_003",
+                                    "fields": {
+                                      "OP": "EQ"
+                                    },
+                                    "inputs": {
+                                      "A": {
+                                        "block": {
+                                          "type": "variables_get",
+                                          "id": "w35_001",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_state"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "B": {
+                                        "block": {
+                                          "type": "text",
+                                          "id": "w35_002",
+                                          "fields": {
+                                            "TEXT": "drive"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "DO0": {
+                                  "block": {
+                                    "type": "xrp_drive_arcade",
+                                    "id": "w35_006",
+                                    "inputs": {
+                                      "SPEED": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w35_004",
+                                          "fields": {
+                                            "NUM": 40
+                                          }
+                                        }
+                                      },
+                                      "TURN": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w35_005",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_rgb_colour",
+                                        "id": "w35_008",
+                                        "fields": {
+                                          "COLOUR": "green"
+                                        },
+                                        "inputs": {
+                                          "BRIGHTNESS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w35_007",
+                                              "fields": {
+                                                "NUM": 20
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "controls_if",
+                                            "id": "w35_015",
+                                            "inputs": {
+                                              "IF0": {
+                                                "block": {
+                                                  "type": "logic_compare",
+                                                  "id": "w35_011",
+                                                  "fields": {
+                                                    "OP": "LT"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "block": {
+                                                        "type": "xrp_distance_sensor",
+                                                        "id": "w35_009"
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "block": {
+                                                        "type": "math_number",
+                                                        "id": "w35_010",
+                                                        "fields": {
+                                                          "NUM": 20
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "DO0": {
+                                                "block": {
+                                                  "type": "xrp_drive_stop",
+                                                  "id": "w35_012",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "variables_set",
+                                                      "id": "w35_014",
+                                                      "fields": {
+                                                        "VAR": {
+                                                          "id": "v_state"
+                                                        }
+                                                      },
+                                                      "inputs": {
+                                                        "VALUE": {
+                                                          "block": {
+                                                            "type": "text",
+                                                            "id": "w35_013",
+                                                            "fields": {
+                                                              "TEXT": "turn"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "IF1": {
+                                  "block": {
+                                    "type": "logic_compare",
+                                    "id": "w35_018",
+                                    "fields": {
+                                      "OP": "EQ"
+                                    },
+                                    "inputs": {
+                                      "A": {
+                                        "block": {
+                                          "type": "variables_get",
+                                          "id": "w35_016",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_state"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "B": {
+                                        "block": {
+                                          "type": "text",
+                                          "id": "w35_017",
+                                          "fields": {
+                                            "TEXT": "turn"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "DO1": {
+                                  "block": {
+                                    "type": "xrp_rgb_colour",
+                                    "id": "w35_020",
+                                    "fields": {
+                                      "COLOUR": "orange"
+                                    },
+                                    "inputs": {
+                                      "BRIGHTNESS": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w35_019",
+                                          "fields": {
+                                            "NUM": 30
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "math_change",
+                                        "id": "w35_022",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_turns"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "DELTA": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w35_021",
+                                              "fields": {
+                                                "NUM": 1
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_drive_turn",
+                                            "id": "w35_027",
+                                            "inputs": {
+                                              "ANGLE": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w35_026",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                },
+                                                "block": {
+                                                  "type": "math_random_int",
+                                                  "id": "w35_025",
+                                                  "inputs": {
+                                                    "FROM": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w35_023",
+                                                        "fields": {
+                                                          "NUM": 100
+                                                        }
+                                                      }
+                                                    },
+                                                    "TO": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w35_024",
+                                                        "fields": {
+                                                          "NUM": 160
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "w35_033",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "w35_032",
+                                                      "fields": {
+                                                        "TEXT": ""
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "text_join",
+                                                      "id": "w35_031",
+                                                      "extraState": {
+                                                        "itemCount": 2
+                                                      },
+                                                      "inputs": {
+                                                        "ADD0": {
+                                                          "shadow": {
+                                                            "type": "text",
+                                                            "id": "w35_029",
+                                                            "fields": {
+                                                              "TEXT": "Turn "
+                                                            }
+                                                          }
+                                                        },
+                                                        "ADD1": {
+                                                          "shadow": {
+                                                            "type": "text",
+                                                            "id": "w35_030",
+                                                            "fields": {
+                                                              "TEXT": ""
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "variables_get",
+                                                            "id": "w35_028",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_turns"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "controls_if",
+                                                    "id": "w35_041",
+                                                    "extraState": {
+                                                      "hasElse": true
+                                                    },
+                                                    "inputs": {
+                                                      "IF0": {
+                                                        "block": {
+                                                          "type": "logic_compare",
+                                                          "id": "w35_036",
+                                                          "fields": {
+                                                            "OP": "GTE"
+                                                          },
+                                                          "inputs": {
+                                                            "A": {
+                                                              "block": {
+                                                                "type": "variables_get",
+                                                                "id": "w35_034",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_turns"
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "B": {
+                                                              "block": {
+                                                                "type": "math_number",
+                                                                "id": "w35_035",
+                                                                "fields": {
+                                                                  "NUM": 5
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "DO0": {
+                                                        "block": {
+                                                          "type": "variables_set",
+                                                          "id": "w35_038",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_state"
+                                                            }
+                                                          },
+                                                          "inputs": {
+                                                            "VALUE": {
+                                                              "block": {
+                                                                "type": "text",
+                                                                "id": "w35_037",
+                                                                "fields": {
+                                                                  "TEXT": "done"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "ELSE": {
+                                                        "block": {
+                                                          "type": "variables_set",
+                                                          "id": "w35_040",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_state"
+                                                            }
+                                                          },
+                                                          "inputs": {
+                                                            "VALUE": {
+                                                              "block": {
+                                                                "type": "text",
+                                                                "id": "w35_039",
+                                                                "fields": {
+                                                                  "TEXT": "drive"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_wait_seconds",
+                                  "id": "w35_044",
+                                  "inputs": {
+                                    "SECONDS": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w35_043",
+                                        "fields": {
+                                          "NUM": 0.02
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_stop",
+                            "id": "w35_054",
+                            "next": {
+                              "block": {
+                                "type": "xrp_rgb_colour",
+                                "id": "w35_056",
+                                "fields": {
+                                  "COLOUR": "off"
+                                },
+                                "inputs": {
+                                  "BRIGHTNESS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "w35_055",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_print",
+                                    "id": "w35_063",
+                                    "inputs": {
+                                      "TEXT": {
+                                        "shadow": {
+                                          "type": "text",
+                                          "id": "w35_062",
+                                          "fields": {
+                                            "TEXT": ""
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "text_join",
+                                          "id": "w35_061",
+                                          "extraState": {
+                                            "itemCount": 3
+                                          },
+                                          "inputs": {
+                                            "ADD0": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "w35_058",
+                                                "fields": {
+                                                  "TEXT": "Finished after "
+                                                }
+                                              }
+                                            },
+                                            "ADD1": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "w35_059",
+                                                "fields": {
+                                                  "TEXT": ""
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "w35_057",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_turns"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "ADD2": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "w35_060",
+                                                "fields": {
+                                                  "TEXT": " turns"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "state",
+      "id": "v_state"
+    },
+    {
+      "name": "turns",
+      "id": "v_turns"
+    }
+  ]
+}

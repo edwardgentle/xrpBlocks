@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLED Designer — XRP Blocks</title>
+  <meta name="description" content="Sketch a picture for the XRP's OLED screen and paste it into a block.">
+
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234DB6AC'/><rect x='7' y='10' width='18' height='12' rx='2' fill='none' stroke='white' stroke-width='2'/></svg>">
+
+  <style>
+    :root {
+      --bg: #1E2028;
+      --surface: #242733;
+      --surface-2: #2A2E3B;
+      --border: #3A3F4F;
+      --text: #E6E9F2;
+      --text-dim: #9AA1B4;
+      --accent: #4DB6AC;
+      --accent-dark: #00796B;
+      --danger: #E5556B;
+      --radius: 10px;
+      --font: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.9rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    header .sub {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .spacer { flex: 1; }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+
+    .panel h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .panel + .panel { margin-top: 1rem; }
+
+    /* ── Toolbar ── */
+
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.9rem;
+    }
+
+    button, select {
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.7rem;
+      cursor: pointer;
+      transition: background 120ms, border-color 120ms, color 120ms;
+    }
+
+    button:hover, select:hover { border-color: var(--accent); }
+
+    button.active {
+      background: var(--accent-dark);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+
+    button.primary:hover { filter: brightness(1.15); }
+
+    button.ghost { background: transparent; }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--border);
+    }
+
+    label.inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Canvas ── */
+
+    .stage {
+      background: #0D0F14;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.9rem;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+      background: #000;
+    }
+
+    .previews {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .preview-item span {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .preview-item canvas {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    /* ── Export ── */
+
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      resize: vertical;
+      font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem;
+      word-break: break-all;
+    }
+
+    textarea:focus { outline: none; border-color: var(--accent); }
+
+    .row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      margin: 0.75rem 0 0;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .hint code {
+      background: var(--surface-2);
+      border-radius: 4px;
+      padding: 0.05rem 0.3rem;
+      font-size: 0.92em;
+    }
+
+    .status {
+      margin-top: 0.6rem;
+      min-height: 1.2em;
+      font-size: 0.78rem;
+      color: var(--accent);
+    }
+
+    .status.error { color: var(--danger); }
+
+    .keys {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .keys li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.15rem 0;
+    }
+
+    .keys kbd {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      padding: 0 0.35rem;
+      font-family: inherit;
+      font-size: 0.92em;
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>OLED Designer</h1>
+    <span class="sub">Sketch a picture, copy it into a <strong>show picture</strong> block</span>
+    <span class="spacer"></span>
+    <label class="inline">
+      Size
+      <select id="size">
+        <option value="128x64" selected>128 x 64 — whole screen</option>
+        <option value="64x32">64 x 32</option>
+        <option value="32x32">32 x 32</option>
+        <option value="32x16">32 x 16</option>
+        <option value="16x16">16 x 16</option>
+        <option value="8x8">8 x 8</option>
+      </select>
+    </label>
+    <label class="inline">
+      Zoom
+      <select id="zoom">
+        <option value="4">4x</option>
+        <option value="6">6x</option>
+        <option value="8" selected>8x</option>
+        <option value="12">12x</option>
+        <option value="16">16x</option>
+      </select>
+    </label>
+    <label class="inline">
+      <input type="checkbox" id="grid" checked> grid
+    </label>
+  </header>
+
+  <main>
+    <section>
+      <div class="panel">
+        <h2>Draw</h2>
+        <div class="tools" id="tools">
+          <button data-tool="pencil" class="active">Pencil</button>
+          <button data-tool="eraser">Eraser</button>
+          <button data-tool="line">Line</button>
+          <button data-tool="rect">Rectangle</button>
+          <button data-tool="rectfill">Filled rect</button>
+          <button data-tool="circle">Circle</button>
+          <button data-tool="circlefill">Filled circle</button>
+        </div>
+        <div class="tools">
+          <button id="undo" class="ghost" disabled>Undo</button>
+          <button id="redo" class="ghost" disabled>Redo</button>
+          <button id="invert" class="ghost">Invert</button>
+          <button id="fill" class="ghost">Fill all</button>
+          <button id="clear" class="ghost">Clear</button>
+        </div>
+        <div class="stage">
+          <canvas id="editor"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Actual size on the screen</h2>
+        <div class="previews">
+          <div class="preview-item">
+            <span>1 : 1</span>
+            <canvas id="preview1"></canvas>
+          </div>
+          <div class="preview-item">
+            <span>2 : 1</span>
+            <canvas id="preview2"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel">
+        <h2>Block text</h2>
+        <textarea id="output" readonly spellcheck="false"></textarea>
+        <div class="row">
+          <button id="copy" class="primary">Copy for XRP Blocks</button>
+          <button id="download" class="ghost">Save as .txt</button>
+        </div>
+        <div class="status" id="status"></div>
+        <p class="hint">
+          Paste this into the text socket of the <code>show picture</code> block
+          in the OLED category. It is plain text, so it travels in an email or a
+          lesson file just as well.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>Built-in OLED icons</h2>
+        <p class="hint">Use the OLED <strong>show icon</strong> block for these pictures without copying text. Click a preview to edit a custom version. The screen is only 128 × 64 pixels.</p>
+        <label for="icon-size">Icon size</label>
+        <select id="icon-size"><option value="16">16 × 16</option><option value="24" selected>24 × 24</option><option value="32">32 × 32</option></select>
+        <div id="icon-gallery" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Open an existing picture</h2>
+        <textarea id="input" spellcheck="false" placeholder="Paste an XRPI1:... string here"></textarea>
+        <div class="row">
+          <button id="load">Load it</button>
+          <button id="paste" class="ghost">Paste from clipboard</button>
+        </div>
+        <div class="status" id="load-status"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Keyboard</h2>
+        <ul class="keys">
+          <li><span>Undo</span><kbd>Ctrl</kbd> + <kbd>Z</kbd></li>
+          <li><span>Redo</span><kbd>Ctrl</kbd> + <kbd>Y</kbd></li>
+          <li><span>Pencil, eraser</span><kbd>P</kbd> <kbd>E</kbd></li>
+          <li><span>Line, rectangle, circle</span><kbd>L</kbd> <kbd>R</kbd> <kbd>C</kbd></li>
+          <li><span>Erase while drawing</span><kbd>right mouse</kbd></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    'use strict';
+
+    // ── The picture ────────────────────────────────────────────────────────
+    // Kept as one byte per pixel while editing, because that is far easier to
+    // reason about. It is packed into the screen's own MONO_VLSB layout only
+    // when the block text is produced.
+
+    const state = {
+      width: 128,
+      height: 64,
+      pixels: null,
+      tool: 'pencil',
+      zoom: 8,
+      grid: true,
+      drawing: false,
+      erasing: false,
+      start: null,
+      undo: [],
+      redo: [],
+    };
+
+    const editor = document.getElementById('editor');
+    const context = editor.getContext('2d');
+    const preview1 = document.getElementById('preview1');
+    const preview2 = document.getElementById('preview2');
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+    const loadStatus = document.getElementById('load-status');
+
+    function blank(width, height) {
+      return new Uint8Array(width * height);
+    }
+
+    function resize(width, height) {
+      state.width = width;
+      state.height = height;
+      state.pixels = blank(width, height);
+      state.undo = [];
+      state.redo = [];
+      updateHistoryButtons();
+      layout();
+      redraw();
+    }
+
+    function layout() {
+      editor.width = state.width * state.zoom;
+      editor.height = state.height * state.zoom;
+      preview1.width = state.width;
+      preview1.height = state.height;
+      preview2.width = state.width * 2;
+      preview2.height = state.height * 2;
+    }
+
+    // ── Drawing on screen ──────────────────────────────────────────────────
+
+    function redraw(overlay) {
+      const { width, height, zoom } = state;
+      const shown = overlay || state.pixels;
+
+      context.fillStyle = '#000';
+      context.fillRect(0, 0, editor.width, editor.height);
+
+      context.fillStyle = '#DFF6F3';
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (shown[y * width + x]) {
+            context.fillRect(x * zoom, y * zoom, zoom, zoom);
+          }
+        }
+      }
+
+      if (state.grid && zoom >= 4) {
+        context.strokeStyle = 'rgba(120, 132, 160, 0.28)';
+        context.lineWidth = 1;
+        context.beginPath();
+        for (let x = 0; x <= width; x++) {
+          context.moveTo(x * zoom + 0.5, 0);
+          context.lineTo(x * zoom + 0.5, height * zoom);
+        }
+        for (let y = 0; y <= height; y++) {
+          context.moveTo(0, y * zoom + 0.5);
+          context.lineTo(width * zoom, y * zoom + 0.5);
+        }
+        context.stroke();
+
+        // Every eighth row is a page boundary on the real screen, and every
+        // eighth column is one character of the font.
+        context.strokeStyle = 'rgba(77, 182, 172, 0.45)';
+        context.beginPath();
+        for (let x = 0; x <= width; x += 8) {
+          context.moveTo(x * zoom + 0.5, 0);
+          context.lineTo(x * zoom + 0.5, height * zoom);
+        }
+        for (let y = 0; y <= height; y += 8) {
+          context.moveTo(0, y * zoom + 0.5);
+          context.lineTo(width * zoom, y * zoom + 0.5);
+        }
+        context.stroke();
+      }
+
+      drawPreview(preview1, shown, 1);
+      drawPreview(preview2, shown, 2);
+      output.value = encode(state.pixels, state.width, state.height);
+    }
+
+    function drawPreview(canvas, pixels, scale) {
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#DFF6F3';
+      for (let y = 0; y < state.height; y++) {
+        for (let x = 0; x < state.width; x++) {
+          if (pixels[y * state.width + x]) {
+            ctx.fillRect(x * scale, y * scale, scale, scale);
+          }
+        }
+      }
+    }
+
+    // ── Pixel operations ───────────────────────────────────────────────────
+
+    function setPixel(target, x, y, value) {
+      if (x < 0 || y < 0 || x >= state.width || y >= state.height) return;
+      target[y * state.width + x] = value;
+    }
+
+    function drawLine(target, x1, y1, x2, y2, value) {
+      // Bresenham, the same shape framebuf draws on the robot.
+      let dx = Math.abs(x2 - x1);
+      let dy = -Math.abs(y2 - y1);
+      const sx = x1 < x2 ? 1 : -1;
+      const sy = y1 < y2 ? 1 : -1;
+      let error = dx + dy;
+      for (;;) {
+        setPixel(target, x1, y1, value);
+        if (x1 === x2 && y1 === y2) break;
+        const e2 = 2 * error;
+        if (e2 >= dy) { error += dy; x1 += sx; }
+        if (e2 <= dx) { error += dx; y1 += sy; }
+      }
+    }
+
+    function drawRect(target, x1, y1, x2, y2, value, filled) {
+      const left = Math.min(x1, x2);
+      const right = Math.max(x1, x2);
+      const top = Math.min(y1, y2);
+      const bottom = Math.max(y1, y2);
+      if (filled) {
+        for (let y = top; y <= bottom; y++) {
+          for (let x = left; x <= right; x++) setPixel(target, x, y, value);
+        }
+      } else {
+        drawLine(target, left, top, right, top, value);
+        drawLine(target, left, bottom, right, bottom, value);
+        drawLine(target, left, top, left, bottom, value);
+        drawLine(target, right, top, right, bottom, value);
+      }
+    }
+
+    function drawCircle(target, cx, cy, radius, value, filled) {
+      // Midpoint circle, matching the driver's circle() on the robot.
+      let x = radius;
+      let y = 0;
+      let error = 1 - radius;
+      if (radius < 0) return;
+      while (x >= y) {
+        if (filled) {
+          for (let i = cx - x; i <= cx + x; i++) {
+            setPixel(target, i, cy + y, value);
+            setPixel(target, i, cy - y, value);
+          }
+          for (let i = cx - y; i <= cx + y; i++) {
+            setPixel(target, i, cy + x, value);
+            setPixel(target, i, cy - x, value);
+          }
+        } else {
+          [[x, y], [y, x], [-x, y], [-y, x], [-x, -y], [-y, -x], [x, -y], [y, -x]]
+            .forEach(([ox, oy]) => setPixel(target, cx + ox, cy + oy, value));
+        }
+        y++;
+        if (error < 0) {
+          error += 2 * y + 1;
+        } else {
+          x--;
+          error += 2 * (y - x) + 1;
+        }
+      }
+    }
+
+    function applyTool(target, from, to, value) {
+      switch (state.tool) {
+        case 'pencil':
+        case 'eraser':
+          drawLine(target, from.x, from.y, to.x, to.y, value);
+          break;
+        case 'line':
+          drawLine(target, from.x, from.y, to.x, to.y, value);
+          break;
+        case 'rect':
+          drawRect(target, from.x, from.y, to.x, to.y, value, false);
+          break;
+        case 'rectfill':
+          drawRect(target, from.x, from.y, to.x, to.y, value, true);
+          break;
+        case 'circle':
+        case 'circlefill': {
+          const radius = Math.round(Math.hypot(to.x - from.x, to.y - from.y));
+          drawCircle(target, from.x, from.y, radius, value, state.tool === 'circlefill');
+          break;
+        }
+      }
+    }
+
+    const isFreehand = () => state.tool === 'pencil' || state.tool === 'eraser';
+
+    // ── History ────────────────────────────────────────────────────────────
+
+    function pushUndo() {
+      state.undo.push(state.pixels.slice());
+      if (state.undo.length > 60) state.undo.shift();
+      state.redo = [];
+      updateHistoryButtons();
+    }
+
+    function updateHistoryButtons() {
+      document.getElementById('undo').disabled = state.undo.length === 0;
+      document.getElementById('redo').disabled = state.redo.length === 0;
+    }
+
+    // ── Mouse ──────────────────────────────────────────────────────────────
+
+    function pointOf(event) {
+      const rect = editor.getBoundingClientRect();
+      const scale = editor.width / rect.width;
+      return {
+        x: Math.floor((event.clientX - rect.left) * scale / state.zoom),
+        y: Math.floor((event.clientY - rect.top) * scale / state.zoom),
+      };
+    }
+
+    editor.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    editor.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      editor.setPointerCapture(event.pointerId);
+      pushUndo();
+      state.drawing = true;
+      state.erasing = event.button === 2 || state.tool === 'eraser';
+      state.start = pointOf(event);
+
+      if (isFreehand()) {
+        applyTool(state.pixels, state.start, state.start, state.erasing ? 0 : 1);
+        redraw();
+      }
+    });
+
+    editor.addEventListener('pointermove', (event) => {
+      if (!state.drawing) return;
+      const point = pointOf(event);
+      const value = state.erasing ? 0 : 1;
+
+      if (isFreehand()) {
+        applyTool(state.pixels, state.start, point, value);
+        state.start = point;
+        redraw();
+      } else {
+        const overlay = state.pixels.slice();
+        applyTool(overlay, state.start, point, value);
+        redraw(overlay);
+      }
+    });
+
+    editor.addEventListener('pointerup', (event) => {
+      if (!state.drawing) return;
+      const point = pointOf(event);
+      if (!isFreehand()) {
+        applyTool(state.pixels, state.start, point, state.erasing ? 0 : 1);
+      }
+      state.drawing = false;
+      state.start = null;
+      redraw();
+    });
+
+    editor.addEventListener('pointercancel', () => {
+      state.drawing = false;
+      state.start = null;
+      redraw();
+    });
+
+    // ── Encoding, matched byte for byte by SSD1315.py ───────────────────────
+
+    const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+    function toBase64(bytes) {
+      let out = '';
+      for (let i = 0; i < bytes.length; i += 3) {
+        const a = bytes[i];
+        const b = i + 1 < bytes.length ? bytes[i + 1] : 0;
+        const c = i + 2 < bytes.length ? bytes[i + 2] : 0;
+        out += B64[a >> 2];
+        out += B64[((a & 3) << 4) | (b >> 4)];
+        out += i + 1 < bytes.length ? B64[((b & 15) << 2) | (c >> 6)] : '=';
+        out += i + 2 < bytes.length ? B64[c & 63] : '=';
+      }
+      return out;
+    }
+
+    function fromBase64(text) {
+      const out = [];
+      let accumulator = 0;
+      let bits = 0;
+      for (const char of text) {
+        if (char === '=') break;
+        const index = B64.indexOf(char);
+        if (index < 0) continue;
+        accumulator = (accumulator << 6) | index;
+        bits += 6;
+        if (bits >= 8) {
+          bits -= 8;
+          out.push((accumulator >> bits) & 0xFF);
+        }
+      }
+      return Uint8Array.from(out);
+    }
+
+    /** One byte per eight vertical pixels, which is what the SSD1315 wants. */
+    function pack(pixels, width, height) {
+      const pages = height / 8;
+      const packed = new Uint8Array(width * pages);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (pixels[y * width + x]) {
+            packed[(y >> 3) * width + x] |= 1 << (y & 7);
+          }
+        }
+      }
+      return packed;
+    }
+
+    function unpack(packed, width, height) {
+      const pixels = new Uint8Array(width * height);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const byte = packed[(y >> 3) * width + x] || 0;
+          pixels[y * width + x] = (byte >> (y & 7)) & 1;
+        }
+      }
+      return pixels;
+    }
+
+    function runLength(bytes) {
+      const out = [];
+      let i = 0;
+      while (i < bytes.length) {
+        const value = bytes[i];
+        let run = 1;
+        while (i + run < bytes.length && bytes[i + run] === value && run < 255) run++;
+        out.push(run, value);
+        i += run;
+      }
+      return Uint8Array.from(out);
+    }
+
+    function encode(pixels, width, height) {
+      const packed = pack(pixels, width, height);
+      const rle = runLength(packed);
+      // Whichever is smaller wins; a mostly blank sketch shrinks enormously,
+      // a noisy one would grow, so raw stays available.
+      const useRle = rle.length < packed.length;
+      const body = useRle ? rle : packed;
+      const payload = new Uint8Array(body.length + 1);
+      payload[0] = useRle ? 1 : 0;
+      payload.set(body, 1);
+      return `XRPI1:${width}:${height}:${toBase64(payload)}`;
+    }
+
+    function decode(text) {
+      const trimmed = String(text).trim();
+      if (!trimmed.startsWith('XRPI1:')) {
+        throw new Error('That does not look like a picture string (it should start with XRPI1:).');
+      }
+      const parts = trimmed.split(':');
+      if (parts.length < 4) throw new Error('The picture text is incomplete.');
+
+      const width = parseInt(parts[1], 10);
+      const height = parseInt(parts[2], 10);
+      if (!width || !height || height % 8) {
+        throw new Error('The size in the text is not usable.');
+      }
+
+      const raw = fromBase64(parts[3]);
+      if (!raw.length) throw new Error('There is no picture in that text.');
+
+      let body;
+      if (raw[0] === 0) {
+        body = raw.slice(1);
+      } else {
+        const out = [];
+        for (let i = 1; i + 1 < raw.length; i += 2) {
+          for (let n = 0; n < raw[i]; n++) out.push(raw[i + 1]);
+        }
+        body = Uint8Array.from(out);
+      }
+
+      const needed = width * (height / 8);
+      if (body.length < needed) {
+        throw new Error(`The picture is short: ${body.length} bytes for a ${width}x${height} that needs ${needed}.`);
+      }
+      return { width, height, pixels: unpack(body, width, height) };
+    }
+
+
+    const builtInIcons = [
+  {
+    "id": "board",
+    "name": "Board",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAsPgM7CgsLCjsDPiwAAAAAA0fMDcUNDQUNzAfDQAA",
+      "24": "XRPI1:24:24:AAAAwMDw8Dw8uLCwvLywsLg8PPDwwMAAAAAAGJn//wD//4GBgYGBgf//AP//mRgAAAAAAwMPDzw8HQ0NPT0NDR08PA8PAwMAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAwODgePx8YGBgcHx8cGBgYHz8eODgwAAAAAAAAACGh8f//wIAAPz8DAwMDAwMDAz8/AAAAv//x4eGAAAAAGHh4///QAAAPz8wMDAwMDAwMD8/AABA///j4WEAAAAAAAAAAwcHHj8+BgYGDj4+DgYGBj4/HgcHAwAAAAAA"
+    }
+  },
+  {
+    "id": "drive",
+    "name": "Drive",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAAOA4DATMzAQMOOAAAAAAAD8jICAgPDwgICAjPwAA",
+      "24": "XRPI1:24:24:AAAAAAAA4Pg4GBgYODgYGBg4+OAAAAAAAAAAAPD+HwEAAAAAHx8AAAAAAR/+8AAAAAAADx8YGBgYGBgYHx8YGBgYGBgYHw8AAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAADA8PA4ODg4OPj4ODg4ODjw8MAAAAAAAAAAAAAAAADw/n8PAAAAAAAA+fkAAAAAAAAPf/7wAAAAAAAAAID4/z8HAAAAAAAAAADh4QAAAAAAAAAABz//+IAAAAAAAwcPDBwcHBwcHBwcHB8fHBwcHBwcHBwcDA8HAwAA"
+    }
+  },
+  {
+    "id": "events",
+    "name": "Events",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAAPj8DAgYEDBgQMCAAAAAAAAfPzAQGAgMBgIDAQAA",
+      "24": "XRPI1:24:24:AAAAAAAA8PgYGDAwYODAwIAAAAAAAAAAAAAAAAAA//8AAAAAAAAAgYHD52Z+PAAAAAAAAAAADx8YGAwMBgcDAwEAAAAAAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAODw8DgwcPDgwMCAgAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAABAQMHBw8OHBw4eHDg4AAAAAAAAAAAAAD///8AAAAAAICAwODg8HA4OBweDgcHAAAAAAAAAAAAAAcPDxwcDg8HAwMBAQAAAAAAAAAAAAAAAAAA"
+    }
+  },
+  {
+    "id": "expander",
+    "name": "Expander",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAwPDwEBQQEBQQ8PDAAAAAAAMPDwgoCAgoCA8PAwAA",
+      "24": "XRPI1:24:24:AAAAAAAA4OBgeHhgeHhgeHhg4OAAAAAAAAAAANvb//8AAAAAAAAAAAAA///b2wAAAAAAAAAABwcGHh4GHh4GHh4GBwcAAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAICAgICAuLiAgLi4gIC4uICAgICAAAAAAAAAAAAAmJiY////AwEBAQEBAQEBAQEBAQP///+YmJgAAAAAAAAZGRn////AgICAgICAgICAgICAwP///xkZGQAAAAAAAAAAAAEBAQEBHR0BAR0dAQEdHQEBAQEBAAAAAAAA"
+    }
+  },
+  {
+    "id": "functions",
+    "name": "Functions",
+    "pictures": {
+      "16": "XRPI1:16:16:AADA8BAQEPDgfP7Gxsb+fAAAHz9jY2N/f2NjYz4AAAAA",
+      "24": "XRPI1:24:24:AAAAwMDg4ODg4ODAAAD8/AwMDAwM/PwAAAAA//9gYGBgYP//YGBnZ2bm5oYGBwcAAAAAHz8wMDAwMD8/MDAwMDA/HwcAAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAACAgICAgICAgIAAAAAA+Pz8HBwcHBwcHPz8+AAAAAD+//8DAwMDAwMD////AAA/f39wcHBwcHBwf38/AAAAAP///w4ODg4ODg7///8ODg4ODg4O/vz8AAAAAAAAAAAADx8/ODg4ODg4OD8/Pzg4ODg4ODg/Hw8AAAAAAAAA"
+    }
+  },
+  {
+    "id": "logic",
+    "name": "Logic",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAAAD8wGAwEDh8RGw4AAAAABw2JzYcAAAAAAAAAAAA",
+      "24": "XRPI1:24:24:AAAAAAAA8PjwAICAwMDA8PgYGBj48AAAAAAAAIDA////x4MBAAAAAQMDAwMDAQAAAAAAAA8fGBgYHw8AAAAAAAAAAAAAAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAADw+PAAAAAAAAAAgIDg8HA4ODhw8OCAAAAAAAAAAAAAAP////h8Hg4PBwMDAw8fHDg4OBwfDwMAAAAAAADA8Pg4Hx8fOPjwwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEHDw4cHBwODwcBAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  },
+  {
+    "id": "loops",
+    "name": "Loops",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAA4HAQEBAQEBBUfDgQAAAAAAgcPioICAgICAgOBwAA",
+      "24": "XRPI1:24:24:AAAAAACAwMDg4ODg4ODg4ODs/Pjw4AAAAAAAAA+PwOBgAAAAAAAAAAAGBwPx8AAAAAAAAAcPHz83BwcHBwcHBwcHAwMBAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAAAAgICAgICAgICAgICAgJy8+PDgwIAAAAAAAAAAYPz+DwMDAwMDAwMDAwMDAwMDc3s/Hw8HAwEAAAAAAACAwODw+PzezsDAwMDAwMDAwMDAwMDg8H8/BgAAAAAAAAABAwcPHz05AQEBAQEBAQEBAQEBAQAAAAAAAAAA"
+    }
+  },
+  {
+    "id": "math",
+    "name": "Math",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAAPwG1hZWVhbWBvwAAAAAAAA/YGtgampgb2A/AAAA",
+      "24": "XRPI1:24:24:AAAAAAD4/AxM7Ozs7Ozs7OxMDPz4AAAAAAAAAAD//wAkZgAAZmYAAObkAP//AAAAAAAAAAAfPzAyNzAwMjIwMDczMD8fAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAA8PgcHBycnJycnJycnJycnJwcHBz48AAAAAAAAAAAAAD//wAAAHNzAwMDc3MDAwNzcwAAAP//AAAAAAAAAAAAAP//AAAAzs4AAADOzgAAAP7+AAAA//8AAAAAAAAAAAAADx84ODg5OTg4ODk5ODg4OTk4ODgfDwAAAAAA"
+    }
+  },
+  {
+    "id": "motors",
+    "name": "Motors",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAPDA4KAyEhAwIGPDAAAAAAAMPGBAwISEwFBwMPAAA",
+      "24": "XRPI1:24:24:AAAAAPj44OCwuBgYGBgYGDgwYOCAAAAAAAAAAPn5gQEBAQAYPDwYAICAgIGfngAAAAAAAAABBwYMHBgYGBgYGB0NBwcfHwAAAA==",
+      "32": "XRPI1:32:32:AAAAAPD48ICAwODgcHBwMDg4MHBwcODgwIAAAAAAAAAAAAAAD4+PDw8NDAwMAIDA4ODAgAAAAAEDBz/++MAAAAAAAAABH3/84MCAAAAAAQMHBwMBADAwMLDw8PHx8AAAAAAAAAAAAAABAwcHDg4ODBwcDA4ODgcHAwMBDx8PAAAA"
+    }
+  },
+  {
+    "id": "neopixel",
+    "name": "Neopixel",
+    "pictures": {
+      "16": "XRPI1:16:16:AACAwMDAwMDY2MDAwMDAgAAAAQMDAwMDGxsDAwMDAwEA",
+      "24": "XRPI1:24:24:AAAAAAAAAAAAAAAA8PAAAAAAAAAAAAAAAAAYPDw8JDw8JDw8JCQ8PCQ8PCQ8PDwYAAAAAAAAAAAAAAAADw8AAAAAAAAAAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAAAAAAAAAAAAAODgAAAAAAAAAAAAAAAAAAAAAADg4ODgYGDg4GBg4ODgZ2fg4OBgYODgYGDg4ODgAAAAAAcHBwcGBgcHBgYHBwfGxgcHBwYGBwcGBgcHBwcAAAAAAAAAAAAAAAAAAAAAAAcHAAAAAAAAAAAAAAAAAAAA"
+    }
+  },
+  {
+    "id": "sensors",
+    "name": "Sensors",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAA4DjAYIDAwIBgwDjgAAAAAAccAwYBAwMBBgMcBwAA",
+      "24": "XRPI1:24:24:AAAAAIDgcACAgAAAAAAAAICAAHDggAAAAAAA//+BAH7/gRg8ZmY8GIH/fgCB//8AAAAAAAEHDgABAQAAAAAAAAEBAA4HAQAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAgMDAAAAAAAAAAAAAAAAAAAAAAMDAgAAAAAAAAADg/P8PA+Hw/B4MwODwcHDw4MAMHvzw4QMP//zgAAAAAAc///DAgw8/fDADBw8ODg8HAzB8Pw+DwPD/PwcAAAAAAAAAAQMDAAAAAAAAAAAAAAAAAAAAAAMDAQAAAAAA"
+    }
+  },
+  {
+    "id": "servo",
+    "name": "Servo",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAA4IDAQGAgYGBgwIAAAAAAAAEBAQEBDAwAAAAHBgAA",
+      "24": "XRPI1:24:24:AAAAAMCAAAAAAACAgICAAAAAAAAAAAAAAAAAAD8/PD43MzODgYGDAwMGDjz44AAAAAAAAAAAAAAAAAADAwMDAAAAAAABAQAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/v/+wODwcDg8HBwcDg4cHBw8OHDw4MCAAAAAAAAAAAADBwcHBwcHBwcHQvDw8PBAAAAAAAABD3/+QAAAAAAAAAAAAAAAAAAAAAAAAAEBAAAAAAAAAAAAAAAAAAAA"
+    }
+  },
+  {
+    "id": "text",
+    "name": "Text",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAAOBw8MAAAIDAQEDAwAAAAAcBAQEDBwADBgQGBwcA",
+      "24": "XRPI1:24:24:AAAAAAAAgMDAgAAAAAAAAAAAAAAAAAAAAAAAwPg+PzMzP37wwAAAfP7Hg4PG//8AAAAAAQAAAAAAAAAAAAAAAAAAAQEAAAEAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDg/H8PDz/88IAAAAAAAODwcDg4ODh4+Pj4AAAAADA+Pw8HBwcHBwcHHz44AAADDx88ODAwODw/Pz8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  },
+  {
+    "id": "variables",
+    "name": "Variables",
+    "pictures": {
+      "16": "XRPI1:16:16:AAAAAPA4DECAgEAMOPAAAAAAAAAHGDACAQECMBwHAAAA",
+      "24": "XRPI1:24:24:AAAAAACA4PA4GAAAAAAAABg48OCAAAAAAAAAAAD//wAAQud+PDx+50IAAP//AAAAAAAAAAABBw8cGAAAAAAAABgcDwcBAAAAAA==",
+      "32": "XRPI1:32:32:AAAAAAAAAACA4PBwMAAAAAAAAAAAMHDw4IAAAAAAAAAAAAAAAAD4/n8HAQAYOHDgwMDgcDgYAAEHf/74AAAAAAAAAAAAAB9//uCAABgcDgcDAwcOHBgAgOD+fx8AAAAAAAAAAAAAAAABBw8ODAAAAAAAAAAAHA4PBwEAAAAAAAAA"
+    }
+  }
+];
+    function renderIconGallery() {
+      const size = document.getElementById('icon-size').value;
+      const gallery = document.getElementById('icon-gallery');
+      gallery.replaceChildren();
+      for (const icon of builtInIcons) {
+        const picture = decode(icon.pictures[size]);
+        const button = document.createElement('button');
+        button.className = 'ghost';
+        button.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;min-width:0';
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = picture.width * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#fff';
+        picture.pixels.forEach((pixel,i)=>{if(pixel)ctx.fillRect((i%picture.width)*2,Math.floor(i/picture.width)*2,2,2);});
+        const label=document.createElement('span');label.textContent=icon.name;
+        button.append(canvas,label);
+        button.addEventListener('click',()=>{
+          document.getElementById('input').value=icon.pictures[size];
+          document.getElementById('load').click();
+        });
+        gallery.append(button);
+      }
+    }
+    document.getElementById('icon-size').addEventListener('change',renderIconGallery);
+    renderIconGallery();
+
+    // ── Buttons ────────────────────────────────────────────────────────────
+
+    document.getElementById('tools').addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-tool]');
+      if (!button) return;
+      state.tool = button.dataset.tool;
+      document.querySelectorAll('#tools button').forEach((b) => b.classList.remove('active'));
+      button.classList.add('active');
+    });
+
+    document.getElementById('size').addEventListener('change', (event) => {
+      const [width, height] = event.target.value.split('x').map(Number);
+      resize(width, height);
+    });
+
+    document.getElementById('zoom').addEventListener('change', (event) => {
+      state.zoom = Number(event.target.value);
+      layout();
+      redraw();
+    });
+
+    document.getElementById('grid').addEventListener('change', (event) => {
+      state.grid = event.target.checked;
+      redraw();
+    });
+
+    document.getElementById('undo').addEventListener('click', () => {
+      if (!state.undo.length) return;
+      state.redo.push(state.pixels.slice());
+      state.pixels = state.undo.pop();
+      updateHistoryButtons();
+      redraw();
+    });
+
+    document.getElementById('redo').addEventListener('click', () => {
+      if (!state.redo.length) return;
+      state.undo.push(state.pixels.slice());
+      state.pixels = state.redo.pop();
+      updateHistoryButtons();
+      redraw();
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+      pushUndo();
+      state.pixels.fill(0);
+      redraw();
+    });
+
+    document.getElementById('fill').addEventListener('click', () => {
+      pushUndo();
+      state.pixels.fill(1);
+      redraw();
+    });
+
+    document.getElementById('invert').addEventListener('click', () => {
+      pushUndo();
+      for (let i = 0; i < state.pixels.length; i++) {
+        state.pixels[i] = state.pixels[i] ? 0 : 1;
+      }
+      redraw();
+    });
+
+    function say(element, message, isError) {
+      element.textContent = message;
+      element.classList.toggle('error', Boolean(isError));
+      clearTimeout(element._timer);
+      element._timer = setTimeout(() => { element.textContent = ''; }, 4000);
+    }
+
+    document.getElementById('copy').addEventListener('click', async () => {
+      const text = output.value;
+      try {
+        await navigator.clipboard.writeText(text);
+        say(status, 'Copied. Paste it into the show picture block.');
+      } catch (err) {
+        // Opened straight from a folder rather than served, most likely.
+        output.removeAttribute('readonly');
+        output.select();
+        const ok = document.execCommand && document.execCommand('copy');
+        output.setAttribute('readonly', '');
+        say(status,
+          ok ? 'Copied. Paste it into the show picture block.'
+             : 'Could not reach the clipboard — select the text above and copy it yourself.',
+          !ok);
+      }
+    });
+
+    document.getElementById('download').addEventListener('click', () => {
+      const blob = new Blob([output.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `oled-picture-${state.width}x${state.height}.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+      say(status, 'Saved.');
+    });
+
+    document.getElementById('load').addEventListener('click', () => {
+      const text = document.getElementById('input').value;
+      try {
+        const picture = decode(text);
+        pushUndo();
+        state.width = picture.width;
+        state.height = picture.height;
+        state.pixels = picture.pixels;
+        const size = `${picture.width}x${picture.height}`;
+        const select = document.getElementById('size');
+        if ([...select.options].some((o) => o.value === size)) select.value = size;
+        layout();
+        redraw();
+        say(loadStatus, `Loaded a ${size} picture.`);
+      } catch (err) {
+        say(loadStatus, err.message, true);
+      }
+    });
+
+    document.getElementById('paste').addEventListener('click', async () => {
+      try {
+        document.getElementById('input').value = await navigator.clipboard.readText();
+        say(loadStatus, 'Pasted — now press Load it.');
+      } catch (err) {
+        say(loadStatus, 'Could not read the clipboard; paste into the box yourself.', true);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') return;
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+        event.preventDefault();
+        document.getElementById('undo').click();
+        return;
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
+        event.preventDefault();
+        document.getElementById('redo').click();
+        return;
+      }
+
+      const shortcuts = { p: 'pencil', e: 'eraser', l: 'line', r: 'rect', c: 'circle' };
+      const tool = shortcuts[event.key.toLowerCase()];
+      if (tool) {
+        const button = document.querySelector(`#tools button[data-tool="${tool}"]`);
+        if (button) button.click();
+      }
+    });
+
+    // Exposed so the verification harness can drive the same code the page uses.
+    window.oledDesigner = { state, encode, decode, pack, unpack, toBase64, fromBase64 };
+
+    resize(128, 64);
+  </script>
+</body>
+
+</html>

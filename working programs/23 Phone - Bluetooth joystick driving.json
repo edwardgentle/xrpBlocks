@@ -1,0 +1,235 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "bt020",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Phone control over Bluetooth. Deploy (or Run over USB), disconnect any Bluetooth IDE, then open the phone page (https://edwardgentle.github.io/xrpBlocks/phone/) in Chrome on Android and tap Connect. The status line must turn green: \"Connected: program listening\". Joystick drives (arcade). Hold A (button 5) for the board LED. Close the page or walk out of range: the robot must stop within about a second. If the robot turns the wrong way, remove the \"0 minus\" (see working program 08).",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "bt022",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "bt021",
+                  "fields": {
+                    "TEXT": "XRP phone drive"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "bt024",
+                "fields": {
+                  "BUTTON": "5"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "bt023",
+                      "fields": {
+                        "TEXT": "Light"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_start",
+                    "id": "bt025",
+                    "next": {
+                      "block": {
+                        "type": "xrp_ble_show",
+                        "id": "bt027",
+                        "inputs": {
+                          "TEXT": {
+                            "shadow": {
+                              "type": "text",
+                              "id": "bt026",
+                              "fields": {
+                                "TEXT": "Ready to drive"
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_forever",
+                            "id": "bt019",
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "controls_if",
+                                  "id": "bt016",
+                                  "extraState": {
+                                    "hasElse": true
+                                  },
+                                  "inputs": {
+                                    "IF0": {
+                                      "block": {
+                                        "type": "xrp_ble_connected",
+                                        "id": "bt015"
+                                      }
+                                    },
+                                    "DO0": {
+                                      "block": {
+                                        "type": "xrp_drive_arcade",
+                                        "id": "bt008",
+                                        "inputs": {
+                                          "SPEED": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "bt001",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "xrp_ble_joystick",
+                                              "id": "bt002",
+                                              "fields": {
+                                                "AXIS": "Y"
+                                              }
+                                            }
+                                          },
+                                          "TURN": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "bt003",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "math_arithmetic",
+                                              "id": "bt007",
+                                              "fields": {
+                                                "OP": "MINUS"
+                                              },
+                                              "inputs": {
+                                                "A": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "bt004",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  }
+                                                },
+                                                "B": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "bt005",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "xrp_ble_joystick",
+                                                    "id": "bt006",
+                                                    "fields": {
+                                                      "AXIS": "X"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "controls_if",
+                                            "id": "bt012",
+                                            "extraState": {
+                                              "hasElse": true
+                                            },
+                                            "inputs": {
+                                              "IF0": {
+                                                "block": {
+                                                  "type": "xrp_ble_pressed",
+                                                  "id": "bt009",
+                                                  "fields": {
+                                                    "BUTTON": "5"
+                                                  }
+                                                }
+                                              },
+                                              "DO0": {
+                                                "block": {
+                                                  "type": "xrp_led_on",
+                                                  "id": "bt010"
+                                                }
+                                              },
+                                              "ELSE": {
+                                                "block": {
+                                                  "type": "xrp_led_off",
+                                                  "id": "bt011"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "ELSE": {
+                                      "block": {
+                                        "type": "xrp_drive_stop",
+                                        "id": "bt013",
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_led_off",
+                                            "id": "bt014"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_wait_seconds",
+                                      "id": "bt018",
+                                      "inputs": {
+                                        "SECONDS": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "bt017",
+                                            "fields": {
+                                              "NUM": 0.02
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

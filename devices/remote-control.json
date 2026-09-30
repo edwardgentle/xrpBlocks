@@ -1,0 +1,308 @@
+{
+  "manifestVersion": 1,
+  "id": "remote-control",
+  "name": {
+    "en": "Remote control",
+    "nl": "Afstandsbediening"
+  },
+  "description": {
+    "en": "Wi-Fi HTML controller with six customizable buttons. Read inputs and control any device library."
+  },
+  "version": "1.1.1",
+  "licence": "MIT",
+  "category": {
+    "key": "RemoteControl",
+    "label": "Remote control",
+    "colour": "#497DA4"
+  },
+  "driver": {
+    "filename": "RemoteControl.py",
+    "marker": "RemoteControl",
+    "source": "\"\"\"Cooperative Wi-Fi button panel. Call update() frequently in your main loop.\n\nNo motor or device dependencies. Expired button states become false; the user's\nprogram must act on those states and explicitly stop any ongoing actuator.\n\"\"\"\nimport network\nimport socket\nimport select\nimport time\nimport json\n\nPAGE = '<!doctype html>\\n<html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\\n<title>Remote control</title>\\n<style>\\n:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10151e;color:#edf4ff}*{box-sizing:border-box}body{margin:0;padding:24px}main{max-width:620px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:28px;margin:8px 0}p{color:#a9b7cd;line-height:1.5}#status{font-size:13px;color:#9daec5}#status.live{color:#79e2b1}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:24px 0}button,input{font:inherit}button{border:1px solid #354459;color:inherit;background:#202d40;border-radius:16px;padding:20px;cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #83b7ff;outline-offset:3px}.pad{min-height:110px;touch-action:none;user-select:none;font-size:20px;overflow-wrap:anywhere}.pad small{display:block;color:#a9b7cd;font-size:12px;margin-top:10px}.pad.held{background:#2d6596;border-color:#9dcfff}.pad:disabled{opacity:.45}#release{width:100%;background:#542633;border-color:#a74660}details{margin-top:26px;color:#a9b7cd}label{display:block;margin:14px 0}input{display:block;width:100%;padding:12px;border:1px solid #354459;border-radius:8px;background:#182231;color:#fff}summary{cursor:pointer}footer{font-size:12px;color:#8293ac;margin-top:28px}#retry{padding:8px 14px;font-size:13px} @media(max-width:380px){body{padding:14px}h1{font-size:23px}.pad{font-size:17px}}\\n.layout{display:flex;align-items:center;gap:12px}.layout select{font:inherit;padding:10px;background:#202d40;color:#edf4ff;border:1px solid #354459;border-radius:10px}.arrow{display:none}.grid.dpad{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.dpad .pad{padding:12px 6px;font-size:15px;min-height:104px}.dpad .arrow{display:block;font-size:25px;margin-bottom:6px}.dpad .pad:nth-child(1){grid-area:1/2}.dpad .pad:nth-child(2){grid-area:2/1}.dpad .pad:nth-child(3){grid-area:2/3}.dpad .pad:nth-child(4){grid-area:3/2}.dpad .pad:nth-child(5){grid-area:4/1;background:#284736}.dpad .pad:nth-child(6){grid-area:4/3;background:#443156}.dpad .pad.held{background:#2d6596}.dpad .pad small{font-size:10px}.dpad .pad:nth-child(n+5){margin-top:8px}\\n</style>\\n<main><header><h1 id=\"title\">Remote control</h1><button id=\"retry\">Connect</button></header>\\n<div id=\"status\" role=\"status\" aria-live=\"polite\">Connecting…</div>\\n<p>Hold a button to send its signal. Your program decides what it does.</p>\\n<label class=\"layout\" for=\"layout\">Layout <select id=\"layout\"><option value=\"grid\">Button grid</option><option value=\"dpad\">Game D-pad</option></select></label>\\n<div class=\"grid\" id=\"buttons\"></div><button id=\"release\">Release all buttons</button>\\n<details><summary>Customize button names</summary><p>Names here are saved on this browser. Button numbers stay the same.</p><div id=\"names\"></div><button id=\"reset\">Use program labels</button></details>\\n<footer>Keep this page visible. Lost connection releases button states; your program must handle stopping devices.</footer></main>\\n<script>\\nconst $=id=>document.getElementById(id), session=Date.now().toString(36)+\\'-\\'+Math.random().toString(36).slice(2);\\nlet labels=Array.from({length:6},(_,i)=>\\'Button \\'+(i+1)), names=[], seq=0, ready=false, busy=false, active=true;\\nconst held=new Map(), keys=new Set(), pads=[], inputs=[];\\ntry{const stored=JSON.parse(localStorage.getItem(\\'remote-labels\\')||\\'[]\\');if(Array.isArray(stored))names=stored;}catch{}\\nfunction save(){try{localStorage.setItem(\\'remote-labels\\',JSON.stringify(names));}catch{}}\\nfunction paint(){pads.forEach((p,i)=>{p.firstChild.textContent=names[i]||labels[i];p.classList.toggle(\\'held\\',[...held.values()].includes(i)||keys.has(i));p.setAttribute(\\'aria-pressed\\',String(p.classList.contains(\\'held\\')));p.disabled=!ready;});}\\nfunction clear(){held.clear();keys.clear();paint();}\\nfunction status(text,live){$(\\'status\\').textContent=text;$(\\'status\\').classList.toggle(\\'live\\',live);}\\nfunction release(){clear();send();}\\nfor(let i=0;i<6;i++){\\n const b=document.createElement(\\'button\\');b.className=\\'pad\\';b.append(document.createTextNode(labels[i]));const arrow=document.createElement(\\'span\\');arrow.className=\\'arrow\\';arrow.textContent=[\\'▲\\',\\'◀\\',\\'▶\\',\\'▼\\',\\'A\\',\\'B\\'][i];arrow.setAttribute(\\'aria-hidden\\',\\'true\\');b.append(arrow);const hint=document.createElement(\\'small\\');hint.textContent=\\'BUTTON \\'+(i+1);b.append(hint);b.setAttribute(\\'aria-pressed\\',\\'false\\');$(\\'buttons\\').append(b);pads.push(b);\\n b.onpointerdown=e=>{if(!ready)return;e.preventDefault();b.setPointerCapture(e.pointerId);held.set(e.pointerId,i);paint();send();};\\n const up=e=>{held.delete(e.pointerId);paint();send();};b.onpointerup=up;b.onpointercancel=up;b.onlostpointercapture=up;\\n b.onkeydown=e=>{if((e.key===\\' \\'||e.key===\\'Enter\\')&&!e.repeat&&ready){e.preventDefault();keys.add(i);paint();send();}};\\n b.onkeyup=e=>{if(e.key===\\' \\'||e.key===\\'Enter\\'){e.preventDefault();keys.delete(i);paint();send();}};b.onblur=()=>{keys.delete(i);paint();};\\n const label=document.createElement(\\'label\\');label.textContent=\\'Button \\'+(i+1);const input=document.createElement(\\'input\\');input.maxLength=32;input.value=names[i]||\\'\\';input.placeholder=labels[i];input.oninput=()=>{names[i]=input.value;save();paint();};label.append(input);$(\\'names\\').append(label);inputs.push(input);\\n}\\nfunction setLayout(value){\\n const dpad=value===\\'dpad\\';$(\\'layout\\').value=dpad?\\'dpad\\':\\'grid\\';$(\\'buttons\\').classList.toggle(\\'dpad\\',dpad);\\n pads.forEach((b,i)=>{b.title=dpad?[\\'Up · button 1\\',\\'Left · button 2\\',\\'Right · button 3\\',\\'Down · button 4\\',\\'A · button 5\\',\\'B · button 6\\'][i]:\\'Button \\'+(i+1);});\\n}\\ntry{setLayout(localStorage.getItem(\\'remote-layout\\'));}catch{setLayout(\\'grid\\');}\\n$(\\'layout\\').onchange=()=>{release();setLayout($(\\'layout\\').value);try{localStorage.setItem(\\'remote-layout\\',$(\\'layout\\').value);}catch{}};\\nasync function send(){\\n if(busy||!active||document.hidden)return;\\n busy=true;const abort=new AbortController(), timer=setTimeout(()=>abort.abort(),800);\\n try{\\n  const mask=ready?[...new Set([...held.values(),...keys])].reduce((n,i)=>n|(1<<i),0):0;\\n  const r=await fetch(\\'/state\\',{method:\\'POST\\',headers:{\\'Content-Type\\':\\'application/json\\',\\'X-Remote-Control\\':\\'1\\'},body:JSON.stringify({session,seq:++seq,mask}),signal:abort.signal});\\n  if(!r.ok)throw Error(r.status===409?\\'Another controller is active\\':\\'Connection unavailable\\');\\n  ready=true;status(\\'Connected · buttons ready\\',true);\\n }catch(e){ready=false;clear();status(e.message===\\'Another controller is active\\'?e.message:\\'Disconnected · reconnecting…\\',false);}\\n finally{clearTimeout(timer);busy=false;paint();}\\n}\\n$(\\'release\\').onclick=release;$(\\'retry\\').onclick=()=>{active=true;clear();send();};\\n$(\\'reset\\').onclick=()=>{names=[];save();inputs.forEach(i=>i.value=\\'\\');paint();};\\nwindow.addEventListener(\\'blur\\',()=>{clear();send();});\\ndocument.addEventListener(\\'visibilitychange\\',()=>{clear();ready=false;if(!document.hidden)send();});\\nwindow.addEventListener(\\'pagehide\\',()=>{clear();active=false;fetch(\\'/state\\',{method:\\'POST\\',headers:{\\'Content-Type\\':\\'application/json\\',\\'X-Remote-Control\\':\\'1\\'},body:JSON.stringify({session,seq:++seq,mask:0}),keepalive:true}).catch(()=>{});});\\nfetch(\\'/config\\').then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{$(\\'title\\').textContent=c.title;document.title=c.title;labels=c.labels;inputs.forEach((input,i)=>input.placeholder=labels[i]);paint();}).catch(()=>{});\\npaint();send();setInterval(send,150);\\n</script></html>\\n'\n_active_remote = None\n\n\nclass RemoteControl:\n    def __init__(self):\n        self.labels = ['Button %d' % i for i in range(1, 7)]\n        self.title = 'Remote control'\n        self.buttons = [False] * 6\n        self.edges = [False] * 6\n        self.owner = None\n        self.sequence = -1\n        self.last_seen = 0\n        self.server = None\n        self.clients = []\n        self.wlan = None\n        self.poller = select.poll()\n        self.ip = ''\n\n    def label(self, button, text):\n        self.labels[self._index(button)] = str(text)[:32]\n\n    def set_title(self, text):\n        self.title = str(text)[:60]\n\n    @staticmethod\n    def _index(button):\n        index = int(button) - 1\n        if index < 0 or index >= 6:\n            raise ValueError('Button must be 1 to 6')\n        return index\n\n    def _expire(self):\n        if self.owner is not None and time.ticks_diff(time.ticks_ms(), self.last_seen) > 1000:\n            self.release()\n            self.owner = None\n            self.sequence = -1\n\n    def release(self):\n        self.buttons = [False] * 6\n        self.edges = [False] * 6\n\n    def connected(self):\n        self.update()\n        return self.owner is not None\n\n    def pressed(self, button):\n        self.update()\n        return self.buttons[self._index(button)]\n\n    def clicked(self, button):\n        self.update()\n        index = self._index(button)\n        result = self.edges[index]\n        self.edges[index] = False\n        return result\n\n    def _state(self, data):\n        self._expire()\n        session, sequence, mask = data.get('session'), data.get('seq'), data.get('mask')\n        if not isinstance(session, str) or not 1 <= len(session) <= 48:\n            raise ValueError('Invalid session')\n        if type(sequence) is not int or sequence < 0 or type(mask) is not int or not 0 <= mask < 64:\n            raise ValueError('Invalid button state')\n        if self.owner is not None and self.owner != session:\n            return 409\n        if self.owner == session and sequence <= self.sequence:\n            return 409\n        self.owner, self.sequence = session, sequence\n        self.last_seen = time.ticks_ms()\n        for i in range(6):\n            down = bool(mask & (1 << i))\n            if down and not self.buttons[i]:\n                self.edges[i] = True\n            self.buttons[i] = down\n        return 200\n\n    def start(self, mode, ssid, password):\n        global _active_remote\n        print('Remote control driver 1.1.1')\n        # The REPL retains imported modules between runs. Close the previous\n        # program's listener before a new RemoteControl instance binds port 80.\n        if _active_remote is not None and _active_remote is not self:\n            _active_remote.close()\n        self.close()\n        ap = mode == 'ap'\n        if mode not in ('ap', 'station'):\n            raise ValueError('Choose ap or station')\n        if ap and not 8 <= len(password) <= 63:\n            raise ValueError('Hotspot password must have 8 to 63 characters')\n        if not ssid or len(ssid.encode()) > 32:\n            raise ValueError('Wi-Fi name must be 1 to 32 bytes')\n        interface = getattr(network, 'AP_IF' if ap else 'STA_IF', None)\n        if interface is None:\n            interface = getattr(network.WLAN, 'IF_AP' if ap else 'IF_STA')\n        self.wlan = network.WLAN(interface)\n        try:\n            if ap:\n                self.wlan.active(False)\n                try:\n                    # CYW43 uses authentication bit flags, not ESP32's enum 3.\n                    # WPA2 AES PSK = WPA2 (0x400000) | AES (0x4).\n                    self.wlan.config(ssid=ssid, key=password, security=0x400004, channel=6)\n                except (ValueError, TypeError):\n                    self.wlan.config(essid=ssid, password=password, authmode=3)\n                self.wlan.active(True)\n                print('Remote control: hotspot \"' + ssid + '\" started')\n            else:\n                self._join_network(ssid, password)\n            self.ip = self.wlan.ifconfig()[0]\n            self.server = socket.socket()\n            self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)\n            self.server.bind(('0.0.0.0', 80))\n            self.server.listen(3)\n            self.server.setblocking(False)\n            self.poller.register(self.server, select.POLLIN)\n            _active_remote = self\n            print('Remote control: http://' + self.ip)\n            if not ap:\n                print('Open this address on a phone/laptop connected to \"' + ssid + '\"')\n        except BaseException:\n            self.close()\n            raise\n\n    def _join_network(self, ssid, password):\n        # Clear a previous association before connecting to the requested SSID.\n        # Otherwise isconnected() can report success for the previous router.\n        self.wlan.active(False)\n        self.wlan.active(True)\n        print('Remote control: joining \"' + ssid + '\" (2.4 GHz Wi-Fi)...')\n        if password:\n            self.wlan.connect(ssid, password)\n        else:\n            self.wlan.connect(ssid)\n        started = time.ticks_ms()\n        last_progress = started\n        while not self.wlan.isconnected():\n            status = self.wlan.status()\n            failures = (\n                ('STAT_WRONG_PASSWORD', -3, 'Wi-Fi password rejected; check the password'),\n                ('STAT_NO_AP_FOUND', -2, 'Wi-Fi network not found; check its name and 2.4 GHz availability'),\n                ('STAT_CONNECT_FAIL', -1, 'Wi-Fi connection failed; check signal and router settings'),\n            )\n            for constant, fallback, message in failures:\n                if status == getattr(network, constant, fallback):\n                    raise OSError(message)\n            now = time.ticks_ms()\n            if time.ticks_diff(now, started) >= 30000:\n                raise OSError('Wi-Fi join timed out (status %s); check 2.4 GHz, credentials and DHCP' % status)\n            if time.ticks_diff(now, last_progress) >= 5000:\n                print('Remote control: waiting for Wi-Fi/IP address (status %s)...' % status)\n                last_progress = now\n            time.sleep_ms(100)\n        if self.wlan.ifconfig()[0] == '0.0.0.0':\n            raise OSError('Wi-Fi connected but no IPv4 address was assigned')\n\n    def _drop(self, client):\n        try:\n            self.poller.unregister(client['socket'])\n        except Exception:\n            pass\n        client['socket'].close()\n        self.clients.remove(client)\n\n    def _response(self, client, status, body='', content_type='text/plain'):\n        body = body.encode() if isinstance(body, str) else body\n        header = ('HTTP/1.1 %d OK\\r\\nContent-Type: %s; charset=utf-8\\r\\n'\n                  'Content-Length: %d\\r\\nCache-Control: no-store\\r\\n'\n                  'Connection: close\\r\\nX-Content-Type-Options: nosniff\\r\\n\\r\\n') % (status, content_type, len(body))\n        client['output'] = header.encode() + body\n        client['sent'] = 0\n        self.poller.modify(client['socket'], select.POLLOUT)\n\n    def _request(self, client):\n        raw = client['input']\n        if b'\\r\\n\\r\\n' not in raw:\n            return\n        head, body = raw.split(b'\\r\\n\\r\\n', 1)\n        lines = head.decode().split('\\r\\n')\n        method, path, _ = lines[0].split(' ')\n        headers = {}\n        for line in lines[1:]:\n            key, value = line.split(':', 1)\n            headers[key.lower()] = value.strip()\n        length = int(headers.get('content-length', '0'))\n        if length < 0 or length > 512:\n            raise ValueError('Request too large')\n        if len(body) < length:\n            return\n        if method == 'GET' and path == '/':\n            self._response(client, 200, PAGE, 'text/html')\n        elif method == 'GET' and path == '/config':\n            self._response(client, 200, json.dumps({'title': self.title, 'labels': self.labels}), 'application/json')\n        elif method == 'POST' and path == '/state' and headers.get('x-remote-control') == '1':\n            self._response(client, self._state(json.loads(body[:length].decode())))\n        else:\n            self._response(client, 404)\n\n    def update(self):\n        \"\"\"Serve a bounded amount of network work, then return to user blocks.\"\"\"\n        self._expire()\n        if self.server is None:\n            return\n        for obj, flags in self.poller.poll(0):\n            if obj == self.server:\n                if flags & select.POLLIN:\n                    conn, _ = self.server.accept()\n                    conn.setblocking(False)\n                    if len(self.clients) >= 4:\n                        conn.close()\n                    else:\n                        client = {'socket': conn, 'input': b'', 'output': None, 'started': time.ticks_ms()}\n                        self.clients.append(client)\n                        self.poller.register(conn, select.POLLIN)\n                continue\n            client = None\n            for candidate in self.clients:\n                if candidate['socket'] == obj:\n                    client = candidate\n                    break\n            if client is None:\n                continue\n            try:\n                if flags & (select.POLLERR | select.POLLHUP):\n                    self._drop(client)\n                elif client['output'] is not None and flags & select.POLLOUT:\n                    sent = obj.send(memoryview(client['output'])[client['sent']:client['sent'] + 1024])\n                    client['sent'] += sent\n                    if client['sent'] == len(client['output']):\n                        self._drop(client)\n                elif flags & select.POLLIN:\n                    chunk = obj.recv(512)\n                    if not chunk:\n                        self._drop(client)\n                        continue\n                    client['input'] += chunk\n                    if len(client['input']) > 2048:\n                        self._drop(client)\n                        continue\n                    self._request(client)\n            except OSError as exc:\n                if exc.args[0] not in (11, 35):\n                    self._drop(client)\n            except (ValueError, TypeError, KeyError):\n                self._drop(client)\n        for client in self.clients[:]:\n            if time.ticks_diff(time.ticks_ms(), client['started']) > 2000:\n                self._drop(client)\n        self._expire()\n\n    def close(self):\n        global _active_remote\n        if _active_remote is self:\n            _active_remote = None\n        self.release()\n        self.owner, self.sequence = None, -1\n        for client in self.clients[:]:\n            self._drop(client)\n        if self.server:\n            self.poller.unregister(self.server)\n            self.server.close()\n            self.server = None\n        if self.wlan:\n            self.wlan.active(False)\n            self.wlan = None\n        self.ip = ''\n"
+  },
+  "instance": {
+    "name": "remote",
+    "import": "from RemoteControl import RemoteControl",
+    "create": "RemoteControl()"
+  },
+  "blocks": [
+    {
+      "type": "xrp_remote_start",
+      "text": "remote Wi-Fi %1 name %2 password %3",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "MODE",
+          "options": [
+            {
+              "label": "create hotspot",
+              "value": "AP",
+              "code": "'ap'"
+            },
+            {
+              "label": "join network",
+              "value": "STA",
+              "code": "'station'"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "SSID",
+          "default": "\"XRP-Remote\""
+        },
+        {
+          "type": "text",
+          "name": "PASSWORD",
+          "default": "\"xrpremote\""
+        }
+      ],
+      "code": "remote.start({MODE}, {SSID}, {PASSWORD})\n",
+      "tooltip": "Start the web page on port 80. Hotspot password: 8–63 characters. Join network waits up to 30 seconds. The address prints in Console. Join a 2.4 GHz network and use the new address printed in Console.",
+      "shape": "statement",
+      "inline": false
+    },
+    {
+      "type": "xrp_remote_title",
+      "text": "remote page title %1",
+      "args": [
+        {
+          "type": "text",
+          "name": "TITLE",
+          "default": "\"Remote control\""
+        }
+      ],
+      "code": "remote.set_title({TITLE})\n",
+      "tooltip": "Set before starting. Refresh the controller page to see changes.",
+      "shape": "statement",
+      "inline": true
+    },
+    {
+      "type": "xrp_remote_label",
+      "text": "remote button %1 label %2",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "BUTTON",
+          "options": [
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            },
+            {
+              "label": "5",
+              "value": "5"
+            },
+            {
+              "label": "6",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "LABEL",
+          "default": "\"Action\""
+        }
+      ],
+      "code": "remote.label({BUTTON}, {LABEL})\n",
+      "tooltip": "Give this button a name. Button numbers remain 1–6. Set before starting.",
+      "shape": "statement",
+      "inline": true
+    },
+    {
+      "type": "xrp_remote_update",
+      "text": "remote update",
+      "args": [],
+      "code": "remote.update()\n",
+      "tooltip": "Put first in a forever loop, with a short wait (0.02 seconds). Serves the page and processes button messages without waiting for a client.",
+      "shape": "statement",
+      "inline": true
+    },
+    {
+      "type": "xrp_remote_pressed",
+      "text": "remote button %1 held",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "BUTTON",
+          "options": [
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            },
+            {
+              "label": "5",
+              "value": "5"
+            },
+            {
+              "label": "6",
+              "value": "6"
+            }
+          ]
+        }
+      ],
+      "code": "remote.pressed({BUTTON})",
+      "tooltip": "True while held, false on release or after 1 second without messages. Call remote update frequently. Also services the web page automatically.",
+      "shape": "value",
+      "inline": true,
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_remote_clicked",
+      "text": "remote button %1 just pressed",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "BUTTON",
+          "options": [
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            },
+            {
+              "label": "5",
+              "value": "5"
+            },
+            {
+              "label": "6",
+              "value": "6"
+            }
+          ]
+        }
+      ],
+      "code": "remote.clicked({BUTTON})",
+      "tooltip": "True once per press; reading consumes the event. Useful for lights or single actions. Also services the web page automatically.",
+      "shape": "value",
+      "inline": true,
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_remote_connected",
+      "text": "remote controller connected",
+      "args": [],
+      "code": "remote.connected()",
+      "tooltip": "True while a controller sends messages. False after 1 second without a heartbeat. Also services the web page automatically.",
+      "shape": "value",
+      "inline": true,
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_remote_address",
+      "text": "remote page address",
+      "args": [],
+      "code": "'http://' + remote.ip",
+      "tooltip": "Open this address on a device connected to the same network or robot hotspot.",
+      "shape": "value",
+      "inline": true,
+      "returns": "String",
+      "order": "ADDITIVE"
+    },
+    {
+      "type": "xrp_remote_release",
+      "text": "remote release all buttons",
+      "args": [],
+      "code": "remote.release()\n",
+      "tooltip": "Clears current input states. Does not stop motors or other devices. Held buttons may return on the next message.",
+      "shape": "statement",
+      "inline": true
+    },
+    {
+      "type": "xrp_remote_close",
+      "text": "remote close",
+      "args": [],
+      "code": "remote.close()\n",
+      "tooltip": "Close the server, release buttons and switch off the Wi-Fi interface used by this library.",
+      "shape": "statement",
+      "inline": true
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_remote_start",
+      "shadows": {
+        "SSID": "XRP-Remote",
+        "PASSWORD": "xrpremote"
+      }
+    },
+    {
+      "block": "xrp_remote_title",
+      "shadows": {
+        "TITLE": "Remote control"
+      }
+    },
+    {
+      "block": "xrp_remote_label",
+      "shadows": {
+        "LABEL": "Action"
+      }
+    },
+    {
+      "block": "xrp_remote_update",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_remote_pressed",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_remote_clicked",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_remote_connected",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_remote_address",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_remote_release",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_remote_close",
+      "shadows": {}
+    }
+  ]
+}

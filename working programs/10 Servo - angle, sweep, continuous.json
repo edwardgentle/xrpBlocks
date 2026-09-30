@@ -1,0 +1,525 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0700",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Also checks the end stops: do 0 and 180 move freely, or does the servo strain? Adjust SAFE_LOW / SAFE_HIGH if needed.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0646",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0647",
+                  "fields": {
+                    "TEXT": "Test 10: servo on port 1"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_servo_centre",
+                "id": "tp0648",
+                "fields": {
+                  "SERVO": "1"
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_seconds",
+                    "id": "tp0649",
+                    "inputs": {
+                      "SECONDS": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp0650",
+                          "fields": {
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "controls_for",
+                        "id": "tp0659",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_angle"
+                          }
+                        },
+                        "inputs": {
+                          "FROM": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0660",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          },
+                          "TO": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0661",
+                              "fields": {
+                                "NUM": 180
+                              }
+                            }
+                          },
+                          "BY": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0662",
+                              "fields": {
+                                "NUM": 45
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "xrp_print",
+                              "id": "tp0654",
+                              "inputs": {
+                                "TEXT": {
+                                  "block": {
+                                    "type": "text_join",
+                                    "id": "tp0653",
+                                    "extraState": {
+                                      "itemCount": 2
+                                    },
+                                    "inputs": {
+                                      "ADD0": {
+                                        "block": {
+                                          "type": "text",
+                                          "id": "tp0651",
+                                          "fields": {
+                                            "TEXT": "angle "
+                                          }
+                                        }
+                                      },
+                                      "ADD1": {
+                                        "block": {
+                                          "type": "variables_get",
+                                          "id": "tp0652",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_angle"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_servo_set_angle",
+                                  "id": "tp0656",
+                                  "fields": {
+                                    "SERVO": "1"
+                                  },
+                                  "inputs": {
+                                    "ANGLE": {
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "tp0655",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_angle"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_wait_seconds",
+                                      "id": "tp0657",
+                                      "inputs": {
+                                        "SECONDS": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "tp0658",
+                                            "fields": {
+                                              "NUM": 0.8
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_print",
+                            "id": "tp0663",
+                            "inputs": {
+                              "TEXT": {
+                                "shadow": {
+                                  "type": "text",
+                                  "id": "tp0664",
+                                  "fields": {
+                                    "TEXT": "Sweep 0 to 180 over 2 s and back"
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_servo_sweep",
+                                "id": "tp0665",
+                                "fields": {
+                                  "SERVO": "1"
+                                },
+                                "inputs": {
+                                  "FROM": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0666",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  },
+                                  "TO": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0667",
+                                      "fields": {
+                                        "NUM": 180
+                                      }
+                                    }
+                                  },
+                                  "SECONDS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0668",
+                                      "fields": {
+                                        "NUM": 2
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_servo_sweep",
+                                    "id": "tp0669",
+                                    "fields": {
+                                      "SERVO": "1"
+                                    },
+                                    "inputs": {
+                                      "FROM": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0670",
+                                          "fields": {
+                                            "NUM": 180
+                                          }
+                                        }
+                                      },
+                                      "TO": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0671",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        }
+                                      },
+                                      "SECONDS": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0672",
+                                          "fields": {
+                                            "NUM": 2
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_print",
+                                        "id": "tp0673",
+                                        "inputs": {
+                                          "TEXT": {
+                                            "shadow": {
+                                              "type": "text",
+                                              "id": "tp0674",
+                                              "fields": {
+                                                "TEXT": "Out of range values should be clamped, not crash: -20 then 200"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_servo_set_angle",
+                                            "id": "tp0675",
+                                            "fields": {
+                                              "SERVO": "1"
+                                            },
+                                            "inputs": {
+                                              "ANGLE": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "tp0676",
+                                                  "fields": {
+                                                    "NUM": -20
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_wait_seconds",
+                                                "id": "tp0677",
+                                                "inputs": {
+                                                  "SECONDS": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "tp0678",
+                                                      "fields": {
+                                                        "NUM": 1
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_servo_set_angle",
+                                                    "id": "tp0679",
+                                                    "fields": {
+                                                      "SERVO": "1"
+                                                    },
+                                                    "inputs": {
+                                                      "ANGLE": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0680",
+                                                          "fields": {
+                                                            "NUM": 200
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_wait_seconds",
+                                                        "id": "tp0681",
+                                                        "inputs": {
+                                                          "SECONDS": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp0682",
+                                                              "fields": {
+                                                                "NUM": 1
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_servo_centre",
+                                                            "id": "tp0683",
+                                                            "fields": {
+                                                              "SERVO": "1"
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_wait_seconds",
+                                                                "id": "tp0684",
+                                                                "inputs": {
+                                                                  "SECONDS": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp0685",
+                                                                      "fields": {
+                                                                        "NUM": 0.5
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_servo_free",
+                                                                    "id": "tp0686",
+                                                                    "fields": {
+                                                                      "SERVO": "1"
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_print",
+                                                                        "id": "tp0687",
+                                                                        "inputs": {
+                                                                          "TEXT": {
+                                                                            "shadow": {
+                                                                              "type": "text",
+                                                                              "id": "tp0688",
+                                                                              "fields": {
+                                                                                "TEXT": "Continuous rotation test on servo 2 (skip if not fitted)"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_servo_speed",
+                                                                            "id": "tp0689",
+                                                                            "fields": {
+                                                                              "SERVO": "2"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "SPEED": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "tp0690",
+                                                                                  "fields": {
+                                                                                    "NUM": 50
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_wait_seconds",
+                                                                                "id": "tp0691",
+                                                                                "inputs": {
+                                                                                  "SECONDS": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "tp0692",
+                                                                                      "fields": {
+                                                                                        "NUM": 2
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_servo_speed",
+                                                                                    "id": "tp0693",
+                                                                                    "fields": {
+                                                                                      "SERVO": "2"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "SPEED": {
+                                                                                        "shadow": {
+                                                                                          "type": "math_number",
+                                                                                          "id": "tp0694",
+                                                                                          "fields": {
+                                                                                            "NUM": -50
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_wait_seconds",
+                                                                                        "id": "tp0695",
+                                                                                        "inputs": {
+                                                                                          "SECONDS": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "tp0696",
+                                                                                              "fields": {
+                                                                                                "NUM": 2
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_servo_free",
+                                                                                            "id": "tp0697",
+                                                                                            "fields": {
+                                                                                              "SERVO": "2"
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_print",
+                                                                                                "id": "tp0698",
+                                                                                                "inputs": {
+                                                                                                  "TEXT": {
+                                                                                                    "shadow": {
+                                                                                                      "type": "text",
+                                                                                                      "id": "tp0699",
+                                                                                                      "fields": {
+                                                                                                        "TEXT": "Test 10 done"
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "angle",
+      "id": "v_angle"
+    }
+  ]
+}

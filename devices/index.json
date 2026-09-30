@@ -1,0 +1,295 @@
+{
+  "catalogueVersion": 1,
+  "libraries": [
+    {
+      "id": "pcf8575",
+      "file": "pcf8575.json",
+      "name": {
+        "en": "PCF8575 I/O expander",
+        "nl": "PCF8575 I/O-uitbreiding"
+      },
+      "description": {
+        "en": "Sixteen extra pins over the Qwiic connector, for LEDs and buttons.",
+        "nl": "Zestien extra pinnen via de Qwiic-connector, voor LEDs en knoppen."
+      },
+      "version": "1.0.0",
+      "colour": "#7E9BD8",
+      "provides": [
+        "xrp_pcf_setup",
+        "xrp_pcf_pin_mode",
+        "xrp_pcf_led",
+        "xrp_pcf_all_off",
+        "xrp_pcf_button",
+        "xrp_pcf_set_pin",
+        "xrp_pcf_read_pin"
+      ]
+    },
+    {
+      "id": "neopixel",
+      "file": "neopixel.json",
+      "name": {
+        "en": "NeoPixel strip",
+        "nl": "NeoPixel-strip"
+      },
+      "description": {
+        "en": "WS2812 addressable LED strip on a servo header or a free GPIO.",
+        "nl": "WS2812 adresseerbare LED-strip op een servo-aansluiting of vrije GPIO."
+      },
+      "version": "1.0.0",
+      "colour": "#E27DA8",
+      "provides": [
+        "xrp_np_setup",
+        "xrp_np_brightness",
+        "xrp_np_colour",
+        "xrp_np_rgb",
+        "xrp_np_set_pixel",
+        "xrp_np_fill",
+        "xrp_np_clear",
+        "xrp_np_rainbow",
+        "xrp_np_shift",
+        "xrp_np_show",
+        "xrp_np_auto_show",
+        "xrp_np_count"
+      ]
+    },
+    {
+      "id": "ssd1315-oled",
+      "file": "ssd1315-oled.json",
+      "name": {
+        "en": "OLED screen (SSD1315 / SSD1306)",
+        "nl": "OLED-scherm (SSD1315 / SSD1306)"
+      },
+      "description": {
+        "en": "128x64 monochrome OLED on the Qwiic connector. Text, numbers, drawing, a compass arrow and sketched pictures.",
+        "nl": "128x64 monochroom OLED op de Qwiic-connector. Tekst, getallen, tekenen, een kompaspijl en getekende plaatjes."
+      },
+      "version": "2.2.0",
+      "colour": "#4DB6AC",
+      "provides": [
+        "xrp_oled_setup",
+        "xrp_oled_clear",
+        "xrp_oled_print",
+        "xrp_oled_line",
+        "xrp_oled_value",
+        "xrp_oled_at",
+        "xrp_oled_show",
+        "xrp_oled_auto_show",
+        "xrp_oled_brightness",
+        "xrp_oled_invert",
+        "xrp_oled_power",
+        "xrp_oled_arrow",
+        "xrp_oled_big",
+        "xrp_oled_picture",
+        "xrp_oled_pixel",
+        "xrp_oled_draw_line",
+        "xrp_oled_rect",
+        "xrp_oled_circle",
+        "xrp_oled_bar",
+        "xrp_oled_connected",
+        "xrp_oled_width",
+        "xrp_oled_height",
+        "xrp_oled_scroll_text",
+        "xrp_oled_icon"
+      ]
+    },
+    {
+      "id": "mecanum",
+      "file": "mecanum.json",
+      "name": {
+        "en": "Mecanum wheels (4 motors)",
+        "nl": "Mecanumwielen (4 motoren)"
+      },
+      "description": {
+        "en": "Eight movement directions, speed %, encoder distance in cm and turns in degrees. Four encoded motors and X-pattern wheels."
+      },
+      "version": "1.4.0",
+      "colour": "#527EC5",
+      "provides": [
+        "xrp_mec_setup",
+        "xrp_mec_reverse",
+        "xrp_mec_move",
+        "xrp_mec_angle",
+        "xrp_mec_drive",
+        "xrp_mec_turn",
+        "xrp_mec_stop",
+        "xrp_mec_completed",
+        "xrp_mec_ports",
+        "xrp_mec_geometry"
+      ]
+    },
+    {
+      "id": "remote-control",
+      "file": "remote-control.json",
+      "name": {
+        "en": "Remote control",
+        "nl": "Afstandsbediening"
+      },
+      "description": {
+        "en": "Wi-Fi HTML controller with six customizable buttons. Read inputs and control any device library."
+      },
+      "version": "1.1.1",
+      "colour": "#497DA4",
+      "provides": [
+        "xrp_remote_start",
+        "xrp_remote_title",
+        "xrp_remote_label",
+        "xrp_remote_update",
+        "xrp_remote_pressed",
+        "xrp_remote_clicked",
+        "xrp_remote_connected",
+        "xrp_remote_address",
+        "xrp_remote_release",
+        "xrp_remote_close"
+      ]
+    },
+    {
+      "id": "tcs34725",
+      "file": "tcs34725.json",
+      "name": {
+        "en": "TCS34725 colour sensor",
+        "nl": "TCS34725-kleursensor"
+      },
+      "description": {
+        "en": "RGB colour and light-level sensor over the Qwiic connector.",
+        "nl": "RGB-kleur- en lichtsensor via de Qwiic-connector."
+      },
+      "version": "1.0.0",
+      "colour": "#C77DE2",
+      "provides": [
+        "xrp_tcs_setup",
+        "xrp_tcs_red",
+        "xrp_tcs_green",
+        "xrp_tcs_blue",
+        "xrp_tcs_clear_raw",
+        "xrp_tcs_lux",
+        "xrp_tcs_colour_temperature",
+        "xrp_tcs_nearest_colour"
+      ]
+    },
+    {
+      "id": "lcd1602",
+      "file": "lcd1602.json",
+      "name": {
+        "en": "Character LCD 16x2 (I2C)",
+        "nl": "Tekst-LCD 16x2 (I2C)"
+      },
+      "description": {
+        "en": "16x2 character LCD with an I2C backpack. Two lines of text, readings, scrolling and a bar. Needs 5 V power.",
+        "nl": "16x2 tekst-LCD met I2C-module. Twee regels tekst, metingen, schuiven en een balk. Heeft 5 V nodig."
+      },
+      "version": "1.1.0",
+      "colour": "#7F9C3A",
+      "provides": [
+        "xrp_lcd_setup",
+        "xrp_lcd_clear",
+        "xrp_lcd_print",
+        "xrp_lcd_line",
+        "xrp_lcd_value",
+        "xrp_lcd_at",
+        "xrp_lcd_scroll_text",
+        "xrp_lcd_bar",
+        "xrp_lcd_backlight",
+        "xrp_lcd_power",
+        "xrp_lcd_cursor",
+        "xrp_lcd_connected"
+      ]
+    },
+    {
+      "id": "lcd2004",
+      "file": "lcd2004.json",
+      "name": {
+        "en": "Character LCD 20x4 (I2C)",
+        "nl": "Tekst-LCD 20x4 (I2C)"
+      },
+      "description": {
+        "en": "20x4 character LCD with an I2C backpack. Four lines of text, readings, scrolling and a bar. Needs 5 V power.",
+        "nl": "20x4 tekst-LCD met I2C-module. Vier regels tekst, metingen, schuiven en een balk. Heeft 5 V nodig."
+      },
+      "version": "1.0.0",
+      "colour": "#A08A3C",
+      "provides": [
+        "xrp_lcd4_setup",
+        "xrp_lcd4_clear",
+        "xrp_lcd4_print",
+        "xrp_lcd4_line",
+        "xrp_lcd4_value",
+        "xrp_lcd4_at",
+        "xrp_lcd4_scroll_text",
+        "xrp_lcd4_bar",
+        "xrp_lcd4_backlight",
+        "xrp_lcd4_power",
+        "xrp_lcd4_cursor",
+        "xrp_lcd4_connected"
+      ]
+    },
+    {
+      "id": "triggers",
+      "file": "triggers.json",
+      "name": {
+        "en": "Triggers (lights and servos)",
+        "nl": "Triggers (lampen en servo's)"
+      },
+      "description": {
+        "en": "When this happens, do that: brake lights, indicators and servo moves that run in the background while the robot drives. Optional emergency stop.",
+        "nl": "Als dit gebeurt, doe dat: remlichten, richtingaanwijzers en servobewegingen die op de achtergrond werken terwijl de robot rijdt. Optionele noodstop."
+      },
+      "version": "1.0.0",
+      "colour": "#C9822B",
+      "provides": [
+        "xrp_trig_setup",
+        "xrp_trig_light_rule",
+        "xrp_trig_servo_rule",
+        "xrp_trig_estop_rule",
+        "xrp_trig_estop_clear",
+        "xrp_trig_estop_active",
+        "xrp_trig_happening",
+        "xrp_trig_define",
+        "xrp_trig_define_pin",
+        "xrp_trig_define_value",
+        "xrp_trig_define_every",
+        "xrp_trig_set_value",
+        "xrp_trig_measure",
+        "xrp_trig_reset_distance",
+        "xrp_trig_use_rgb",
+        "xrp_trig_use_board_led",
+        "xrp_trig_use_pin",
+        "xrp_trig_strip",
+        "xrp_trig_use_pixels",
+        "xrp_trig_set_light",
+        "xrp_trig_all_off",
+        "xrp_trig_brightness",
+        "xrp_trig_hold",
+        "xrp_trig_braking",
+        "xrp_trig_enable"
+      ]
+    },
+    {
+      "id": "ble-remote",
+      "file": "ble-remote.json",
+      "name": {
+        "en": "Phone control (Bluetooth)",
+        "nl": "Telefoonbediening (Bluetooth)"
+      },
+      "description": {
+        "en": "Drive the robot from an Android phone over Bluetooth: joystick, D-pad and six buttons, no Wi-Fi needed. The phone can also show readings and messages from the robot.",
+        "nl": "Bestuur de robot met een Android-telefoon via Bluetooth: joystick, D-pad en zes knoppen, zonder wifi. De telefoon kan ook metingen en berichten van de robot tonen."
+      },
+      "version": "1.1.0",
+      "colour": "#3A74B0",
+      "provides": [
+        "xrp_ble_start",
+        "xrp_ble_title",
+        "xrp_ble_label",
+        "xrp_ble_update",
+        "xrp_ble_connected",
+        "xrp_ble_pressed",
+        "xrp_ble_clicked",
+        "xrp_ble_joystick",
+        "xrp_ble_show",
+        "xrp_ble_value",
+        "xrp_ble_print",
+        "xrp_ble_release"
+      ]
+    }
+  ]
+}

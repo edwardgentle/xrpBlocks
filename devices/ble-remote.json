@@ -1,0 +1,408 @@
+{
+  "manifestVersion": 1,
+  "id": "ble-remote",
+  "name": {
+    "en": "Phone control (Bluetooth)",
+    "nl": "Telefoonbediening (Bluetooth)"
+  },
+  "description": {
+    "en": "Drive the robot from an Android phone over Bluetooth: joystick, D-pad and six buttons, no Wi-Fi needed. The phone can also show readings and messages from the robot.",
+    "nl": "Bestuur de robot met een Android-telefoon via Bluetooth: joystick, D-pad en zes knoppen, zonder wifi. De telefoon kan ook metingen en berichten van de robot tonen."
+  },
+  "version": "1.1.0",
+  "author": "XRP Blocks (Limpopo DoE fork)",
+  "licence": "MIT",
+  "homepage": "",
+  "category": {
+    "key": "BLERemote",
+    "label": {
+      "en": "Phone (Bluetooth)",
+      "nl": "Telefoon (Bluetooth)"
+    },
+    "colour": "#3A74B0",
+    "colourDark": "#2E5F91",
+    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill-rule=\"evenodd\" d=\"M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h10V4zm3.2 3.4 4.6 3.6-3 2.4 3 2.4-4.6 3.6v-5l-1.4 1.1-.9-1.1 2.3-1-2.3-1.9.9-1.1 1.4 1.1z\"/></svg>"
+  },
+  "driver": {
+    "filename": "BLERemote.py",
+    "marker": "BLERemote",
+    "source": "\"\"\"Phone control over Bluetooth, using the XRP's own Bluetooth REPL link.\n\nThe XRP firmware already offers a Bluetooth serial link (Nordic UART Service,\nadvertised as \"XRP-xxxxx\"): it is how an IDE connects over Bluetooth. This\ndriver does not take over the radio. It makes sure that link is running, then\nreads short text lines the phone page writes into it, which arrive on\nsys.stdin while a program runs.\n\nMessages are one line each and start with '#', so if a line ever reaches the\nREPL (no program running) Python treats it as a comment and nothing happens.\n\n  phone -> robot   #xrp h                   hello (asks for the page setup)\n                   #xrp s <mask> <x> <y>    buttons 1-6 as bits, joystick\n                                            -100..100, sent on change and\n                                            every 0.25 s as a heartbeat\n                   #xrp o 1 | #xrp o 0      robot messages wanted / not\n  robot -> phone   #xrp ok                  \"a program is listening\" (0.5 s)\n                   #xrp cfg <title>|<l1>|...|<l6>\n                   #xrp m <text>            message for the phone's text line\n                   #xrp v <name>|<value>    a named reading (only when wanted)\n                   #xrp p <text>            a line for the message log (ditto)\n\nReplies go to the phone as Bluetooth notifications on the same link, not\nthrough print(): the REPL sends print() output as indications, which Chrome\non Android drops (found on hardware with 1.0.0).\n\nThe phone only sends states after it has heard \"#xrp ok\", and the robot only\nsends \"#xrp ok\" while it is reading, so nothing piles up in the Bluetooth\nbuffer when no program is listening.\n\nCooperative, like the Wi-Fi remote: every read services the link. Use\nupdate() in loops that read nothing. Inputs expire one second after the last\nmessage; stopping motors on disconnect is the user program's job.\n\nThe phone and an IDE cannot both be connected over Bluetooth at the same time.\n\"\"\"\nimport sys\nimport time\n\ntry:\n    import select\nexcept ImportError:  # older ports\n    import uselect as select\n\nVERSION = '1.1.0'\n_TIMEOUT_MS = 1000\n_ACK_MS = 500\n_MAX_LINE = 96\n_MAX_CHARS_PER_UPDATE = 512\n_MAX_VALUES = 8\n_LOG_KEEP = 8\n_FEED_MS = 200        # changed readings go out at most 5 times a second\n_FEED_ALL_MS = 2000   # and every reading is repeated every 2 s\n\n_active_phone = None\n\n\ndef _clean(text, limit):\n    text = str(text)\n    out = ''\n    for ch in text:\n        if ch in '|\\r\\n' or ord(ch) < 32:\n            ch = ' '\n        out += ch\n    return out[:limit]\n\n\nclass BLERemote:\n    def __init__(self):\n        self.title = 'XRP phone control'\n        self.labels = ['Up', 'Left', 'Right', 'Down', 'A', 'B']\n        self.buttons = [False] * 6\n        self.edges = [False] * 6\n        self.x = 0\n        self.y = 0\n        self.last_seen = None\n        self.last_ack = None\n        self.started = False\n        self.link = 'none'\n        self._line = ''\n        self._poller = None\n        self._message = None\n        self._uart = None\n        self.feed_on = False      # the phone has asked for robot messages\n        self._values = []         # [name, text] pairs, in first-shown order\n        self._dirty = set()\n        self._last_feed = None\n        self._last_feed_all = None\n        self._log = []            # (number, text), the last _LOG_KEEP lines\n        self._log_n = 0\n        self._log_sent = 0\n        self._warned = False\n\n    # ---- setup ---------------------------------------------------------\n\n    def set_title(self, text):\n        self.title = _clean(text, 40) or 'XRP phone control'\n        self._send_config()\n\n    def label(self, button, text):\n        self.labels[self._index(button)] = _clean(text, 16)\n        self._send_config()\n\n    def start(self):\n        \"\"\"Make sure the Bluetooth link is up and start listening.\"\"\"\n        global _active_phone\n        if _active_phone is not None and _active_phone is not self:\n            _active_phone.release()\n        _active_phone = self\n        print('Phone control (Bluetooth) driver ' + VERSION)\n        self.link = self._ensure_bluetooth()\n        self._uart = self._find_uart()\n        self._poller = select.poll()\n        self._poller.register(sys.stdin, select.POLLIN)\n        self.started = True\n        if self.link == 'none':\n            print('Phone control: Bluetooth link not available. Connect the robot '\n                  'once to the official XRPCode IDE so it installs /lib/ble, then try again.')\n        else:\n            print('Phone control: open the phone page and connect to this robot (' +\n                  self._name() + ').')\n\n    @staticmethod\n    def _name():\n        try:\n            from machine import unique_id\n            x = ''.join(['{:02x}'.format(b) for b in unique_id()])\n            return 'XRP-' + x[11:]\n        except Exception:\n            return 'XRP-...'\n\n    @staticmethod\n    def _ensure_bluetooth():\n        # Same test the official XRPCode main.py uses: slot 0 holds the\n        # Bluetooth REPL stream when it is running.\n        try:\n            import os\n            current = os.dupterm(None, 0)\n            if current is not None:\n                os.dupterm(current, 0)\n                return 'running'\n            import ble.blerepl  # noqa: F401  starts the Bluetooth REPL\n            return 'started'\n        except ImportError:\n            return 'none'\n        except Exception as exc:\n            print('Phone control: could not start Bluetooth:', exc)\n            return 'none'\n\n    @staticmethod\n    def _find_uart():\n        # The BLEUART object the Bluetooth REPL made (ble/blerepl.py, 'uart').\n        try:\n            import ble.blerepl as repl\n            uart = repl.uart\n            uart._ble, uart._tx_handle, uart._connections  # noqa: B018\n            return uart\n        except Exception:\n            return None\n\n    @staticmethod\n    def _index(button):\n        index = int(button) - 1\n        if index < 0 or index >= 6:\n            raise ValueError('Button must be 1 to 6')\n        return index\n\n    # ---- link servicing ------------------------------------------------\n\n    def update(self):\n        \"\"\"Read waiting phone messages. Returns quickly when there are none.\"\"\"\n        if not self.started:\n            self.start()\n        count = 0\n        while count < _MAX_CHARS_PER_UPDATE and self._poller.poll(0):\n            ch = sys.stdin.read(1)\n            if not ch:\n                break\n            count += 1\n            if ch == '\\n' or ch == '\\r':\n                if self._line:\n                    self._handle(self._line)\n                self._line = ''\n            elif len(self._line) < _MAX_LINE:\n                self._line += ch\n            else:\n                self._line = ''   # overlong junk: drop it\n        self._expire()\n        if self.last_seen is not None:\n            now = time.ticks_ms()\n            if self.last_ack is None or time.ticks_diff(now, self.last_ack) >= _ACK_MS:\n                self.last_ack = now\n                self._write('#xrp ok')\n                if self._message is not None:\n                    self._write('#xrp m ' + self._message)\n            if self.feed_on:\n                self._feed(now)\n\n    def _handle(self, line):\n        parts = line.strip().split()\n        if len(parts) < 2 or parts[0] != '#xrp':\n            return\n        kind = parts[1]\n        if kind == 'h':\n            self._seen()\n            self._send_config(force=True)\n            self.last_ack = None\n        elif kind == 'o' and len(parts) == 3:\n            self._seen()\n            want = parts[2] == '1'\n            if want and not self.feed_on:\n                # Fresh opt-in: send every reading and the recent log.\n                self._dirty = set(range(len(self._values)))\n                self._last_feed = None\n                self._log_sent = max(self._log_sent, self._log_n - _LOG_KEEP)\n            self.feed_on = want\n        elif kind == 's' and len(parts) == 5:\n            try:\n                mask, x, y = int(parts[2]), int(parts[3]), int(parts[4])\n            except ValueError:\n                return\n            if not 0 <= mask < 64:\n                return\n            self._seen()\n            for i in range(6):\n                down = bool(mask & (1 << i))\n                if down and not self.buttons[i]:\n                    self.edges[i] = True\n                self.buttons[i] = down\n            self.x = max(-100, min(100, x))\n            self.y = max(-100, min(100, y))\n\n    def _seen(self):\n        first = self.last_seen is None\n        self.last_seen = time.ticks_ms()\n        if first:\n            self.last_ack = None\n\n    def _expire(self):\n        if self.last_seen is not None and \\\n                time.ticks_diff(time.ticks_ms(), self.last_seen) > _TIMEOUT_MS:\n            self.release()\n            self.last_seen = None\n            self.feed_on = False\n\n    def _write(self, text):\n        # Replies go straight to the phone as Bluetooth notifications, in\n        # 20-byte pieces (the smallest packet every phone accepts). print()\n        # would send them through the REPL link as \"indications\", which\n        # Chrome on Android does not pass on (found on hardware, 1.0.0).\n        uart = self._uart\n        if uart is None:\n            print(text)\n            return\n        data = (text + '\\r\\n').encode()\n        for conn in tuple(uart._connections):\n            for i in range(0, len(data), 20):\n                try:\n                    uart._ble.gatts_notify(conn, uart._tx_handle, data[i:i + 20])\n                except OSError:\n                    pass   # link busy or gone: the next reply is 0.5 s away\n\n    def _send_config(self, force=False):\n        if force or self.last_seen is not None:\n            self._write('#xrp cfg ' + '|'.join([self.title] + self.labels))\n\n    # ---- blocks --------------------------------------------------------\n\n    def connected(self):\n        self.update()\n        return self.last_seen is not None\n\n    def pressed(self, button):\n        self.update()\n        return self.buttons[self._index(button)]\n\n    def clicked(self, button):\n        self.update()\n        index = self._index(button)\n        result = self.edges[index]\n        self.edges[index] = False\n        return result\n\n    def joystick(self, axis):\n        self.update()\n        return self.y if axis == 'y' else self.x\n\n    def show(self, text):\n        \"\"\"Show a short text line on the phone page.\"\"\"\n        self._message = _clean(text, 60)\n        if self.last_seen is not None:\n            self._write('#xrp m ' + self._message)\n\n    @staticmethod\n    def _format(value):\n        if isinstance(value, bool):\n            return 'true' if value else 'false'\n        if isinstance(value, float):\n            text = '{:.2f}'.format(value)\n            if '.' in text:\n                text = text.rstrip('0').rstrip('.')\n            return '0' if text == '-0' else text\n        return str(value)\n\n    def value(self, name, value):\n        \"\"\"Show a named reading on the phone, e.g. Distance = 12.5.\"\"\"\n        name = _clean(name, 16) or '?'\n        text = _clean(self._format(value), 24)\n        for i, pair in enumerate(self._values):\n            if pair[0] == name:\n                if pair[1] != text:\n                    pair[1] = text\n                    self._dirty.add(i)\n                break\n        else:\n            if len(self._values) >= _MAX_VALUES:\n                if not self._warned:\n                    self._warned = True\n                    print('Phone control: only %d readings can be shown; \"%s\" left out.'\n                          % (_MAX_VALUES, name))\n                return\n            self._values.append([name, text])\n            self._dirty.add(len(self._values) - 1)\n        self.update()\n\n    def log(self, text):\n        \"\"\"Add a line to the phone's message log.\"\"\"\n        self._log_n += 1\n        self._log.append((self._log_n, _clean(text, 60)))\n        if len(self._log) > _LOG_KEEP:\n            self._log.pop(0)\n        self.update()\n\n    def _feed(self, now):\n        if self._last_feed_all is None or \\\n                time.ticks_diff(now, self._last_feed_all) >= _FEED_ALL_MS:\n            self._last_feed_all = now\n            self._dirty = set(range(len(self._values)))\n        if self._dirty and (self._last_feed is None or\n                            time.ticks_diff(now, self._last_feed) >= _FEED_MS):\n            self._last_feed = now\n            for i in sorted(self._dirty):\n                name, text = self._values[i]\n                self._write('#xrp v ' + name + '|' + text)\n            self._dirty = set()\n        sent = 0\n        for n, text in self._log:\n            if n > self._log_sent and sent < 3:\n                self._write('#xrp p ' + text)\n                self._log_sent = n\n                sent += 1\n\n    def release(self):\n        self.buttons = [False] * 6\n        self.edges = [False] * 6\n        self.x = 0\n        self.y = 0\n"
+  },
+  "instance": {
+    "name": "phone",
+    "import": "from BLERemote import BLERemote",
+    "create": "BLERemote()"
+  },
+  "lists": {
+    "buttons": [
+      {
+        "label": {
+          "en": "1 ▲ up",
+          "nl": "1 ▲ omhoog"
+        },
+        "value": "1"
+      },
+      {
+        "label": {
+          "en": "2 ◀ left",
+          "nl": "2 ◀ links"
+        },
+        "value": "2"
+      },
+      {
+        "label": {
+          "en": "3 ▶ right",
+          "nl": "3 ▶ rechts"
+        },
+        "value": "3"
+      },
+      {
+        "label": {
+          "en": "4 ▼ down",
+          "nl": "4 ▼ omlaag"
+        },
+        "value": "4"
+      },
+      {
+        "label": {
+          "en": "5 A",
+          "nl": "5 A"
+        },
+        "value": "5"
+      },
+      {
+        "label": {
+          "en": "6 B",
+          "nl": "6 B"
+        },
+        "value": "6"
+      }
+    ],
+    "axes": [
+      {
+        "label": {
+          "en": "forward/back (forward +)",
+          "nl": "vooruit/achteruit (vooruit +)"
+        },
+        "value": "Y",
+        "code": "'y'"
+      },
+      {
+        "label": {
+          "en": "left/right (right +)",
+          "nl": "links/rechts (rechts +)"
+        },
+        "value": "X",
+        "code": "'x'"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "type": "xrp_ble_start",
+      "text": {
+        "en": "phone control over Bluetooth: start",
+        "nl": "telefoonbediening via Bluetooth: start"
+      },
+      "tooltip": {
+        "en": "Put under \"when program starts\". Makes sure the robot's Bluetooth link is on, then listens for the phone page. Open the page in Chrome on an Android phone and tap Connect. The IDE and the phone cannot both be connected over Bluetooth at the same time.",
+        "nl": "Zet onder \"als programma start\". Zet de Bluetooth-verbinding van de robot aan en luistert naar de telefoonpagina. Open de pagina in Chrome op een Android-telefoon en tik op Verbinden. De IDE en de telefoon kunnen niet tegelijk via Bluetooth verbonden zijn."
+      },
+      "args": [],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.start()\n"
+    },
+    {
+      "type": "xrp_ble_title",
+      "text": {
+        "en": "phone page title %1",
+        "nl": "titel telefoonpagina %1"
+      },
+      "tooltip": {
+        "en": "Shown at the top of the phone page. Up to 40 characters.",
+        "nl": "Staat bovenaan de telefoonpagina. Maximaal 40 tekens."
+      },
+      "args": [
+        {
+          "type": "text",
+          "name": "TITLE",
+          "default": "\"XRP phone control\""
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.set_title({TITLE})\n"
+    },
+    {
+      "type": "xrp_ble_label",
+      "text": {
+        "en": "phone button %1 label %2",
+        "nl": "telefoonknop %1 naam %2"
+      },
+      "tooltip": {
+        "en": "Name shown on this button on the phone. Up to 16 characters. Button numbers stay 1 to 6.",
+        "nl": "Naam op deze knop op de telefoon. Maximaal 16 tekens. De knopnummers blijven 1 tot 6."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "BUTTON",
+          "options": "$buttons"
+        },
+        {
+          "type": "text",
+          "name": "LABEL",
+          "default": "\"Action\""
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.label({BUTTON}, {LABEL})\n"
+    },
+    {
+      "type": "xrp_ble_update",
+      "text": {
+        "en": "phone update",
+        "nl": "telefoon bijwerken"
+      },
+      "tooltip": {
+        "en": "Reads waiting messages from the phone. Needed in a forever loop that reads no phone blocks; the reading blocks do this by themselves. Add a short wait (0.02 seconds) in the loop.",
+        "nl": "Leest wachtende berichten van de telefoon. Nodig in een herhaal-altijd-lus die geen telefoonblokken leest; de leesblokken doen dit zelf. Zet een korte wachttijd (0,02 seconden) in de lus."
+      },
+      "args": [],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.update()\n"
+    },
+    {
+      "type": "xrp_ble_connected",
+      "text": {
+        "en": "phone connected",
+        "nl": "telefoon verbonden"
+      },
+      "tooltip": {
+        "en": "True while the phone page is sending. False one second after it stops. Put Stop blocks in the \"else\" branch so the robot stops when the phone goes away.",
+        "nl": "Waar zolang de telefoonpagina zendt. Onwaar een seconde nadat die stopt. Zet stopblokken in de \"anders\"-tak zodat de robot stopt als de telefoon wegvalt."
+      },
+      "args": [],
+      "inline": true,
+      "shape": "value",
+      "code": "phone.connected()",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_ble_pressed",
+      "text": {
+        "en": "phone button %1 held",
+        "nl": "telefoonknop %1 ingedrukt"
+      },
+      "tooltip": {
+        "en": "True while the button is held on the phone. False on release, or one second after the phone stops sending.",
+        "nl": "Waar zolang de knop op de telefoon wordt ingedrukt. Onwaar bij loslaten, of een seconde nadat de telefoon stopt met zenden."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "BUTTON",
+          "options": "$buttons"
+        }
+      ],
+      "inline": true,
+      "shape": "value",
+      "code": "phone.pressed({BUTTON})",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_ble_clicked",
+      "text": {
+        "en": "phone button %1 just pressed",
+        "nl": "telefoonknop %1 net ingedrukt"
+      },
+      "tooltip": {
+        "en": "True once per press; reading it uses the press up. Good for one action per tap, such as switching a light.",
+        "nl": "Eén keer waar per druk; lezen verbruikt de druk. Handig voor één actie per tik, zoals een lamp schakelen."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "BUTTON",
+          "options": "$buttons"
+        }
+      ],
+      "inline": true,
+      "shape": "value",
+      "code": "phone.clicked({BUTTON})",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_ble_joystick",
+      "text": {
+        "en": "phone joystick %1",
+        "nl": "telefoon-joystick %1"
+      },
+      "tooltip": {
+        "en": "Joystick position from -100 to 100 (0 in the middle, or when the phone is not connected). Fits the arcade drive block: forward = forward/back, turn = 0 minus left/right.",
+        "nl": "Joystickstand van -100 tot 100 (0 in het midden, of zonder verbinding). Past bij het arcade-besturingsblok: vooruit = vooruit/achteruit, sturen = 0 min links/rechts."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "AXIS",
+          "options": "$axes"
+        }
+      ],
+      "inline": true,
+      "shape": "value",
+      "code": "phone.joystick({AXIS})",
+      "returns": "Number",
+      "order": "FUNCTION_CALL"
+    },
+    {
+      "type": "xrp_ble_show",
+      "text": {
+        "en": "phone show text %1",
+        "nl": "telefoon toon tekst %1"
+      },
+      "tooltip": {
+        "en": "Shows a short line (up to 60 characters) on the phone page, for example a sensor reading. Once or twice a second is plenty; more often slows the link.",
+        "nl": "Toont een korte regel (maximaal 60 tekens) op de telefoonpagina, bijvoorbeeld een sensorwaarde. Een of twee keer per seconde is genoeg; vaker vertraagt de verbinding."
+      },
+      "args": [
+        {
+          "type": "text",
+          "name": "TEXT",
+          "default": "\"Hello\""
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.show({TEXT})\n"
+    },
+    {
+      "type": "xrp_ble_value",
+      "text": {
+        "en": "phone show value %1 = %2",
+        "nl": "telefoon toon waarde %1 = %2"
+      },
+      "tooltip": {
+        "en": "Shows a named reading on the phone, such as a sensor value, when \"Show robot messages\" is ticked there. The same name updates the same tile. Up to 8 names; decimals are rounded to 2 places. Fine to use every time round a loop: the phone gets changes at most 5 times a second.",
+        "nl": "Toont een benoemde meting op de telefoon, zoals een sensorwaarde, als daar \"Berichten van de robot tonen\" aangevinkt is. Dezelfde naam werkt hetzelfde vak bij. Maximaal 8 namen; decimalen worden afgerond op 2. Mag elke keer in een lus: de telefoon krijgt wijzigingen hoogstens 5 keer per seconde."
+      },
+      "args": [
+        {
+          "type": "text",
+          "name": "NAME",
+          "default": "\"Distance\""
+        },
+        {
+          "type": "value",
+          "name": "VALUE",
+          "default": "0"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.value({NAME}, {VALUE})\n"
+    },
+    {
+      "type": "xrp_ble_print",
+      "text": {
+        "en": "phone print %1",
+        "nl": "telefoon schrijf %1"
+      },
+      "tooltip": {
+        "en": "Adds a line (up to 60 characters) to the message log on the phone, when \"Show robot messages\" is ticked there. The phone keeps the last 20 lines. Use it for events (\"Obstacle!\"), not every time round a fast loop.",
+        "nl": "Voegt een regel (maximaal 60 tekens) toe aan het berichtenlogboek op de telefoon, als daar \"Berichten van de robot tonen\" aangevinkt is. De telefoon bewaart de laatste 20 regels. Gebruik het voor gebeurtenissen (\"Obstakel!\"), niet elke keer in een snelle lus."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "TEXT",
+          "default": "''"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.log({TEXT})\n"
+    },
+    {
+      "type": "xrp_ble_release",
+      "text": {
+        "en": "phone release all buttons",
+        "nl": "telefoon alle knoppen loslaten"
+      },
+      "tooltip": {
+        "en": "Clears the button and joystick states. Does not stop motors or other devices.",
+        "nl": "Wist de knop- en joystickstanden. Stopt geen motoren of andere apparaten."
+      },
+      "args": [],
+      "inline": true,
+      "shape": "statement",
+      "code": "phone.release()\n"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_ble_start"
+    },
+    {
+      "block": "xrp_ble_title",
+      "shadows": {
+        "TITLE": "XRP phone control"
+      }
+    },
+    {
+      "block": "xrp_ble_label",
+      "shadows": {
+        "LABEL": "Action"
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_ble_update"
+    },
+    {
+      "block": "xrp_ble_connected"
+    },
+    {
+      "block": "xrp_ble_pressed"
+    },
+    {
+      "block": "xrp_ble_clicked"
+    },
+    {
+      "block": "xrp_ble_joystick"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_ble_show",
+      "shadows": {
+        "TEXT": "Hello"
+      }
+    },
+    {
+      "block": "xrp_ble_value",
+      "shadows": {
+        "NAME": "Distance",
+        "VALUE": 0
+      }
+    },
+    {
+      "block": "xrp_ble_print",
+      "shadows": {
+        "TEXT": "Hello"
+      }
+    },
+    {
+      "block": "xrp_ble_release"
+    }
+  ]
+}

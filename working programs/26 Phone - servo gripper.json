@@ -1,0 +1,434 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w26_046",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Servo gripper on servo port 1, driven from the phone. Joystick drives; hold A to open, hold B to close. The angle is kept between 10 and 170 degrees and shown as a tile (tick Show robot messages). Check the servo moves smoothly and stops at the limits.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w26_037",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w26_036",
+                  "fields": {
+                    "TEXT": "XRP gripper"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "w26_039",
+                "fields": {
+                  "BUTTON": "5"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "w26_038",
+                      "fields": {
+                        "TEXT": "Open"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_label",
+                    "id": "w26_041",
+                    "fields": {
+                      "BUTTON": "6"
+                    },
+                    "inputs": {
+                      "LABEL": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w26_040",
+                          "fields": {
+                            "TEXT": "Close"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "variables_set",
+                        "id": "w26_043",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_gripper"
+                          }
+                        },
+                        "inputs": {
+                          "VALUE": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "w26_042",
+                              "fields": {
+                                "NUM": 90
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_ble_start",
+                            "id": "w26_044",
+                            "next": {
+                              "block": {
+                                "type": "xrp_forever",
+                                "id": "w26_045",
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "controls_if",
+                                      "id": "w26_012",
+                                      "extraState": {
+                                        "hasElse": true
+                                      },
+                                      "inputs": {
+                                        "IF0": {
+                                          "block": {
+                                            "type": "xrp_ble_connected",
+                                            "id": "w26_001"
+                                          }
+                                        },
+                                        "DO0": {
+                                          "block": {
+                                            "type": "xrp_drive_arcade",
+                                            "id": "w26_010",
+                                            "inputs": {
+                                              "SPEED": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w26_008",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                },
+                                                "block": {
+                                                  "type": "xrp_ble_joystick",
+                                                  "id": "w26_002",
+                                                  "fields": {
+                                                    "AXIS": "Y"
+                                                  }
+                                                }
+                                              },
+                                              "TURN": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w26_009",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                },
+                                                "block": {
+                                                  "type": "math_arithmetic",
+                                                  "id": "w26_007",
+                                                  "fields": {
+                                                    "OP": "MINUS"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w26_005",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      },
+                                                      "block": {
+                                                        "type": "math_number",
+                                                        "id": "w26_003",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w26_006",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      },
+                                                      "block": {
+                                                        "type": "xrp_ble_joystick",
+                                                        "id": "w26_004",
+                                                        "fields": {
+                                                          "AXIS": "X"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "ELSE": {
+                                          "block": {
+                                            "type": "xrp_drive_stop",
+                                            "id": "w26_011"
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "controls_if",
+                                          "id": "w26_016",
+                                          "inputs": {
+                                            "IF0": {
+                                              "block": {
+                                                "type": "xrp_ble_pressed",
+                                                "id": "w26_013",
+                                                "fields": {
+                                                  "BUTTON": "5"
+                                                }
+                                              }
+                                            },
+                                            "DO0": {
+                                              "block": {
+                                                "type": "math_change",
+                                                "id": "w26_015",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_gripper"
+                                                  }
+                                                },
+                                                "inputs": {
+                                                  "DELTA": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w26_014",
+                                                      "fields": {
+                                                        "NUM": 3
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "controls_if",
+                                              "id": "w26_020",
+                                              "inputs": {
+                                                "IF0": {
+                                                  "block": {
+                                                    "type": "xrp_ble_pressed",
+                                                    "id": "w26_017",
+                                                    "fields": {
+                                                      "BUTTON": "6"
+                                                    }
+                                                  }
+                                                },
+                                                "DO0": {
+                                                  "block": {
+                                                    "type": "math_change",
+                                                    "id": "w26_019",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_gripper"
+                                                      }
+                                                    },
+                                                    "inputs": {
+                                                      "DELTA": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w26_018",
+                                                          "fields": {
+                                                            "NUM": -3
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "variables_set",
+                                                  "id": "w26_026",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_gripper"
+                                                    }
+                                                  },
+                                                  "inputs": {
+                                                    "VALUE": {
+                                                      "block": {
+                                                        "type": "math_constrain",
+                                                        "id": "w26_025",
+                                                        "inputs": {
+                                                          "VALUE": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w26_022",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "variables_get",
+                                                              "id": "w26_021",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_gripper"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "LOW": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w26_023",
+                                                              "fields": {
+                                                                "NUM": 10
+                                                              }
+                                                            }
+                                                          },
+                                                          "HIGH": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w26_024",
+                                                              "fields": {
+                                                                "NUM": 170
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "xrp_servo_set_angle",
+                                                      "id": "w26_029",
+                                                      "fields": {
+                                                        "SERVO": "1"
+                                                      },
+                                                      "inputs": {
+                                                        "ANGLE": {
+                                                          "shadow": {
+                                                            "type": "math_number",
+                                                            "id": "w26_028",
+                                                            "fields": {
+                                                              "NUM": 90
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "variables_get",
+                                                            "id": "w26_027",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_gripper"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "xrp_ble_value",
+                                                          "id": "w26_033",
+                                                          "inputs": {
+                                                            "NAME": {
+                                                              "shadow": {
+                                                                "type": "text",
+                                                                "id": "w26_031",
+                                                                "fields": {
+                                                                  "TEXT": "Gripper"
+                                                                }
+                                                              }
+                                                            },
+                                                            "VALUE": {
+                                                              "shadow": {
+                                                                "type": "math_number",
+                                                                "id": "w26_032",
+                                                                "fields": {
+                                                                  "NUM": 0
+                                                                }
+                                                              },
+                                                              "block": {
+                                                                "type": "variables_get",
+                                                                "id": "w26_030",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_gripper"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "xrp_wait_seconds",
+                                                              "id": "w26_035",
+                                                              "inputs": {
+                                                                "SECONDS": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w26_034",
+                                                                    "fields": {
+                                                                      "NUM": 0.02
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "gripper",
+      "id": "v_gripper"
+    }
+  ]
+}

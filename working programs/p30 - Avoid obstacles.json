@@ -1,0 +1,133 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1459",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 30 (manual v3.1), section 6.3 Worked examples.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_forever",
+            "id": "tp1458",
+            "inputs": {
+              "DO": {
+                "block": {
+                  "type": "controls_if",
+                  "id": "tp1455",
+                  "extraState": {
+                    "hasElse": true
+                  },
+                  "inputs": {
+                    "IF0": {
+                      "block": {
+                        "type": "logic_compare",
+                        "id": "tp1447",
+                        "fields": {
+                          "OP": "LT"
+                        },
+                        "inputs": {
+                          "A": {
+                            "block": {
+                              "type": "xrp_distance_sensor",
+                              "id": "tp1446"
+                            }
+                          },
+                          "B": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1448",
+                              "fields": {
+                                "NUM": 15
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "DO0": {
+                      "block": {
+                        "type": "xrp_drive_stop",
+                        "id": "tp1449",
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_turn",
+                            "id": "tp1450",
+                            "inputs": {
+                              "ANGLE": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp1451",
+                                  "fields": {
+                                    "NUM": 90
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "xrp_drive_set_effort",
+                        "id": "tp1452",
+                        "inputs": {
+                          "LEFT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1453",
+                              "fields": {
+                                "NUM": 40
+                              }
+                            }
+                          },
+                          "RIGHT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1454",
+                              "fields": {
+                                "NUM": 40
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_wait_seconds",
+                      "id": "tp1456",
+                      "inputs": {
+                        "SECONDS": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1457",
+                            "fields": {
+                              "NUM": 0.05
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

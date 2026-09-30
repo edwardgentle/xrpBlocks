@@ -1,0 +1,225 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "m55_026",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 55 (manual v3.1), section 11.5 Phone control over Bluetooth. Android phone page over https; the robot stops when the phone disconnects. Turn direction not yet tested on the robot.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "m55_021",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "m55_020",
+                  "fields": {
+                    "TEXT": "XRP phone drive"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "m55_023",
+                "fields": {
+                  "BUTTON": "5"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "m55_022",
+                      "fields": {
+                        "TEXT": "Light"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_start",
+                    "id": "m55_024",
+                    "next": {
+                      "block": {
+                        "type": "xrp_forever",
+                        "id": "m55_025",
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "controls_if",
+                              "id": "m55_017",
+                              "extraState": {
+                                "hasElse": true
+                              },
+                              "inputs": {
+                                "IF0": {
+                                  "block": {
+                                    "type": "xrp_ble_connected",
+                                    "id": "m55_014"
+                                  }
+                                },
+                                "DO0": {
+                                  "block": {
+                                    "type": "xrp_drive_arcade",
+                                    "id": "m55_009",
+                                    "inputs": {
+                                      "SPEED": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "m55_007",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "xrp_ble_joystick",
+                                          "id": "m55_001",
+                                          "fields": {
+                                            "AXIS": "Y"
+                                          }
+                                        }
+                                      },
+                                      "TURN": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "m55_008",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "math_arithmetic",
+                                          "id": "m55_006",
+                                          "fields": {
+                                            "OP": "MINUS"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "m55_004",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "math_number",
+                                                "id": "m55_002",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "m55_005",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "xrp_ble_joystick",
+                                                "id": "m55_003",
+                                                "fields": {
+                                                  "AXIS": "X"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "controls_if",
+                                        "id": "m55_013",
+                                        "extraState": {
+                                          "hasElse": true
+                                        },
+                                        "inputs": {
+                                          "IF0": {
+                                            "block": {
+                                              "type": "xrp_ble_pressed",
+                                              "id": "m55_010",
+                                              "fields": {
+                                                "BUTTON": "5"
+                                              }
+                                            }
+                                          },
+                                          "DO0": {
+                                            "block": {
+                                              "type": "xrp_led_on",
+                                              "id": "m55_011"
+                                            }
+                                          },
+                                          "ELSE": {
+                                            "block": {
+                                              "type": "xrp_led_off",
+                                              "id": "m55_012"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "ELSE": {
+                                  "block": {
+                                    "type": "xrp_drive_stop",
+                                    "id": "m55_015",
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_led_off",
+                                        "id": "m55_016"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_wait_seconds",
+                                  "id": "m55_019",
+                                  "inputs": {
+                                    "SECONDS": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "m55_018",
+                                        "fields": {
+                                          "NUM": 0.02
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

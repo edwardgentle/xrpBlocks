@@ -1,0 +1,375 @@
+{
+  "manifestVersion": 1,
+  "id": "pcf8575",
+  "name": {
+    "en": "PCF8575 I/O expander",
+    "nl": "PCF8575 I/O-uitbreiding"
+  },
+  "description": {
+    "en": "Sixteen extra pins over the Qwiic connector, for LEDs and buttons.",
+    "nl": "Zestien extra pinnen via de Qwiic-connector, voor LEDs en knoppen."
+  },
+  "version": "1.0.0",
+  "author": "XRP Blocks (Limpopo DoE fork)",
+  "licence": "MIT",
+  "homepage": "",
+  "category": {
+    "key": "Expander",
+    "label": {
+      "en": "PCF8575",
+      "nl": "PCF8575"
+    },
+    "colour": "#7E9BD8",
+    "colourDark": "#3D71DF",
+    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M8 2h1.6v2H8zm3.2 0h1.6v2h-1.6zm3.2 0H16v2h-1.6zM8 20h1.6v2H8zm3.2 0h1.6v2h-1.6zm3.2 0H16v2h-1.6zM2 8h2v1.6H2zm0 3.2h2v1.6H2zm0 3.2h2V16H2zm18-6.4h2v1.6h-2zm0 3.2h2v1.6h-2zm0 3.2h2V16h-2zM5 5h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1.6 1.6v10.8h10.8V6.6z\"/></svg>"
+  },
+  "driver": {
+    "filename": "PCF8575.py",
+    "marker": "PCF8575",
+    "source": "\"\"\"PCF8575 - 16-bit I2C I/O expander driver for MicroPython on the XRP.\n\nDatasheet: NXP PCF8575, \"Remote 16-bit I/O expander for I2C-bus\".\n\nHOW THE CHIP WORKS (this matters for wiring)\n--------------------------------------------\nThe PCF8575 has quasi-bidirectional pins: there is no direction register.\nA pin is an \"input\" simply by being left HIGH, which the chip does with a\nweak current source (-30 to -300 uA). A pin driven LOW sinks a proper\n10 to 25 mA.\n\nSo:\n\n  LED    -> wire it ACTIVE LOW. LED anode to VDD through a resistor,\n            cathode to the expander pin. The pin sinks the current.\n            Driving the pin LOW lights the LED.\n\n  Button -> wire the switch between the expander pin and GND.\n            The chip's weak pull-up holds the pin HIGH when released,\n            and the switch pulls it LOW when pressed. No resistor needed.\n\nThat is why led() and button() below default to active_low=True.\n\nPIN NUMBERING\n-------------\nPins are numbered 0 to 15:\n    0 to 7   = P00 to P07  (first data byte)\n    8 to 15  = P10 to P17  (second data byte)\n\nADDRESSES\n---------\n0x20 to 0x27, set by the A2 A1 A0 pins. With A2/A1/A0 tied low the\naddress is 0x20, which is the default here.\n\"\"\"\n\nfrom machine import I2C, Pin\n\nOUTPUT = 0\nINPUT = 1\n\n# (bus id, named sda, named scl, fallback sda gpio, fallback scl gpio)\n# Qwiic 1 shares the bus the IMU uses; Qwiic 0 is normally free.\n_BUS_CANDIDATES = (\n    (1, \"I2C_SDA_1\", \"I2C_SCL_1\", 38, 39),\n    (0, \"I2C_SDA_0\", \"I2C_SCL_0\", 4, 5),\n)\n\n\ndef _open_bus(bus_id, sda_name, scl_name, sda_gpio, scl_gpio, freq):\n    \"\"\"Open an I2C bus by board pin name, falling back to raw GPIO numbers.\"\"\"\n    try:\n        return I2C(bus_id, sda=Pin(sda_name), scl=Pin(scl_name), freq=freq)\n    except Exception:\n        return I2C(bus_id, sda=Pin(sda_gpio), scl=Pin(scl_gpio), freq=freq)\n\n\ndef scan(freq=400000):\n    \"\"\"Return a list of (bus_id, address) for every PCF8575 found.\"\"\"\n    found = []\n    for spec in _BUS_CANDIDATES:\n        try:\n            bus = _open_bus(spec[0], spec[1], spec[2], spec[3], spec[4], freq)\n            for addr in bus.scan():\n                if 0x20 <= addr <= 0x27:\n                    found.append((spec[0], addr))\n        except Exception:\n            pass\n    return found\n\n\nclass PCF8575:\n    \"\"\"A single PCF8575 expander.\"\"\"\n\n    def __init__(self, address=0x20, i2c=None, freq=400000):\n        if not 0x20 <= address <= 0x27:\n            raise ValueError(\"PCF8575 address must be 0x20 to 0x27\")\n        self.address = address\n        self.i2c = i2c if i2c is not None else self._find_bus(address, freq)\n\n        # Power-on reset leaves every pin HIGH, so start from that.\n        self._state = 0xFFFF     # what we want the outputs to be\n        self._inputs = 0x0000    # pins reserved as inputs, always held HIGH\n        self._buf = bytearray(2)\n        self._write()\n\n    # -- setup ------------------------------------------------------------\n\n    @staticmethod\n    def _find_bus(address, freq):\n        errors = []\n        for spec in _BUS_CANDIDATES:\n            try:\n                bus = _open_bus(spec[0], spec[1], spec[2], spec[3], spec[4], freq)\n                if address in bus.scan():\n                    return bus\n            except Exception as err:\n                errors.append(err)\n        raise OSError(\n            \"No PCF8575 answering at 0x%02X. Check the Qwiic cable, the \"\n            \"power and the A0/A1/A2 address pins.\" % address\n        )\n\n    @staticmethod\n    def _check(pin):\n        pin = int(pin)\n        if not 0 <= pin <= 15:\n            raise ValueError(\"Expander pin must be 0 to 15\")\n        return pin\n\n    # -- whole port -------------------------------------------------------\n\n    def _write(self):\n        # Pins reserved as inputs must always be written HIGH, otherwise the\n        # chip holds them LOW and they can never read a button.\n        value = (self._state | self._inputs) & 0xFFFF\n        self._buf[0] = value & 0xFF          # P07..P00\n        self._buf[1] = (value >> 8) & 0xFF   # P17..P10\n        self.i2c.writeto(self.address, self._buf)\n\n    def write_port(self, value):\n        \"\"\"Set all 16 pins at once from a 16-bit value.\"\"\"\n        self._state = int(value) & 0xFFFF\n        self._write()\n\n    def read_port(self):\n        \"\"\"Read all 16 pins as a 16-bit value.\"\"\"\n        data = self.i2c.readfrom(self.address, 2)\n        return data[0] | (data[1] << 8)\n\n    # -- individual pins --------------------------------------------------\n\n    def pin_mode(self, pin, mode):\n        \"\"\"Reserve a pin as INPUT (held HIGH) or release it for OUTPUT.\"\"\"\n        mask = 1 << self._check(pin)\n        if mode == INPUT:\n            self._inputs |= mask\n        else:\n            self._inputs &= (~mask) & 0xFFFF\n        self._write()\n\n    def set_pin(self, pin, value):\n        \"\"\"Drive one pin HIGH (True) or LOW (False).\"\"\"\n        mask = 1 << self._check(pin)\n        self._inputs &= (~mask) & 0xFFFF   # driving it makes it an output\n        if value:\n            self._state |= mask\n        else:\n            self._state &= (~mask) & 0xFFFF\n        self._write()\n\n    def get_pin(self, pin):\n        \"\"\"Read one pin, returning 1 or 0.\"\"\"\n        return (self.read_port() >> self._check(pin)) & 1\n\n    def toggle_pin(self, pin):\n        \"\"\"Flip one pin and return its new level.\"\"\"\n        mask = 1 << self._check(pin)\n        self.set_pin(pin, not (self._state & mask))\n        return 1 if self._state & mask else 0\n\n    # -- friendly helpers -------------------------------------------------\n\n    def led(self, pin, on, active_low=True):\n        \"\"\"Switch an LED on or off.\n\n        active_low=True matches the recommended wiring: LED from VDD through\n        a resistor into the pin, so the pin sinks the current.\n        \"\"\"\n        on = bool(on)\n        self.set_pin(pin, (not on) if active_low else on)\n\n    def button(self, pin, active_low=True):\n        \"\"\"True while the button on this pin is pressed.\n\n        active_low=True matches a switch wired from the pin to GND.\n        \"\"\"\n        mask = 1 << self._check(pin)\n        if not (self._inputs & mask):\n            self.pin_mode(pin, INPUT)\n        level = self.get_pin(pin)\n        return level == 0 if active_low else level == 1\n\n    def all_off(self, active_low=True):\n        \"\"\"Switch every LED off without disturbing pins reserved as inputs.\"\"\"\n        self._state = 0xFFFF if active_low else 0x0000\n        self._write()\n"
+  },
+  "instance": {
+    "name": "expander",
+    "import": "from PCF8575 import PCF8575, INPUT, OUTPUT",
+    "create": "PCF8575()",
+    "createConfigured": "PCF8575(address={ADDR})"
+  },
+  "lists": {
+    "pins": [
+      {
+        "label": "0 (P00)",
+        "value": "0"
+      },
+      {
+        "label": "1 (P01)",
+        "value": "1"
+      },
+      {
+        "label": "2 (P02)",
+        "value": "2"
+      },
+      {
+        "label": "3 (P03)",
+        "value": "3"
+      },
+      {
+        "label": "4 (P04)",
+        "value": "4"
+      },
+      {
+        "label": "5 (P05)",
+        "value": "5"
+      },
+      {
+        "label": "6 (P06)",
+        "value": "6"
+      },
+      {
+        "label": "7 (P07)",
+        "value": "7"
+      },
+      {
+        "label": "8 (P10)",
+        "value": "8"
+      },
+      {
+        "label": "9 (P11)",
+        "value": "9"
+      },
+      {
+        "label": "10 (P12)",
+        "value": "10"
+      },
+      {
+        "label": "11 (P13)",
+        "value": "11"
+      },
+      {
+        "label": "12 (P14)",
+        "value": "12"
+      },
+      {
+        "label": "13 (P15)",
+        "value": "13"
+      },
+      {
+        "label": "14 (P16)",
+        "value": "14"
+      },
+      {
+        "label": "15 (P17)",
+        "value": "15"
+      }
+    ],
+    "addresses": [
+      {
+        "label": "0x20",
+        "value": "0x20"
+      },
+      {
+        "label": "0x21",
+        "value": "0x21"
+      },
+      {
+        "label": "0x22",
+        "value": "0x22"
+      },
+      {
+        "label": "0x23",
+        "value": "0x23"
+      },
+      {
+        "label": "0x24",
+        "value": "0x24"
+      },
+      {
+        "label": "0x25",
+        "value": "0x25"
+      },
+      {
+        "label": "0x26",
+        "value": "0x26"
+      },
+      {
+        "label": "0x27",
+        "value": "0x27"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "type": "xrp_pcf_setup",
+      "text": {
+        "en": "set up PCF8575 at address %1",
+        "nl": "stel PCF8575 in op adres %1"
+      },
+      "tooltip": {
+        "en": "Find the PCF8575 on the Qwiic connector. Use this once, at the start.",
+        "nl": "Zoek de PCF8575 op de Qwiic-connector. Gebruik dit een keer, aan het begin."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ADDR",
+          "options": "$addresses"
+        }
+      ],
+      "shape": "statement",
+      "configuresInstance": true,
+      "code": ""
+    },
+    {
+      "type": "xrp_pcf_pin_mode",
+      "text": {
+        "en": "use PCF8575 pin %1 as %2",
+        "nl": "gebruik PCF8575-pin %1 als %2"
+      },
+      "tooltip": {
+        "en": "Say what is wired to this pin. An LED pin is driven; a button pin is held high so it can be read.",
+        "nl": "Geef aan wat er op deze pin is aangesloten."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "dropdown",
+          "name": "MODE",
+          "options": [
+            {
+              "label": {
+                "en": "LED (output)",
+                "nl": "LED (uitvoer)"
+              },
+              "value": "OUTPUT"
+            },
+            {
+              "label": {
+                "en": "button (input)",
+                "nl": "knop (invoer)"
+              },
+              "value": "INPUT"
+            }
+          ]
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "expander.pin_mode({PIN}, {MODE})\n"
+    },
+    {
+      "type": "xrp_pcf_led",
+      "text": {
+        "en": "PCF8575 LED on pin %1 %2",
+        "nl": "PCF8575-LED op pin %1 %2"
+      },
+      "tooltip": {
+        "en": "Switch an LED wired to this PCF8575 pin on or off.",
+        "nl": "Zet een LED op deze PCF8575-pin aan of uit."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": [
+            {
+              "label": {
+                "en": "on",
+                "nl": "aan"
+              },
+              "value": "ON",
+              "code": "True"
+            },
+            {
+              "label": {
+                "en": "off",
+                "nl": "uit"
+              },
+              "value": "OFF",
+              "code": "False"
+            }
+          ]
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "expander.led({PIN}, {STATE})\n"
+    },
+    {
+      "type": "xrp_pcf_all_off",
+      "text": {
+        "en": "switch all PCF8575 LEDs off",
+        "nl": "zet alle PCF8575-LEDs uit"
+      },
+      "tooltip": {
+        "en": "Switch every PCF8575 LED off, leaving button pins alone.",
+        "nl": "Zet elke PCF8575-LED uit, zonder de knoppen te storen."
+      },
+      "shape": "statement",
+      "code": "expander.all_off()\n"
+    },
+    {
+      "type": "xrp_pcf_button",
+      "text": {
+        "en": "PCF8575 button on pin %1 is pressed",
+        "nl": "PCF8575-knop op pin %1 is ingedrukt"
+      },
+      "tooltip": {
+        "en": "True while the button wired between this pin and GND is held down.",
+        "nl": "Waar zolang de knop tussen deze pin en GND is ingedrukt."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        }
+      ],
+      "shape": "value",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL",
+      "code": "expander.button({PIN})"
+    },
+    {
+      "type": "xrp_pcf_set_pin",
+      "text": {
+        "en": "set PCF8575 pin %1 to %2",
+        "nl": "zet PCF8575-pin %1 op %2"
+      },
+      "tooltip": {
+        "en": "Drive a pin high or low directly, for a relay or buzzer.",
+        "nl": "Zet een pin rechtstreeks hoog of laag, voor een relais of zoemer."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "dropdown",
+          "name": "LEVEL",
+          "options": [
+            {
+              "label": {
+                "en": "high",
+                "nl": "hoog"
+              },
+              "value": "HIGH",
+              "code": "True"
+            },
+            {
+              "label": {
+                "en": "low",
+                "nl": "laag"
+              },
+              "value": "LOW",
+              "code": "False"
+            }
+          ]
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "expander.set_pin({PIN}, {LEVEL})\n"
+    },
+    {
+      "type": "xrp_pcf_read_pin",
+      "text": {
+        "en": "PCF8575 pin %1 level",
+        "nl": "PCF8575-pin %1 niveau"
+      },
+      "tooltip": {
+        "en": "Read a pin as 1 (high) or 0 (low).",
+        "nl": "Lees een pin als 1 (hoog) of 0 (laag)."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        }
+      ],
+      "shape": "value",
+      "returns": "Number",
+      "order": "FUNCTION_CALL",
+      "code": "expander.get_pin({PIN})"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_pcf_setup"
+    },
+    {
+      "block": "xrp_pcf_pin_mode"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_pcf_led"
+    },
+    {
+      "block": "xrp_pcf_all_off"
+    },
+    {
+      "block": "xrp_pcf_button"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_pcf_set_pin"
+    },
+    {
+      "block": "xrp_pcf_read_pin"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1639",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 61 (manual v3.1). Needs the four-motor mecanum chassis. Measure and change the geometry values.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_mec_ports",
+            "id": "tp1625",
+            "fields": {
+              "FL": "1",
+              "FR": "2",
+              "RL": "3",
+              "RR": "4"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_mec_geometry",
+                "id": "tp1626",
+                "inputs": {
+                  "DIAMETER": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1627",
+                      "fields": {
+                        "NUM": 6
+                      }
+                    }
+                  },
+                  "BASE": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1628",
+                      "fields": {
+                        "NUM": 15
+                      }
+                    }
+                  },
+                  "TRACK": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1629",
+                      "fields": {
+                        "NUM": 15
+                      }
+                    }
+                  },
+                  "RPM": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1630",
+                      "fields": {
+                        "NUM": 100
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_mec_move",
+                    "id": "tp1631",
+                    "fields": {
+                      "DIRECTION": "0"
+                    },
+                    "inputs": {
+                      "SPEED": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1632",
+                          "fields": {
+                            "NUM": 30
+                          }
+                        }
+                      },
+                      "DISTANCE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1633",
+                          "fields": {
+                            "NUM": 20
+                          }
+                        }
+                      },
+                      "TIMEOUT": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1634",
+                          "fields": {
+                            "NUM": 15
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_mec_turn",
+                        "id": "tp1635",
+                        "fields": {
+                          "CLOCKWISE": "True"
+                        },
+                        "inputs": {
+                          "SPEED": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1636",
+                              "fields": {
+                                "NUM": 30
+                              }
+                            }
+                          },
+                          "DEGREES": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1637",
+                              "fields": {
+                                "NUM": 90
+                              }
+                            }
+                          },
+                          "TIMEOUT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1638",
+                              "fields": {
+                                "NUM": 15
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

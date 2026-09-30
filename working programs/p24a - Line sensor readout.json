@@ -1,0 +1,84 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1401",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 24 (manual v3.1). Move the sensor over black and white to find your threshold.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_forever",
+            "id": "tp1400",
+            "inputs": {
+              "DO": {
+                "block": {
+                  "type": "xrp_print",
+                  "id": "tp1397",
+                  "inputs": {
+                    "TEXT": {
+                      "block": {
+                        "type": "text_join",
+                        "id": "tp1396",
+                        "extraState": {
+                          "itemCount": 2
+                        },
+                        "inputs": {
+                          "ADD0": {
+                            "block": {
+                              "type": "text",
+                              "id": "tp1394",
+                              "fields": {
+                                "TEXT": "left: "
+                              }
+                            }
+                          },
+                          "ADD1": {
+                            "block": {
+                              "type": "xrp_line_reflectance",
+                              "id": "tp1395",
+                              "fields": {
+                                "SIDE": "left"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_wait_seconds",
+                      "id": "tp1398",
+                      "inputs": {
+                        "SECONDS": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1399",
+                            "fields": {
+                              "NUM": 0.2
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XRPBlocks: Local Modifications, Addendum</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+
+  body {
+    font-family: 'DejaVu Sans', 'Segoe UI', Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    color: #1B1F26;
+    margin: 0;
+  }
+
+  h1 {
+    font-size: 21pt;
+    color: #17395E;
+    margin: 0 0 4pt 0;
+  }
+  h2 {
+    font-size: 14pt;
+    color: #17395E;
+    margin: 20pt 0 6pt 0;
+    padding-bottom: 3pt;
+    border-bottom: 1px solid #D5DBE2;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11pt;
+    color: #17395E;
+    margin: 12pt 0 4pt 0;
+    page-break-after: avoid;
+  }
+
+  .masthead {
+    border-bottom: 2px solid #17395E;
+    padding-bottom: 8pt;
+    margin-bottom: 4pt;
+  }
+  .masthead .lead { color: #56606E; font-size: 10pt; margin: 0 0 6pt 0; }
+  .masthead .meta { color: #56606E; font-size: 9pt; margin: 1pt 0; }
+
+  p { margin: 6pt 0; }
+
+  code, .path {
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8.8pt;
+    background: #EEF1F5;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  pre {
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8.2pt;
+    line-height: 1.4;
+    background: #F6F8FA;
+    border-left: 3px solid #17395E;
+    padding: 6pt 8pt;
+    margin: 8pt 0;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8pt 0 10pt 0;
+    font-size: 9.2pt;
+    page-break-inside: auto;
+  }
+  th {
+    background: #14304F;
+    color: #FFFFFF;
+    text-align: left;
+    font-weight: bold;
+    padding: 5pt 6pt;
+    border: 1px solid #14304F;
+  }
+  td {
+    padding: 5pt 6pt;
+    border: 1px solid #D5DBE2;
+    vertical-align: top;
+  }
+  tr { page-break-inside: avoid; }
+  tr:nth-child(even) td { background: #F7F9FB; }
+  td.num { width: 22pt; color: #56606E; }
+
+  ul { margin: 6pt 0; padding-left: 16pt; }
+  li { margin: 3pt 0; }
+
+  .callout {
+    background: #FBF3E4;
+    border-left: 3px solid #B8860B;
+    padding: 7pt 9pt;
+    margin: 9pt 0;
+    page-break-inside: avoid;
+  }
+  .callout strong { color: #7A5B08; }
+
+  .note {
+    background: #F1F5F9;
+    border-left: 3px solid #4A6C8C;
+    padding: 7pt 9pt;
+    margin: 9pt 0;
+    page-break-inside: avoid;
+  }
+
+  .newpage { page-break-before: always; }
+  .tag { font-size: 8.5pt; color: #56606E; }
+</style>
+</head>
+<body><section id="current-update"><h1>XRPBlocks: updates through 20 September 2026</h1><p>This is the current addendum to changes 1-18 in the replication guide. It records the final implementation, including corrections made during testing. Earlier PDF pages are retained as historical documentation; this addendum takes precedence where behavior differs.</p><h2>19. Onboard RGB colour and brightness</h2><p>The Board category adds a named-colour dropdown with brightness from 0 to 100%. Eleven choices match the NeoPixel palette, including off. Default brightness is 30%. Generated Python clamps brightness and scales RGB values. It requires no NeoPixel add-on library. English and Dutch labels are available. The original three-channel RGB block remains available.</p><h2>20. Delete unused blocks</h2><p>Right-click the workspace or a block and choose Delete unused blocks. Cleanup removes disconnected stacks and unreachable functions. It preserves start blocks, explicitly protected blocks, and functions called directly or indirectly by retained code, including recursive calls. Default shadow inputs do not incorrectly protect a disconnected stack. Deletion is grouped for Undo. The option is disabled when there is nothing eligible to remove.</p><h2>21. Bottom panel and variable cleanup</h2><p>The whole Python/Console panel starts collapsed unless pinned. Both tabs offer a shared pin control, remembered in the browser. Unpinning hides the panel. Unpinned tabs open manually; Run and Deploy do not force them open. Clicking elsewhere no longer dismisses a manually opened panel. Resizing preserves the expanded size without overriding the collapsed height.</p><p>Variables with no references anywhere in the workspace are removed on app startup and before Run. References in loose blocks and procedure parameters are retained. Cleanup is grouped for Undo and the workspace is saved.</p><h2>22. Remembered connection and uninterrupted startup</h2><p>Connect first tries the last successful authorised USB or Bluetooth device. USB uses the exact in-session port when possible; after reload it matches USB vendor/product IDs only when a single authorised port matches. Missing, ambiguous or failed connections return to the chooser. Bluetooth reuse depends on browser support for previously authorised devices. Repeated Connect clicks are guarded while connection work is in progress.</p><p>Connect no longer sends a stop/REPL-recovery command. This preserves a web server or other main.py program already running on power-up. Stop remains available whenever connected. Run, Stop and Deploy can interrupt execution. Deploy saves main.py but does not run it: click Run or restart the board.</p><h2>23. Mecanum wheels library, version 1.1.0</h2><p>Four encoded motors drive standard X-pattern mecanum wheels. Default ports are 1 front-left, 2 front-right, 3 rear-left and 4 rear-right. The palette provides two compact setup blocks: motor assignment and chassis geometry. The older combined setup block remains registered for saved-project compatibility.</p><p>Controls include eight directions, arbitrary movement angle, continuous drive, distance in centimetres, turning in degrees, Stop, wheel reversal and a last-move-completed Boolean. Speed is 0-100% of configured maximum wheel RPM, not a guarantee of chassis speed. Distance and turns use encoder estimates, with timeouts and stopping on completion/interruption. Wheel diameter and wheelbase/track defaults are placeholders that must be measured and calibrated. Mecanum hardware operation has not been verified in this session.</p><h2>24. Remote control library</h2><p>Remote control is independent of motors and mecanum. Its MicroPython driver hosts an HTML page on port 80, either through a robot hotspot or by joining an existing network. The page has six customizable hold buttons, local label editing, connection status and Release all buttons. Blocks read held state, one-shot press events, connection status and page address, and configure labels, title, networking, updates and shutdown.</p><p>An active controller sends heartbeat messages. Button reads become false after one second without messages. This does not stop actuators by itself: user code must handle the false/disconnected branch with Stop or Off. Only one controller owns the inputs at a time; sequence numbers reject stale messages. The web service is cooperative, not a background thread. Button/connection reads also service it automatically; use remote update in loops without those reads. Avoid long blocking commands while controlling devices live.</p><h2>25. Remote page layout choice</h2><p>Choose Button grid or Game D-pad on the page. The browser remembers the layout and custom labels. Button mapping stays fixed: Up=1, Left=2, Right=3, Down=4, A=5, B=6. Switching layout releases held states. Symbols do not assign any motor behavior. Space/Enter operate a focused button; mouse and touch are supported.</p><h2>26. Remote networking fixes, current driver 1.1.1</h2><p>The XRP CYW43 hotspot uses WPA2 AES authentication flags (0x400004), replacing an incorrect generic enum value. A previous RemoteControl instance is closed before rebinding port 80 on a subsequent run. Startup prints its driver version, network status and the actual HTTP address.</p><p>Join network resets the old station association, supports an empty password for open networks, reports progress every five seconds, and has a 30-second timeout. It distinguishes a rejected password, missing network and general connection failure. Use 2.4 GHz Wi-Fi; a router-assigned address replaces the hotspot address. Captive portal and enterprise login are not implemented.</p><p>Latest hardware evidence: the updated driver ran but reported that network Fibre was not found. Join mode is therefore not confirmed working on that network. The user previously reported the remote/upload setup working before testing join mode. This is not evidence of complete hardware validation.</p><h2>27. Confirmed USB file uploads and module refresh</h2><p>USB uploads now write UTF-8 data in 256-byte chunks, represented as hex, with a raw-REPL acknowledgement after each command. Data goes to a temporary .upload file. The byte count is checked before renaming it over the destination. Failed driver installation aborts Run/Deploy instead of silently continuing.</p><p>After a driver upload, the USB path removes its cached module from sys.modules so the next import loads the new file. RemoteControl&#x27;s previous listener is closed first. main.py is not treated as an imported driver. This corrected logs where 1.1.1 had uploaded but cached 1.1.0 still ran. Upload acknowledgements remain visible in Console. Bluetooth retains its existing separate binary uploader; these confirmed-write/module-refresh changes apply to USB.</p><h2>28. OLED scrolling text, library version 2.1.0</h2><p>New block: OLED scroll [message] on line [1] speed (pixels/sec) [30]. Place it inside a forever loop with a short wait, for example 0.02 seconds. Long text scrolls left, pauses at the ends and repeats. Text that fits stays still. Speed is clamped to 1-120 pixels/second; each line has independent state. The method returns immediately, allowing other loop work to continue. In manual display-update mode, also call OLED update. Static line replacement or Clear resets the corresponding scrolling state. Hardware scrolling remains unverified.</p><h2>Verification and outstanding work</h2><p>Current committed tests: tools/test_mecanum.py (7 simulated tests) and tools/test_remote_control.py (8 protocol/network tests). Driver embedding is checked by tools/embed_drivers.py --check. Additional session checks covered Blockly registration and Python generation, all library flyouts, phone-width page rendering, button press/release, D-pad mapping and persistence, real local HTTP requests through the Remote control driver, simulated USB transfers/errors, and OLED scrolling with a stub framebuffer. These do not replace XRP hardware tests.</p><p>The previous guide&#x27;s 913 checks are historical reported results, not a newly rerun suite. The older harnesses are not present in this checkout. Outstanding: join-network testing on a visible 2.4 GHz network, mecanum calibration and hardware validation, OLED scrolling on the display, and Bluetooth driver-update parity. The six legacy expander/NeoPixel files listed in section 3.11 of the guide remain present but unused; they have not been deleted.</p><h2>Reproduce and use</h2><p>Use the refreshed source snapshots in XRPBlocks-replication-guide.md together with its new additional-files section. Run python tools/embed_drivers.py, then python tools/embed_drivers.py --check. Start locally with start-xrpblocks.bat or python serve.py; do not open index.html through file://.</p><p>For a library update: refresh the IDE, connect USB, then Run or Deploy to upload the new driver. Deploy alone leaves the program stopped. For standalone use, restart after deploying main.py. New libraries are added through Library.</p><p>Detailed usage: docs/mecanum.md and docs/remote-control.md. The OLED scroll block tooltip explains loop placement and manual-update behavior.</p></section><hr><h1>Historical addendum</h1><p>The following material describes the earlier version; the current update above takes precedence.</p>
+
+<div class="masthead">
+  <h1>XRPBlocks: Local Modifications</h1>
+  <p class="lead">Addendum: changes 13 to 18, covering the device library system, the OLED screen,
+     a critical code-generation defect, and a full audit of every block</p>
+  <p class="meta">Prepared for: Edward Gentle, Subject Advisor CAT &amp; IT, Capricorn South District,
+     Limpopo Department of Education</p>
+  <p class="meta">Date: 19 September 2026</p>
+  <p class="meta">Installation: <span class="path">C:\Users\Gentle\Desktop\XRP\XRPBlocks-main\XRPBlocks-main</span></p>
+  <p class="meta">Upstream project: Stichting STEAMup / XRPBlocks (MIT licence), forked from commit
+     <span class="path">cd39757</span></p>
+</div>
+
+<div class="note">
+  <strong>How this fits with Part One.</strong> The main document describes changes 1 to 12 and its
+  summary in section 1 counts twelve. This addendum continues the same numbering with changes 13 to
+  18, so the installation now carries eighteen changes in total. Nothing in Part One has been
+  withdrawn, but two of its statements are now out of date and are corrected here: the servo range in
+  change 8, and the file manifest in section 13. Both are noted where they arise.
+</div>
+
+<h2>A1. Summary of changes 13 to 18</h2>
+
+<p>Six further changes were made. Two of them fix defects that stopped programs working, one is an
+architectural change that opens the IDE up to devices nobody has thought of yet, and three add
+capability. Section A7 lists every file touched since Part One.</p>
+
+<table>
+  <tr><th style="width:24pt">#</th><th style="width:150pt">Change</th><th>Problem it solves</th><th style="width:90pt">Type</th></tr>
+  <tr>
+    <td class="num">13</td>
+    <td>Dark mode</td>
+    <td>The pastel palette puts white text on very pale blocks. The yellow Board blocks measure
+        1.41:1 against white, far below the 4.5:1 that WCAG AA asks for normal text</td>
+    <td>Accessibility</td>
+  </tr>
+  <tr>
+    <td class="num">14</td>
+    <td>Device library system</td>
+    <td>Adding a device meant editing five source files. Only the person who wrote the IDE could do
+        it, so a teacher with a new sensor was stuck</td>
+    <td>Architecture</td>
+  </tr>
+  <tr>
+    <td class="num">15</td>
+    <td>OLED screen library</td>
+    <td>No way to show a reading on the robot itself. The console needs a laptop on the end of a
+        cable, which a robot driving across a classroom floor does not have</td>
+    <td>Feature</td>
+  </tr>
+  <tr>
+    <td class="num">16</td>
+    <td>OLED drawing, compass arrow and the sketch designer</td>
+    <td>Text only. No way to draw, and no way to put a picture on the screen without writing byte
+        arrays by hand</td>
+    <td>Feature</td>
+  </tr>
+  <tr>
+    <td class="num">17</td>
+    <td>Functions were never generated</td>
+    <td>Every program using the Functions category called a function that was never defined. The
+        robot stopped with NameError at the first call</td>
+    <td>Bug fix (critical)</td>
+  </tr>
+  <tr>
+    <td class="num">18</td>
+    <td>Block audit: servo in degrees, blink repaired, one effort convention, clamping, units,
+        toolbox order</td>
+    <td>A blink block that had never worked; a servo that was not in degrees; three different effort
+        conventions in one session; unclamped drive effort; tooltips with no units</td>
+    <td>Bug fix and usability</td>
+  </tr>
+</table>
+
+<p>Changes 14 to 16 are the important structural ones. The PCF8575 and NeoPixel categories from
+changes 5 and 6 were moved out of the IDE's source and into the new library format, which means the
+IDE no longer has any built-in knowledge of a specific add-on device.</p>
+
+<h2>A2. Change 13: Dark mode</h2>
+
+<h3>Problem</h3>
+<p>The pastel theme draws white labels on very pale blocks. Measured against white text, the worst
+offender is the yellow used by the Board category, at roughly 1.41:1. WCAG 2.1 AA asks for 4.5:1 for
+normal text. In a bright classroom, or on a projector, several categories are hard to read.</p>
+
+<h3>Solution</h3>
+<p>A light and dark toggle in the toolbar, remembered in the browser so it survives a reload. Light
+mode is untouched, so nothing a teacher already recognises has moved. Dark mode keeps every
+category's hue, so blue is still Drive and green is still Sensors, but deepens each colour until
+white text on it passes 4.5:1.</p>
+
+<p>The same rule is applied automatically to any colour a device library supplies. A library author
+gives one colour for light mode. If they do not also give a dark one, the IDE darkens theirs in small
+steps until the contrast test passes, so a library written by a teacher cannot accidentally produce
+an unreadable category.</p>
+
+<h2>A3. Change 14: The device library system</h2>
+
+<h3>Problem</h3>
+<p>Changes 5 and 6 added the PCF8575 and NeoPixel categories, and each of them meant touching five
+files: a block definition file, a generator file, an embedded copy of the MicroPython driver, the
+toolbox, and the theme. That is a reasonable amount of work for somebody who wrote the IDE and an
+impossible amount for a teacher who has bought a new sensor.</p>
+
+<h3>Solution</h3>
+<p>A device library is now <strong>one JSON file</strong> that describes a device: its blocks, the
+Python each block generates, the category colour and icon, and the MicroPython driver to install on
+the robot. Nothing in the file is executed. It is data all the way down, which is what makes it safe
+to email a library to a colleague or fetch one from a web address.</p>
+
+<pre>{
+  "manifestVersion": 1,
+  "id": "pcf8575",
+  "name": { "en": "PCF8575 I/O expander", "nl": "PCF8575 I/O-uitbreiding" },
+  "category": { "key": "Expander", "colour": "#7E9BD8", "iconSvg": "&lt;svg ...&gt;" },
+  "driver":   { "filename": "PCF8575.py", "marker": "PCF8575", "source": "class PCF8575: ..." },
+  "instance": { "name": "expander",
+                "import": "from PCF8575 import PCF8575, INPUT, OUTPUT",
+                "create": "PCF8575()",
+                "createConfigured": "PCF8575(address={ADDR})" },
+  "blocks":   [ { "type": "xrp_pcf_led",
+                  "text": { "en": "PCF8575 LED on pin %1 %2" },
+                  "args": [ ... ],
+                  "code": "expander.led({PIN}, {STATE})\n" } ],
+  "toolbox":  [ { "block": "xrp_pcf_setup" }, { "gap": 16 } ]
+}</pre>
+
+<h3>How it behaves</h3>
+<ul>
+  <li>A <strong>Library</strong> button in the toolbar. Three ways in: the catalogue that ships with
+      the IDE, a file from the computer, or a web address.</li>
+  <li>PCF8575 and NeoPixel no longer appear by default, which gives a beginner a shorter toolbox.
+      What a user adds is remembered and comes back on the next reload.</li>
+  <li>Opening a saved project that uses blocks from a library the browser does not have puts that
+      library back automatically, so work does not silently lose its blocks.</li>
+  <li>A library cannot be removed while its blocks are still in the program. The dialog says so
+      rather than quietly breaking the workspace.</li>
+  <li>Drivers install onto the robot from the manifests, so a device added tomorrow installs its
+      driver with no change to the IDE.</li>
+  <li>A manifest that does not validate is rejected whole, with a list of what is wrong, rather than
+      half-loading and breaking the palette.</li>
+</ul>
+
+<p>The format is documented for somebody else to use in <span class="path">devices/README.md</span>,
+which is written as a guide rather than as notes to self. Three libraries ship in
+<span class="path">devices/</span>: the two moved categories and the OLED.</p>
+
+<div class="callout">
+  <strong>What the format deliberately cannot do.</strong> Because a manifest is data and never code,
+  it cannot express a dropdown whose contents change with another field, a block that grows and
+  shrinks, or validation logic beyond what the field types give. A device needing one of those still
+  needs a hand-written block file. Everything the PCF8575 and NeoPixel categories did is expressible,
+  which was the bar the format had to clear.
+</div>
+
+<h2 class="newpage">A4. Changes 15 and 16: The OLED screen library</h2>
+
+<p>The first library written from scratch to the published format rather than converted from
+existing code, and written without touching the IDE's own source. That was the test of whether the
+format holds. Change 16 then added nine blocks, a picture format and a complete drawing tool, again
+with no change to the IDE.</p>
+
+<h3>The hardware</h3>
+<p>DisplayModule DM-OLED096-636, a 0.96 inch 128 by 64 monochrome OLED. The controller is a Solomon
+Systech <strong>SSD1315</strong>, which takes the same commands as the far more common SSD1306, so
+the library covers both and works with most cheap 0.96 inch modules. It is an I2C device, so it goes
+on a Qwiic connector.</p>
+
+<table>
+  <tr><th style="width:150pt">Detail</th><th>Value, and where it came from</th></tr>
+  <tr><td>Address</td>
+      <td>0x3C or 0x3D. The datasheet gives 0x78 and 0x7A, which is the 8-bit form including the
+          read/write bit; MicroPython uses 7-bit addresses</td></tr>
+  <tr><td>Charge pump</td>
+      <td>Command 0x8D with 0x14 for 7.5 V, confirmed against the SSD1315 datasheet rather than
+          assumed from the SSD1306</td></tr>
+  <tr><td>Text grid</td>
+      <td>Eight lines of sixteen characters, because the driver uses MicroPython's
+          <span class="path">framebuf</span> and its 8 by 8 font</td></tr>
+  <tr><td>Supply</td>
+      <td>DisplayModule lists the panel at 2.8 V. The usual breakout boards regulate 3.3 V down, but
+          a bare module should be checked against its own datasheet before going on Qwiic</td></tr>
+</table>
+
+<h3>The blocks</h3>
+<p>Twenty-two, in five groups: setting up; text and numbers; arrows and pictures; drawing; display
+control; and three reporters.</p>
+
+<table>
+  <tr><th style="width:130pt">Group</th><th>Blocks</th></tr>
+  <tr><td>Setting up</td><td>set up at address, clear</td></tr>
+  <tr><td>Text and numbers</td>
+      <td>print (console style, scrolls after eight lines), show text on line 1 to 8,
+          show <span class="path">label = value</span> on a line, write text at x and y</td></tr>
+  <tr><td>Arrows and pictures</td>
+      <td>arrow pointing N degrees, big text at 2x to 6x, show picture at x and y</td></tr>
+  <tr><td>Drawing</td>
+      <td>pixel, line, rectangle, circle, bar for a sensor reading</td></tr>
+  <tr><td>Display control</td>
+      <td>update now, update straight away or on command, brightness, normal or inverted,
+          screen on and off</td></tr>
+  <tr><td>Reporters</td><td>is connected, screen width, screen height</td></tr>
+</table>
+
+<h3>The compass arrow</h3>
+<p>The arrow block takes an angle with 0 up, 90 right, 180 down and 270 left, which is exactly what
+the gyro heading block reports. Plugging the gyro block into the arrow block makes the needle swing
+as the robot turns, with no arithmetic for the learner to do. It is drawn with a shaft and a solid
+triangular head, clipped to the screen.</p>
+
+<h3>The sketch designer</h3>
+<p><span class="path">tools/oled-designer.html</span> is a mouse-driven sketch pad the size of the
+screen. It opens by double-clicking the file, or at
+<span class="path">/tools/oled-designer.html</span> when the local server is running. Pencil, eraser,
+line, rectangle, circle, fill, invert, undo and redo, keyboard shortcuts, canvas sizes from the full
+screen down to an 8 by 8 sprite, previews at actual size and at double, and grid lines every eight
+pixels so the character cells and the display's page boundaries are visible.</p>
+
+<p><strong>Copy for XRP Blocks</strong> puts a string on the clipboard to paste into the
+<strong>show picture</strong> block. The same string can be pasted back into the designer to edit a
+drawing later. The format is one line of plain text:</p>
+
+<pre>XRPI1:128:64:AQD/AP8A/wD/AP8A/wD/AP8A ...</pre>
+
+<p>The decoded bytes begin with a mode byte, 0 for raw and 1 for run-length pairs, and the pixels are
+in the display's own memory layout so they go straight out to the panel. A mostly blank sketch
+shrinks to about forty characters; a noisy one falls back to raw at about fourteen hundred. Because
+it is text, it travels in a block, an email or a lesson file with nothing to encode by hand. The
+driver decodes it without <span class="path">binascii</span>, so there is no dependency to worry
+about, and caches the decoded copy so redrawing inside a loop costs nothing after the first time.</p>
+
+<div class="callout">
+  <strong>A missing screen does not stop the robot.</strong> Unlike the PCF8575 driver, which raises
+  if the chip does not answer, the OLED driver reports the problem on the console and then quietly
+  does nothing. A robot should keep driving when its screen falls off. The consequence is that a
+  program with no display attached looks exactly like a program that silently failed, so the Console
+  tab is where the difference shows. The <strong>OLED is connected</strong> block lets a program
+  check for itself.
+</div>
+
+<h2 class="newpage">A5. Change 17: Functions were never generated</h2>
+
+<p>This is the most serious defect found so far, and it had been present the whole time.</p>
+
+<h3>Problem</h3>
+<p>The IDE builds the Python by walking outwards from the <strong>when program starts</strong> block.
+That is deliberate: it means loose blocks left lying on the canvas are ignored rather than silently
+becoming part of the program. But <strong>a function definition is a loose stack by nature</strong>.
+Nothing connects it to the start block, so the walk never reached it and its body was never
+generated. The call came out; the definition did not.</p>
+
+<pre>oled.clear()
+oled.set_auto_show(False)
+for count in range(2):
+    time.sleep(1)
+    UP()          &lt;-- called, but there is no def UP() anywhere in the program
+    oled.show()</pre>
+
+<p>On the robot that is <span class="path">NameError: name 'UP' isn't defined</span> at the first
+call, so the program stops before doing anything. Every program using the Functions category was
+affected, for any device, not only the OLED ones. It presented as "the program runs and nothing
+happens", because the traceback appears only in the Console tab, which a learner has no particular
+reason to open.</p>
+
+<h3>Solution</h3>
+<p>A new step in <span class="path">js/app.js</span> generates every function definition on the
+canvas before the start stack is walked. Their generators put the code into Blockly's definitions
+table, which is emitted at the top of the program, ahead of everything that calls them.</p>
+
+<pre>// A function definition is its own stack on the canvas: nothing reaches it
+// from the start block, so walking out from the start block alone never
+// generates its body.
+this._generateFunctionDefinitions();
+
+code = this._pythonGenerator.blockToCode(startBlock);
+code = this._pythonGenerator.finish(code);</pre>
+
+<p>Both kinds of function are covered, those that return a value and those that do not.</p>
+
+<div class="callout">
+  <strong>Worth reporting upstream,</strong> alongside the <span class="path">numbers</span> import
+  defect from change 4. If the upstream project generates from the start block in the same way, it
+  has the same defect.
+</div>
+
+<h2>A6. Change 18: The block audit</h2>
+
+<p>Every block in the IDE was read against the XRPLib <em>source</em>, not only its documentation,
+and then exercised in a real browser. Four problems came out of it.</p>
+
+<h3>The blink block had never worked</h3>
+<p>It generated <span class="path">board.led_blink(3, 0.5)</span>. XRPLib's
+<span class="path">led_blink</span> takes <strong>one</strong> argument, a frequency in Hz, and starts
+a background timer. Two arguments raise TypeError and the program stops on that line. The block now
+generates a proper count-and-delay loop, so it does what its label promises and the program waits
+while it blinks.</p>
+
+<h3>The servo was never in degrees</h3>
+<p>This corrects change 8 in Part One, which described the range as 0 to 200 with 100 at the centre.
+That was accurate but it was never really an angle. XRPLib's
+<span class="path">set_angle(d)</span> converts straight to a pulse width,
+<span class="path">d * 10 + 500</span> microseconds, so its 0 to 200 is the full 500 to 2500
+microsecond travel of a hobby servo. A student with a protractor had no way to make sense of it.</p>
+
+<p>The blocks now take <strong>0 to 180 degrees</strong>, mapped across the full travel by one
+generated helper using <span class="path">degrees * 10 / 9</span>.</p>
+
+<table>
+  <tr><th style="width:110pt">The block says</th><th style="width:110pt">XRPLib receives</th><th>Pulse width</th></tr>
+  <tr><td>0 degrees</td><td>5.6</td><td>556 microseconds</td></tr>
+  <tr><td>90 degrees</td><td>100</td><td>1500 microseconds, the centre</td></tr>
+  <tr><td>180 degrees</td><td>194.4</td><td>2444 microseconds</td></tr>
+</table>
+
+<p>Five degrees are held back at each end, so a servo is never driven into its own mechanical stop,
+where it buzzes, draws current and gets hot. The two constants that do this are written at the top of
+the generated helper, so a class with a servo that can take the full sweep can widen them by hand and
+see the effect immediately in the Python panel.</p>
+
+<pre>def xrp_servo_degrees(servo, degrees):
+  SAFE_LOW = 5
+  SAFE_HIGH = 175
+  if degrees &lt; SAFE_LOW:
+    degrees = SAFE_LOW
+  elif degrees &gt; SAFE_HIGH:
+    degrees = SAFE_HIGH
+  servo.set_angle(degrees * 10 / 9)</pre>
+
+<p>Centre is now 90 rather than 100, sweep is in degrees and defaults to 0 through 180, and
+continuous rotation speed stays at -100 to 100 percent, mapped around the 90 degree centre. The
+change was made in place rather than by adding a second block, so there is one angle block rather
+than two. A saved project that said 150 meant three quarters of travel and now means 150 degrees,
+which is a different position. Anything already deployed to a robot as
+<span class="path">main.py</span> is unaffected.</p>
+
+<h3>Effort had three conventions at once</h3>
+<p>A student could meet "drive straight with 50% effort", "set drive effort 0.5", and a Motors
+category offering both a 0 to 1 block and a percent block, all in one lesson. Effort is now percent
+everywhere a student can see, converted and clamped by one helper.</p>
+
+<pre>def xrp_effort(percent, lowest=-1):
+  effort = percent / 100
+  if effort &lt; lowest:
+    effort = lowest
+  elif effort &gt; 1:
+    effort = 1
+  return effort</pre>
+
+<p><span class="path">lowest=0</span> is used for the maximum effort of a measured drive, where a
+negative value makes no sense. The 0 to 1 motor block stays registered so saved projects still load,
+but is no longer offered in the toolbox.</p>
+
+<h3>Drive effort and arcade were unclamped</h3>
+<p>The Motors and Servo categories already clamped. <span class="path">drivetrain.set_effort</span>
+and <span class="path">drivetrain.arcade</span> did not, and XRPLib does not either, so a slip of the
+keyboard went straight to the motor driver. Both now go through the helper above.</p>
+
+<h3>Units were missing where they matter most</h3>
+<p><span class="path">drivetrain.set_speed</span> is centimetres per second but
+<span class="path">motor.set_speed</span> is revolutions per minute, and both blocks simply said
+"speed". Reflectance returns a decimal from 0 to 1, not a percentage. Every unit-bearing tooltip now
+names its unit and its range, in English and in Dutch.</p>
+
+<h3>Every category reordered</h3>
+<p>Each category now runs from what a beginner needs down to the advanced, with separators marking
+each group and a comment in the source saying what each group is for.</p>
+
+<table>
+  <tr><th style="width:70pt">Category</th><th>Order, from the top</th></tr>
+  <tr><td>Drive</td><td>straight, turn, stop | the same two with a power setting | set effort,
+      arcade, set speed, none of which stop by themselves | the encoders</td></tr>
+  <tr><td>Motors</td><td>effort in percent, brake, coast | speed control | the encoder</td></tr>
+  <tr><td>Servo</td><td>set an angle, centre | sweep | continuous rotation, free</td></tr>
+  <tr><td>Sensors</td><td>distance, line, button | the gyro, which needs zeroing first</td></tr>
+  <tr><td>Board</td><td>the green LED | wait and print | the RGB LED</td></tr>
+</table>
+
+<h2 class="newpage">A7. File manifest since Part One</h2>
+
+<p>This supersedes section 13 of Part One for everything added or changed since. Part One's manifest
+remains correct for changes 1 to 12, except for the six files now retired, listed at the end.</p>
+
+<h3>Added</h3>
+<table>
+  <tr><th style="width:230pt">File</th><th>What it is</th></tr>
+  <tr><td><span class="path">devices/index.json</span></td><td>Catalogue of the libraries that ship with the IDE</td></tr>
+  <tr><td><span class="path">devices/pcf8575.json</span></td><td>The PCF8575 category, moved out of the source</td></tr>
+  <tr><td><span class="path">devices/neopixel.json</span></td><td>The NeoPixel category, moved out of the source</td></tr>
+  <tr><td><span class="path">devices/ssd1315-oled.json</span></td><td>The OLED library, 22 blocks</td></tr>
+  <tr><td><span class="path">devices/README.md</span></td><td>The manifest format, written for somebody else to use</td></tr>
+  <tr><td><span class="path">js/devices/manifest-compiler.js</span></td><td>Manifest to Blockly blocks, Python generators and a toolbox category, plus the validator</td></tr>
+  <tr><td><span class="path">js/devices/library-manager.js</span></td><td>Fetching, validating, registering, theme colours, driver list, persistence</td></tr>
+  <tr><td><span class="path">js/ui/library-modal.js</span></td><td>The Library dialog</td></tr>
+  <tr><td><span class="path">lib/SSD1315.py</span></td><td>The OLED driver, embedded byte for byte in the manifest</td></tr>
+  <tr><td><span class="path">tools/oled-designer.html</span></td><td>The mouse-driven sketch pad</td></tr>
+</table>
+
+<h3>Changed</h3>
+<table>
+  <tr><th style="width:230pt">File</th><th>Why</th></tr>
+  <tr><td><span class="path">index.html</span></td><td>Library button and its dialog</td></tr>
+  <tr><td><span class="path">css/index.css</span></td><td>Dark mode, and the Library dialog</td></tr>
+  <tr><td><span class="path">js/app.js</span></td><td>Library loading, theme, driver installation from manifests, and the function generation fix</td></tr>
+  <tr><td><span class="path">js/blockly/theme.js</span></td><td>Dark palette, and styles contributed by libraries</td></tr>
+  <tr><td><span class="path">js/blockly/toolbox.js</span></td><td>Library categories, and every category reordered</td></tr>
+  <tr><td><span class="path">js/blockly/generators/servo.js</span></td><td>Degrees</td></tr>
+  <tr><td><span class="path">js/blockly/generators/board.js</span></td><td>The blink fix</td></tr>
+  <tr><td><span class="path">js/blockly/generators/drivetrain.js</span></td><td>Effort in percent, and clamping</td></tr>
+  <tr><td><span class="path">js/ui/toolbar.js</span></td><td>Library button</td></tr>
+  <tr><td><span class="path">js/ui/translations.js</span></td><td>Dialog strings, and units in every tooltip that lacked one</td></tr>
+</table>
+
+<h3>Retired, safe to delete</h3>
+<p>Nothing imports these any longer. They were the PCF8575 and NeoPixel categories before those moved
+into the library format.</p>
+<pre>js/blockly/blocks/expander.js        js/blockly/generators/expander.js
+js/blockly/blocks/neopixel.js        js/blockly/generators/neopixel.js
+js/lib/pcf8575-source.js             js/lib/neopixel-source.js</pre>
+<p><span class="path">lib/PCF8575.py</span> and <span class="path">lib/NeoPixelStrip.py</span> stay.
+They are the canonical driver source that the manifests were built from.</p>
+
+<h2>A8. Verification status</h2>
+
+<p>Eight automated harnesses, 913 checks, all passing at the time of writing. They run the real code:
+five of them drive the actual IDE in a headless browser rather than testing a copy of the logic.</p>
+
+<table>
+  <tr><th style="width:36pt">Checks</th><th style="width:130pt">Harness</th><th>What it proves</th></tr>
+  <tr><td>353</td><td>Manifests against the old code</td>
+      <td>The PCF8575 and NeoPixel manifests reproduce the hand-written blocks exactly: labels,
+          shapes, arguments, dropdown options, the Python generated for every dropdown combination
+          with sockets full and empty, toolbox shadows, driver source byte for byte, and eleven kinds
+          of bad manifest being rejected</td></tr>
+  <tr><td>44</td><td>Library manager</td>
+      <td>Adding, removing, refusing removal while blocks are in use, clash detection, persistence
+          across a reload, falling back to the stored copy when a fetch fails, and the contrast
+          rule</td></tr>
+  <tr><td>39</td><td>The IDE end to end</td>
+      <td>The dialog, adding libraries, categories appearing, flyouts rendering, generated Python,
+          reload, dark mode, and the functions regression test from change 17</td></tr>
+  <tr><td>194</td><td>Every block validated</td>
+      <td>Every one of the 48 registered blocks built in the real IDE and its Python checked against
+          the XRPLib API. Every dropdown is exercised through every option, all four motors, all four
+          servos, all four gyro readings. The harness asks the IDE which blocks it has registered and
+          fails if any is not covered, so a block added later cannot slip through untested</td></tr>
+  <tr><td>169</td><td>The OLED driver</td>
+      <td>Run against stand-ins for <span class="path">framebuf</span> and
+          <span class="path">machine</span>: the initialisation sequence, the 1025 byte frame, line
+          arithmetic, number formatting, the console scroll, brightness, both Qwiic buses, a missing
+          display, a display that dies mid-run, the drawing primitives, arrow direction and symmetry,
+          big-text centring, picture decoding, and six kinds of malformed picture</td></tr>
+  <tr><td>32</td><td>The designer page</td>
+      <td>Real mouse drags, every tool, undo and redo, shape preview not committing until the mouse
+          is released, fill and invert and clear, keyboard shortcuts, canvas resizing, and loading a
+          string back</td></tr>
+  <tr><td>44</td><td>The cross-language check</td>
+      <td>The designer draws fourteen test pictures and the driver's Python decoder must return
+          exactly the same pixels for every one, in both compression modes. Two separate
+          implementations of one format is where a silent drift would hurt most</td></tr>
+  <tr><td>38</td><td>The OLED in the IDE</td>
+      <td>The validator, adding from a file, all 22 blocks rendering, a compass program with the gyro
+          plugged into the arrow, the picture string surviving a text block unaltered, reload, dark
+          colour contrast, and removal</td></tr>
+</table>
+
+<h3>Confirmed on hardware</h3>
+<p>The IDE end to end, deploy, the servo blocks and the gyro blocks, on a SparkFun XRP Controller
+running MicroPython v1.25.0-preview.beta06.</p>
+
+<p><strong>The OLED library, 19 September 2026: works as expected.</strong> That settles three
+questions this document had left open. This firmware does have
+<span class="path">framebuf</span>, so the driver's import guard never fires. The module answers at
+0x3C, the address the setup block defaults to. And the driver install path over the raw REPL works
+for a driver supplied by a device library rather than built into the IDE, which was the one part of
+change 14 that could only be proved on hardware.</p>
+
+<h3>Still to confirm on hardware</h3>
+<p>Shorter than it was. The OLED items have gone; what remains is either untested hardware or a
+question only a robot on a floor can answer.</p>
+<table>
+  <tr><th style="width:150pt">Item</th><th>What to look for</th></tr>
+  <tr><td>The PCF8575 and NeoPixel drivers</td>
+      <td>Unchanged in behaviour by the move to the library format, but still never run on a robot</td></tr>
+  <tr><td>The servo end stops</td>
+      <td>Whether 0 and 180 degrees move freely. If they do, widen the two constants in the helper;
+          if the servo buzzes at the ends, narrow them</td></tr>
+  <tr><td>Which way a positive arcade turn steers</td>
+      <td>The source computes left as straight minus turn and right as straight plus turn, so a
+          positive turn runs the right wheel faster. Two summaries of that code disagreed about the
+          resulting direction, so the tooltip describes the wheels rather than naming left or right.
+          Five minutes on the floor settles it, and then the tooltip can say it plainly</td></tr>
+  <tr><td>Redraw speed</td>
+      <td>An arrow redrawn in a tight loop sends 1025 bytes over I2C each pass. If it drags, set
+          updating to "only when I say update" and use one update block per pass</td></tr>
+  <tr><td>Board pin names</td>
+      <td>Whether <span class="path">I2C_SDA_0</span> and <span class="path">I2C_SCL_0</span> exist
+          in this firmware. All three drivers fall back to raw GPIO numbers, untested</td></tr>
+</table>
+
+<div class="note">
+  <strong>A note on the companion document.</strong>
+  <span class="path">XRPBlocks-replication-guide.md</span> still reflects the installation as it
+  stood at change 13 and has not been regenerated for changes 14 to 18. The device libraries, the
+  OLED driver and the designer page are each self-contained files in the installation folder, so they
+  can be copied across directly; the changed IDE files are the ten listed in section A7.
+</div>
+
+</body>
+</html>

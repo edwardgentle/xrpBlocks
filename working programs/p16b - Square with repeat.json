@@ -1,0 +1,73 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1346",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 16 (manual v3.1), section 3.6 Worked examples.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "controls_repeat_ext",
+            "id": "tp1344",
+            "inputs": {
+              "TIMES": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1345",
+                  "fields": {
+                    "NUM": 4
+                  }
+                }
+              },
+              "DO": {
+                "block": {
+                  "type": "xrp_drive_straight",
+                  "id": "tp1340",
+                  "inputs": {
+                    "DISTANCE": {
+                      "shadow": {
+                        "type": "math_number",
+                        "id": "tp1341",
+                        "fields": {
+                          "NUM": 20
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_drive_turn",
+                      "id": "tp1342",
+                      "inputs": {
+                        "ANGLE": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1343",
+                            "fields": {
+                              "NUM": 90
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

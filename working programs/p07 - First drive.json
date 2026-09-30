@@ -1,0 +1,79 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1310",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 7 (manual v3.1), section 1.8 Run, Stop and Deploy.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_drive_straight",
+            "id": "tp1303",
+            "inputs": {
+              "DISTANCE": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1304",
+                  "fields": {
+                    "NUM": 30
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_drive_turn",
+                "id": "tp1305",
+                "inputs": {
+                  "ANGLE": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1306",
+                      "fields": {
+                        "NUM": 90
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_drive_straight",
+                    "id": "tp1307",
+                    "inputs": {
+                      "DISTANCE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1308",
+                          "fields": {
+                            "NUM": 30
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_drive_stop",
+                        "id": "tp1309"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1559",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 43 (manual v3.1), section 9.6 Worked examples.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_oled_setup",
+            "id": "tp1551",
+            "fields": {
+              "ADDR": "0x3c"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_imu_calibrate",
+                "id": "tp1552",
+                "next": {
+                  "block": {
+                    "type": "xrp_imu_reset_yaw",
+                    "id": "tp1553",
+                    "fields": {
+                      "AXIS": "yaw"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_forever",
+                        "id": "tp1558",
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "xrp_oled_arrow",
+                              "id": "tp1555",
+                              "inputs": {
+                                "ANGLE": {
+                                  "block": {
+                                    "type": "xrp_imu_angle",
+                                    "id": "tp1554",
+                                    "fields": {
+                                      "READING": "get_heading"
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_wait_seconds",
+                                  "id": "tp1556",
+                                  "inputs": {
+                                    "SECONDS": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "tp1557",
+                                        "fields": {
+                                          "NUM": 0.05
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

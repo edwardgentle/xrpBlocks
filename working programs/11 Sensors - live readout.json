@@ -1,0 +1,347 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0736",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Wave a hand in front of the distance sensor, move over black and white, rotate and tilt the robot. Leave it still for a minute to see pitch/roll drift.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0701",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0702",
+                  "fields": {
+                    "TEXT": "Test 11: prints every sensor twice a second. Press Stop to end."
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_imu_reset_yaw",
+                "id": "tp0703",
+                "fields": {
+                  "AXIS": "yaw"
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_forever",
+                    "id": "tp0735",
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "xrp_print",
+                          "id": "tp0732",
+                          "inputs": {
+                            "TEXT": {
+                              "block": {
+                                "type": "text_join",
+                                "id": "tp0731",
+                                "extraState": {
+                                  "itemCount": 16
+                                },
+                                "inputs": {
+                                  "ADD0": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0704",
+                                      "fields": {
+                                        "TEXT": "dist "
+                                      }
+                                    }
+                                  },
+                                  "ADD1": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0706",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "xrp_distance_sensor",
+                                            "id": "tp0705"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD2": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0707",
+                                      "fields": {
+                                        "TEXT": " | line L "
+                                      }
+                                    }
+                                  },
+                                  "ADD3": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0711",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "math_arithmetic",
+                                            "id": "tp0710",
+                                            "fields": {
+                                              "OP": "MULTIPLY"
+                                            },
+                                            "inputs": {
+                                              "A": {
+                                                "block": {
+                                                  "type": "xrp_line_reflectance",
+                                                  "id": "tp0708",
+                                                  "fields": {
+                                                    "SIDE": "left"
+                                                  }
+                                                }
+                                              },
+                                              "B": {
+                                                "block": {
+                                                  "type": "math_number",
+                                                  "id": "tp0709",
+                                                  "fields": {
+                                                    "NUM": 100
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD4": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0712",
+                                      "fields": {
+                                        "TEXT": " R "
+                                      }
+                                    }
+                                  },
+                                  "ADD5": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0716",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "math_arithmetic",
+                                            "id": "tp0715",
+                                            "fields": {
+                                              "OP": "MULTIPLY"
+                                            },
+                                            "inputs": {
+                                              "A": {
+                                                "block": {
+                                                  "type": "xrp_line_reflectance",
+                                                  "id": "tp0713",
+                                                  "fields": {
+                                                    "SIDE": "right"
+                                                  }
+                                                }
+                                              },
+                                              "B": {
+                                                "block": {
+                                                  "type": "math_number",
+                                                  "id": "tp0714",
+                                                  "fields": {
+                                                    "NUM": 100
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD6": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0717",
+                                      "fields": {
+                                        "TEXT": " | yaw "
+                                      }
+                                    }
+                                  },
+                                  "ADD7": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0719",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "xrp_imu_angle",
+                                            "id": "tp0718",
+                                            "fields": {
+                                              "READING": "get_yaw"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD8": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0720",
+                                      "fields": {
+                                        "TEXT": " hdg "
+                                      }
+                                    }
+                                  },
+                                  "ADD9": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0722",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "xrp_imu_angle",
+                                            "id": "tp0721",
+                                            "fields": {
+                                              "READING": "get_heading"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD10": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0723",
+                                      "fields": {
+                                        "TEXT": " pitch "
+                                      }
+                                    }
+                                  },
+                                  "ADD11": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0725",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "xrp_imu_angle",
+                                            "id": "tp0724",
+                                            "fields": {
+                                              "READING": "get_pitch"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD12": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0726",
+                                      "fields": {
+                                        "TEXT": " roll "
+                                      }
+                                    }
+                                  },
+                                  "ADD13": {
+                                    "block": {
+                                      "type": "math_round",
+                                      "id": "tp0728",
+                                      "fields": {
+                                        "OP": "ROUND"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "block": {
+                                            "type": "xrp_imu_angle",
+                                            "id": "tp0727",
+                                            "fields": {
+                                              "READING": "get_roll"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "ADD14": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp0729",
+                                      "fields": {
+                                        "TEXT": " | btn "
+                                      }
+                                    }
+                                  },
+                                  "ADD15": {
+                                    "block": {
+                                      "type": "xrp_button_is_pressed",
+                                      "id": "tp0730"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp0733",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp0734",
+                                    "fields": {
+                                      "NUM": 0.5
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

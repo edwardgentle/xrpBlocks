@@ -1,0 +1,196 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1445",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 26 (manual v3.1), section 5.6 Proportional control. Gain 3 not yet tested on the robot.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_forever",
+            "id": "tp1444",
+            "inputs": {
+              "DO": {
+                "block": {
+                  "type": "variables_set",
+                  "id": "tp1431",
+                  "fields": {
+                    "VAR": {
+                      "id": "v_error"
+                    }
+                  },
+                  "inputs": {
+                    "VALUE": {
+                      "block": {
+                        "type": "math_arithmetic",
+                        "id": "tp1430",
+                        "fields": {
+                          "OP": "MINUS"
+                        },
+                        "inputs": {
+                          "A": {
+                            "block": {
+                              "type": "xrp_distance_sensor",
+                              "id": "tp1428"
+                            }
+                          },
+                          "B": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "tp1429",
+                              "fields": {
+                                "NUM": 20
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "variables_set",
+                      "id": "tp1438",
+                      "fields": {
+                        "VAR": {
+                          "id": "v_power"
+                        }
+                      },
+                      "inputs": {
+                        "VALUE": {
+                          "block": {
+                            "type": "math_constrain",
+                            "id": "tp1437",
+                            "inputs": {
+                              "VALUE": {
+                                "block": {
+                                  "type": "math_arithmetic",
+                                  "id": "tp1434",
+                                  "fields": {
+                                    "OP": "MULTIPLY"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "tp1432",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_error"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "B": {
+                                      "block": {
+                                        "type": "math_number",
+                                        "id": "tp1433",
+                                        "fields": {
+                                          "NUM": 3
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "LOW": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "tp1435",
+                                  "fields": {
+                                    "NUM": -60
+                                  }
+                                }
+                              },
+                              "HIGH": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "tp1436",
+                                  "fields": {
+                                    "NUM": 60
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "xrp_drive_set_effort",
+                          "id": "tp1441",
+                          "inputs": {
+                            "LEFT": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "tp1439",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_power"
+                                  }
+                                }
+                              }
+                            },
+                            "RIGHT": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "tp1440",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_power"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp1442",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1443",
+                                    "fields": {
+                                      "NUM": 0.05
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "error",
+      "id": "v_error"
+    },
+    {
+      "name": "power",
+      "id": "v_power"
+    }
+  ]
+}

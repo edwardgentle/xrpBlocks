@@ -1,0 +1,371 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w38_041",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Phone driving with automatic lights (Triggers library). Drive with the joystick: the RGB shows white when reversing, orange blinking when turning, red when braking, green while moving forward. Speed and battery show as tiles. Checks that triggers and the phone work together without slowing the controls down.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w38_030",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w38_029",
+                  "fields": {
+                    "TEXT": "XRP lights"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_trig_setup",
+                "id": "w38_032",
+                "inputs": {
+                  "RATE": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "w38_031",
+                      "fields": {
+                        "NUM": 20
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_trig_use_rgb",
+                    "id": "w38_033",
+                    "fields": {
+                      "ROLE": "brake"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_trig_light_rule",
+                        "id": "w38_034",
+                        "fields": {
+                          "EVENT": "braking",
+                          "COLOUR": "red",
+                          "PATTERN": "solid",
+                          "ROLE": "brake"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_trig_light_rule",
+                            "id": "w38_035",
+                            "fields": {
+                              "EVENT": "reverse",
+                              "COLOUR": "white",
+                              "PATTERN": "solid",
+                              "ROLE": "reverse"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_trig_light_rule",
+                                "id": "w38_036",
+                                "fields": {
+                                  "EVENT": "left",
+                                  "COLOUR": "orange",
+                                  "PATTERN": "blink",
+                                  "ROLE": "left"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_trig_light_rule",
+                                    "id": "w38_037",
+                                    "fields": {
+                                      "EVENT": "right",
+                                      "COLOUR": "orange",
+                                      "PATTERN": "blink",
+                                      "ROLE": "right"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_trig_light_rule",
+                                        "id": "w38_038",
+                                        "fields": {
+                                          "EVENT": "forward",
+                                          "COLOUR": "green",
+                                          "PATTERN": "solid",
+                                          "ROLE": "head"
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_ble_start",
+                                            "id": "w38_039",
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_forever",
+                                                "id": "w38_040",
+                                                "inputs": {
+                                                  "DO": {
+                                                    "block": {
+                                                      "type": "controls_if",
+                                                      "id": "w38_012",
+                                                      "extraState": {
+                                                        "hasElse": true
+                                                      },
+                                                      "inputs": {
+                                                        "IF0": {
+                                                          "block": {
+                                                            "type": "xrp_ble_connected",
+                                                            "id": "w38_001"
+                                                          }
+                                                        },
+                                                        "DO0": {
+                                                          "block": {
+                                                            "type": "xrp_drive_arcade",
+                                                            "id": "w38_010",
+                                                            "inputs": {
+                                                              "SPEED": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "w38_008",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                },
+                                                                "block": {
+                                                                  "type": "xrp_ble_joystick",
+                                                                  "id": "w38_002",
+                                                                  "fields": {
+                                                                    "AXIS": "Y"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "TURN": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "w38_009",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                },
+                                                                "block": {
+                                                                  "type": "math_arithmetic",
+                                                                  "id": "w38_007",
+                                                                  "fields": {
+                                                                    "OP": "MINUS"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "A": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w38_005",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "math_number",
+                                                                        "id": "w38_003",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "B": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w38_006",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "xrp_ble_joystick",
+                                                                        "id": "w38_004",
+                                                                        "fields": {
+                                                                          "AXIS": "X"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "ELSE": {
+                                                          "block": {
+                                                            "type": "xrp_drive_stop",
+                                                            "id": "w38_011"
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "controls_if",
+                                                          "id": "w38_016",
+                                                          "inputs": {
+                                                            "IF0": {
+                                                              "block": {
+                                                                "type": "xrp_trig_happening",
+                                                                "id": "w38_013",
+                                                                "fields": {
+                                                                  "EVENT": "braking"
+                                                                }
+                                                              }
+                                                            },
+                                                            "DO0": {
+                                                              "block": {
+                                                                "type": "xrp_ble_show",
+                                                                "id": "w38_015",
+                                                                "inputs": {
+                                                                  "TEXT": {
+                                                                    "shadow": {
+                                                                      "type": "text",
+                                                                      "id": "w38_014",
+                                                                      "fields": {
+                                                                        "TEXT": "Braking"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "xrp_ble_value",
+                                                              "id": "w38_022",
+                                                              "inputs": {
+                                                                "NAME": {
+                                                                  "shadow": {
+                                                                    "type": "text",
+                                                                    "id": "w38_020",
+                                                                    "fields": {
+                                                                      "TEXT": "Speed cm/s"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "VALUE": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w38_021",
+                                                                    "fields": {
+                                                                      "NUM": 0
+                                                                    }
+                                                                  },
+                                                                  "block": {
+                                                                    "type": "math_round",
+                                                                    "id": "w38_019",
+                                                                    "fields": {
+                                                                      "OP": "ROUND"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "NUM": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "w38_018",
+                                                                          "fields": {
+                                                                            "NUM": 0
+                                                                          }
+                                                                        },
+                                                                        "block": {
+                                                                          "type": "xrp_trig_measure",
+                                                                          "id": "w38_017",
+                                                                          "fields": {
+                                                                            "MEASURE": "speed"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "xrp_ble_value",
+                                                                  "id": "w38_026",
+                                                                  "inputs": {
+                                                                    "NAME": {
+                                                                      "shadow": {
+                                                                        "type": "text",
+                                                                        "id": "w38_024",
+                                                                        "fields": {
+                                                                          "TEXT": "Battery V"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "VALUE": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w38_025",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "xrp_trig_measure",
+                                                                        "id": "w38_023",
+                                                                        "fields": {
+                                                                          "MEASURE": "battery"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "xrp_wait_seconds",
+                                                                      "id": "w38_028",
+                                                                      "inputs": {
+                                                                        "SECONDS": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "w38_027",
+                                                                            "fields": {
+                                                                              "NUM": 0.02
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1357",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 17 (manual v3.1), section 3.6 Worked examples. Change sides to draw other shapes.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "variables_set",
+            "id": "tp1347",
+            "fields": {
+              "VAR": {
+                "id": "v_sides"
+              }
+            },
+            "inputs": {
+              "VALUE": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1348",
+                  "fields": {
+                    "NUM": 6
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "controls_repeat_ext",
+                "id": "tp1356",
+                "inputs": {
+                  "TIMES": {
+                    "block": {
+                      "type": "variables_get",
+                      "id": "tp1349",
+                      "fields": {
+                        "VAR": {
+                          "id": "v_sides"
+                        }
+                      }
+                    }
+                  },
+                  "DO": {
+                    "block": {
+                      "type": "xrp_drive_straight",
+                      "id": "tp1350",
+                      "inputs": {
+                        "DISTANCE": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1351",
+                            "fields": {
+                              "NUM": 20
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "xrp_drive_turn",
+                          "id": "tp1355",
+                          "inputs": {
+                            "ANGLE": {
+                              "block": {
+                                "type": "math_arithmetic",
+                                "id": "tp1354",
+                                "fields": {
+                                  "OP": "DIVIDE"
+                                },
+                                "inputs": {
+                                  "A": {
+                                    "block": {
+                                      "type": "math_number",
+                                      "id": "tp1352",
+                                      "fields": {
+                                        "NUM": 360
+                                      }
+                                    }
+                                  },
+                                  "B": {
+                                    "block": {
+                                      "type": "variables_get",
+                                      "id": "tp1353",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_sides"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "sides",
+      "id": "v_sides"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1516",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 36 (manual v3.1), section 7.4 Worked example: a list of servo angles.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_list_delete_all",
+            "id": "tp1500",
+            "fields": {
+              "VAR": {
+                "id": "v_angles"
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_list_add_item",
+                "id": "tp1502",
+                "fields": {
+                  "VAR": {
+                    "id": "v_angles"
+                  }
+                },
+                "inputs": {
+                  "ITEM": {
+                    "block": {
+                      "type": "math_number",
+                      "id": "tp1501",
+                      "fields": {
+                        "NUM": 0
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_list_add_item",
+                    "id": "tp1504",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_angles"
+                      }
+                    },
+                    "inputs": {
+                      "ITEM": {
+                        "block": {
+                          "type": "math_number",
+                          "id": "tp1503",
+                          "fields": {
+                            "NUM": 90
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_list_add_item",
+                        "id": "tp1506",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_angles"
+                          }
+                        },
+                        "inputs": {
+                          "ITEM": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "tp1505",
+                              "fields": {
+                                "NUM": 180
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "controls_for",
+                            "id": "tp1513",
+                            "fields": {
+                              "VAR": {
+                                "id": "v_i"
+                              }
+                            },
+                            "inputs": {
+                              "FROM": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp1514",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              },
+                              "TO": {
+                                "block": {
+                                  "type": "xrp_list_length",
+                                  "id": "tp1507",
+                                  "fields": {
+                                    "VAR": {
+                                      "id": "v_angles"
+                                    }
+                                  }
+                                }
+                              },
+                              "BY": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp1515",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "xrp_servo_set_angle",
+                                  "id": "tp1510",
+                                  "fields": {
+                                    "SERVO": "1"
+                                  },
+                                  "inputs": {
+                                    "ANGLE": {
+                                      "block": {
+                                        "type": "xrp_list_item",
+                                        "id": "tp1509",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_angles"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "INDEX": {
+                                            "block": {
+                                              "type": "variables_get",
+                                              "id": "tp1508",
+                                              "fields": {
+                                                "VAR": {
+                                                  "id": "v_i"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_wait_seconds",
+                                      "id": "tp1511",
+                                      "inputs": {
+                                        "SECONDS": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "tp1512",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "angles",
+      "id": "v_angles",
+      "type": "List"
+    },
+    {
+      "name": "i",
+      "id": "v_i"
+    }
+  ]
+}

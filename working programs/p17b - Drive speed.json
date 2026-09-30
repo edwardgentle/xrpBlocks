@@ -1,0 +1,71 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1364",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 17 (manual v3.1).",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_drive_set_speed",
+            "id": "tp1358",
+            "inputs": {
+              "LEFT": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1359",
+                  "fields": {
+                    "NUM": 10
+                  }
+                }
+              },
+              "RIGHT": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1360",
+                  "fields": {
+                    "NUM": 10
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_wait_seconds",
+                "id": "tp1361",
+                "inputs": {
+                  "SECONDS": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1362",
+                      "fields": {
+                        "NUM": 3
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_drive_stop",
+                    "id": "tp1363"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

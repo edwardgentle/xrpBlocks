@@ -1,0 +1,240 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1624",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 52 (manual v3.1), section 11.4 Driving with the D-pad. Spin directions not yet tested on the robot.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_remote_start",
+            "id": "tp1601",
+            "fields": {
+              "MODE": "AP"
+            },
+            "inputs": {
+              "SSID": {
+                "block": {
+                  "type": "text",
+                  "id": "tp1599",
+                  "fields": {
+                    "TEXT": "XRP-Remote"
+                  }
+                }
+              },
+              "PASSWORD": {
+                "block": {
+                  "type": "text",
+                  "id": "tp1600",
+                  "fields": {
+                    "TEXT": "xrpremote"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_forever",
+                "id": "tp1623",
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "xrp_remote_update",
+                      "id": "tp1602",
+                      "next": {
+                        "block": {
+                          "type": "controls_if",
+                          "id": "tp1620",
+                          "extraState": {
+                            "elseIfCount": 3,
+                            "hasElse": true
+                          },
+                          "inputs": {
+                            "IF0": {
+                              "block": {
+                                "type": "xrp_remote_pressed",
+                                "id": "tp1603",
+                                "fields": {
+                                  "BUTTON": "1"
+                                }
+                              }
+                            },
+                            "DO0": {
+                              "block": {
+                                "type": "xrp_drive_set_effort",
+                                "id": "tp1604",
+                                "inputs": {
+                                  "LEFT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1605",
+                                      "fields": {
+                                        "NUM": 50
+                                      }
+                                    }
+                                  },
+                                  "RIGHT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1606",
+                                      "fields": {
+                                        "NUM": 50
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "IF1": {
+                              "block": {
+                                "type": "xrp_remote_pressed",
+                                "id": "tp1607",
+                                "fields": {
+                                  "BUTTON": "4"
+                                }
+                              }
+                            },
+                            "DO1": {
+                              "block": {
+                                "type": "xrp_drive_set_effort",
+                                "id": "tp1608",
+                                "inputs": {
+                                  "LEFT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1609",
+                                      "fields": {
+                                        "NUM": -40
+                                      }
+                                    }
+                                  },
+                                  "RIGHT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1610",
+                                      "fields": {
+                                        "NUM": -40
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "IF2": {
+                              "block": {
+                                "type": "xrp_remote_pressed",
+                                "id": "tp1611",
+                                "fields": {
+                                  "BUTTON": "2"
+                                }
+                              }
+                            },
+                            "DO2": {
+                              "block": {
+                                "type": "xrp_drive_set_effort",
+                                "id": "tp1612",
+                                "inputs": {
+                                  "LEFT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1613",
+                                      "fields": {
+                                        "NUM": -30
+                                      }
+                                    }
+                                  },
+                                  "RIGHT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1614",
+                                      "fields": {
+                                        "NUM": 30
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "IF3": {
+                              "block": {
+                                "type": "xrp_remote_pressed",
+                                "id": "tp1615",
+                                "fields": {
+                                  "BUTTON": "3"
+                                }
+                              }
+                            },
+                            "DO3": {
+                              "block": {
+                                "type": "xrp_drive_set_effort",
+                                "id": "tp1616",
+                                "inputs": {
+                                  "LEFT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1617",
+                                      "fields": {
+                                        "NUM": 30
+                                      }
+                                    }
+                                  },
+                                  "RIGHT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1618",
+                                      "fields": {
+                                        "NUM": -30
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ELSE": {
+                              "block": {
+                                "type": "xrp_drive_stop",
+                                "id": "tp1619"
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp1621",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1622",
+                                    "fields": {
+                                      "NUM": 0.02
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

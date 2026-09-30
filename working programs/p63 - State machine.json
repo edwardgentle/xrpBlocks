@@ -1,0 +1,280 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1667",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 63 (manual v3.1), section 13.5 State machines: robots with modes.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "variables_set",
+            "id": "tp1641",
+            "fields": {
+              "VAR": {
+                "id": "v_state"
+              }
+            },
+            "inputs": {
+              "VALUE": {
+                "block": {
+                  "type": "text",
+                  "id": "tp1640",
+                  "fields": {
+                    "TEXT": "drive"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_forever",
+                "id": "tp1666",
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "controls_if",
+                      "id": "tp1654",
+                      "inputs": {
+                        "IF0": {
+                          "block": {
+                            "type": "logic_compare",
+                            "id": "tp1644",
+                            "fields": {
+                              "OP": "EQ"
+                            },
+                            "inputs": {
+                              "A": {
+                                "block": {
+                                  "type": "variables_get",
+                                  "id": "tp1642",
+                                  "fields": {
+                                    "VAR": {
+                                      "id": "v_state"
+                                    }
+                                  }
+                                }
+                              },
+                              "B": {
+                                "block": {
+                                  "type": "text",
+                                  "id": "tp1643",
+                                  "fields": {
+                                    "TEXT": "drive"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "DO0": {
+                          "block": {
+                            "type": "xrp_drive_set_effort",
+                            "id": "tp1645",
+                            "inputs": {
+                              "LEFT": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp1646",
+                                  "fields": {
+                                    "NUM": 40
+                                  }
+                                }
+                              },
+                              "RIGHT": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp1647",
+                                  "fields": {
+                                    "NUM": 40
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "controls_if",
+                                "id": "tp1653",
+                                "inputs": {
+                                  "IF0": {
+                                    "block": {
+                                      "type": "logic_compare",
+                                      "id": "tp1649",
+                                      "fields": {
+                                        "OP": "LT"
+                                      },
+                                      "inputs": {
+                                        "A": {
+                                          "block": {
+                                            "type": "xrp_distance_sensor",
+                                            "id": "tp1648"
+                                          }
+                                        },
+                                        "B": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "tp1650",
+                                            "fields": {
+                                              "NUM": 15
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "DO0": {
+                                    "block": {
+                                      "type": "variables_set",
+                                      "id": "tp1652",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_state"
+                                        }
+                                      },
+                                      "inputs": {
+                                        "VALUE": {
+                                          "block": {
+                                            "type": "text",
+                                            "id": "tp1651",
+                                            "fields": {
+                                              "TEXT": "turn"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "controls_if",
+                          "id": "tp1663",
+                          "inputs": {
+                            "IF0": {
+                              "block": {
+                                "type": "logic_compare",
+                                "id": "tp1657",
+                                "fields": {
+                                  "OP": "EQ"
+                                },
+                                "inputs": {
+                                  "A": {
+                                    "block": {
+                                      "type": "variables_get",
+                                      "id": "tp1655",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_state"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "B": {
+                                    "block": {
+                                      "type": "text",
+                                      "id": "tp1656",
+                                      "fields": {
+                                        "TEXT": "turn"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "DO0": {
+                              "block": {
+                                "type": "xrp_drive_stop",
+                                "id": "tp1658",
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_drive_turn",
+                                    "id": "tp1659",
+                                    "inputs": {
+                                      "ANGLE": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp1660",
+                                          "fields": {
+                                            "NUM": 90
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "variables_set",
+                                        "id": "tp1662",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_state"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "VALUE": {
+                                            "block": {
+                                              "type": "text",
+                                              "id": "tp1661",
+                                              "fields": {
+                                                "TEXT": "drive"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp1664",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1665",
+                                    "fields": {
+                                      "NUM": 0.05
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "state",
+      "id": "v_state"
+    }
+  ]
+}

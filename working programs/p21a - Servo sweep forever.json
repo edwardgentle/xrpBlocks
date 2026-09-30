@@ -1,0 +1,106 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1384",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 21 (manual v3.1), section 4.3 Worked examples.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_forever",
+            "id": "tp1383",
+            "inputs": {
+              "DO": {
+                "block": {
+                  "type": "xrp_servo_sweep",
+                  "id": "tp1375",
+                  "fields": {
+                    "SERVO": "1"
+                  },
+                  "inputs": {
+                    "FROM": {
+                      "shadow": {
+                        "type": "math_number",
+                        "id": "tp1376",
+                        "fields": {
+                          "NUM": 0
+                        }
+                      }
+                    },
+                    "TO": {
+                      "shadow": {
+                        "type": "math_number",
+                        "id": "tp1377",
+                        "fields": {
+                          "NUM": 180
+                        }
+                      }
+                    },
+                    "SECONDS": {
+                      "shadow": {
+                        "type": "math_number",
+                        "id": "tp1378",
+                        "fields": {
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_servo_sweep",
+                      "id": "tp1379",
+                      "fields": {
+                        "SERVO": "1"
+                      },
+                      "inputs": {
+                        "FROM": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1380",
+                            "fields": {
+                              "NUM": 180
+                            }
+                          }
+                        },
+                        "TO": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1381",
+                            "fields": {
+                              "NUM": 0
+                            }
+                          }
+                        },
+                        "SECONDS": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1382",
+                            "fields": {
+                              "NUM": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1415",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 24 (manual v3.1). Follows the edge of a line with the left sensor. Threshold 0.5 not yet tested on the robot.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_forever",
+            "id": "tp1414",
+            "inputs": {
+              "DO": {
+                "block": {
+                  "type": "controls_if",
+                  "id": "tp1411",
+                  "extraState": {
+                    "hasElse": true
+                  },
+                  "inputs": {
+                    "IF0": {
+                      "block": {
+                        "type": "logic_compare",
+                        "id": "tp1403",
+                        "fields": {
+                          "OP": "GT"
+                        },
+                        "inputs": {
+                          "A": {
+                            "block": {
+                              "type": "xrp_line_reflectance",
+                              "id": "tp1402",
+                              "fields": {
+                                "SIDE": "left"
+                              }
+                            }
+                          },
+                          "B": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1404",
+                              "fields": {
+                                "NUM": 0.5
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "DO0": {
+                      "block": {
+                        "type": "xrp_drive_set_effort",
+                        "id": "tp1405",
+                        "inputs": {
+                          "LEFT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1406",
+                              "fields": {
+                                "NUM": 20
+                              }
+                            }
+                          },
+                          "RIGHT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1407",
+                              "fields": {
+                                "NUM": 40
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "xrp_drive_set_effort",
+                        "id": "tp1408",
+                        "inputs": {
+                          "LEFT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1409",
+                              "fields": {
+                                "NUM": 40
+                              }
+                            }
+                          },
+                          "RIGHT": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1410",
+                              "fields": {
+                                "NUM": 20
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_wait_seconds",
+                      "id": "tp1412",
+                      "inputs": {
+                        "SECONDS": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1413",
+                            "fields": {
+                              "NUM": 0.02
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

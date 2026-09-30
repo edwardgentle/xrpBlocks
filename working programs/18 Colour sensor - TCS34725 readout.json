@@ -1,0 +1,347 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1066",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Hold red, green, blue, white and black card under the sensor. The onboard RGB LED copies the colour it sees. Gain 4x / 154 ms suits indoor light; change gain if values sit at 0 or 255.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp1032",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp1033",
+                  "fields": {
+                    "TEXT": "Test 18: TCS34725 on Qwiic, address 0x29"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_tcs_setup",
+                "id": "tp1034",
+                "fields": {
+                  "GAIN": "4X",
+                  "ITIME": "154MS"
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_forever",
+                    "id": "tp1065",
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "tp1036",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_r"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "block": {
+                                "type": "xrp_tcs_red",
+                                "id": "tp1035"
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "variables_set",
+                              "id": "tp1038",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_g"
+                                }
+                              },
+                              "inputs": {
+                                "VALUE": {
+                                  "block": {
+                                    "type": "xrp_tcs_green",
+                                    "id": "tp1037"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "variables_set",
+                                  "id": "tp1040",
+                                  "fields": {
+                                    "VAR": {
+                                      "id": "v_b"
+                                    }
+                                  },
+                                  "inputs": {
+                                    "VALUE": {
+                                      "block": {
+                                        "type": "xrp_tcs_blue",
+                                        "id": "tp1039"
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_print",
+                                      "id": "tp1058",
+                                      "inputs": {
+                                        "TEXT": {
+                                          "block": {
+                                            "type": "text_join",
+                                            "id": "tp1057",
+                                            "extraState": {
+                                              "itemCount": 14
+                                            },
+                                            "inputs": {
+                                              "ADD0": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1041",
+                                                  "fields": {
+                                                    "TEXT": "R "
+                                                  }
+                                                }
+                                              },
+                                              "ADD1": {
+                                                "block": {
+                                                  "type": "variables_get",
+                                                  "id": "tp1042",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_r"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "ADD2": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1043",
+                                                  "fields": {
+                                                    "TEXT": " G "
+                                                  }
+                                                }
+                                              },
+                                              "ADD3": {
+                                                "block": {
+                                                  "type": "variables_get",
+                                                  "id": "tp1044",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_g"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "ADD4": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1045",
+                                                  "fields": {
+                                                    "TEXT": " B "
+                                                  }
+                                                }
+                                              },
+                                              "ADD5": {
+                                                "block": {
+                                                  "type": "variables_get",
+                                                  "id": "tp1046",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_b"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "ADD6": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1047",
+                                                  "fields": {
+                                                    "TEXT": " | clear "
+                                                  }
+                                                }
+                                              },
+                                              "ADD7": {
+                                                "block": {
+                                                  "type": "xrp_tcs_clear_raw",
+                                                  "id": "tp1048"
+                                                }
+                                              },
+                                              "ADD8": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1049",
+                                                  "fields": {
+                                                    "TEXT": " | lux "
+                                                  }
+                                                }
+                                              },
+                                              "ADD9": {
+                                                "block": {
+                                                  "type": "math_round",
+                                                  "id": "tp1051",
+                                                  "fields": {
+                                                    "OP": "ROUND"
+                                                  },
+                                                  "inputs": {
+                                                    "NUM": {
+                                                      "block": {
+                                                        "type": "xrp_tcs_lux",
+                                                        "id": "tp1050"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "ADD10": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1052",
+                                                  "fields": {
+                                                    "TEXT": " | K "
+                                                  }
+                                                }
+                                              },
+                                              "ADD11": {
+                                                "block": {
+                                                  "type": "math_round",
+                                                  "id": "tp1054",
+                                                  "fields": {
+                                                    "OP": "ROUND"
+                                                  },
+                                                  "inputs": {
+                                                    "NUM": {
+                                                      "block": {
+                                                        "type": "xrp_tcs_colour_temperature",
+                                                        "id": "tp1053"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "ADD12": {
+                                                "block": {
+                                                  "type": "text",
+                                                  "id": "tp1055",
+                                                  "fields": {
+                                                    "TEXT": " | name "
+                                                  }
+                                                }
+                                              },
+                                              "ADD13": {
+                                                "block": {
+                                                  "type": "xrp_tcs_nearest_colour",
+                                                  "id": "tp1056"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_rgb_led",
+                                          "id": "tp1062",
+                                          "inputs": {
+                                            "RED": {
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "tp1059",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_r"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "GREEN": {
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "tp1060",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_g"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "BLUE": {
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "tp1061",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_b"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_wait_seconds",
+                                              "id": "tp1063",
+                                              "inputs": {
+                                                "SECONDS": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "tp1064",
+                                                    "fields": {
+                                                      "NUM": 0.5
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "r",
+      "id": "v_r"
+    },
+    {
+      "name": "g",
+      "id": "v_g"
+    },
+    {
+      "name": "b",
+      "id": "v_b"
+    }
+  ]
+}

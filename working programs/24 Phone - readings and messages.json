@@ -1,0 +1,228 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "bm021",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Robot messages on the phone. Run, connect the phone, then either tick \"Show robot messages\" (tiles above the controls) or choose the Messages layout (one large block, no controls). Expect three live tiles (distance, heading, left line sensor) and a log line each time you tap A. Untick, or leave the Messages layout: tiles disappear and the robot stops sending.",
+            "pinned": false,
+            "height": 180,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_label",
+            "id": "bm023",
+            "fields": {
+              "BUTTON": "5"
+            },
+            "inputs": {
+              "LABEL": {
+                "shadow": {
+                  "type": "text",
+                  "id": "bm022",
+                  "fields": {
+                    "TEXT": "Log"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_start",
+                "id": "bm024",
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_print",
+                    "id": "bm027",
+                    "inputs": {
+                      "TEXT": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "bm025",
+                          "fields": {
+                            "TEXT": ""
+                          }
+                        },
+                        "block": {
+                          "type": "text",
+                          "id": "bm026",
+                          "fields": {
+                            "TEXT": "Program started"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_forever",
+                        "id": "bm020",
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "xrp_ble_value",
+                              "id": "bm004",
+                              "inputs": {
+                                "NAME": {
+                                  "shadow": {
+                                    "type": "text",
+                                    "id": "bm001",
+                                    "fields": {
+                                      "TEXT": "Distance cm"
+                                    }
+                                  }
+                                },
+                                "VALUE": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "bm002",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  },
+                                  "block": {
+                                    "type": "xrp_distance_sensor",
+                                    "id": "bm003"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_ble_value",
+                                  "id": "bm008",
+                                  "inputs": {
+                                    "NAME": {
+                                      "shadow": {
+                                        "type": "text",
+                                        "id": "bm005",
+                                        "fields": {
+                                          "TEXT": "Heading"
+                                        }
+                                      }
+                                    },
+                                    "VALUE": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "bm006",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "xrp_imu_get_heading",
+                                        "id": "bm007"
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_ble_value",
+                                      "id": "bm012",
+                                      "inputs": {
+                                        "NAME": {
+                                          "shadow": {
+                                            "type": "text",
+                                            "id": "bm009",
+                                            "fields": {
+                                              "TEXT": "Line left"
+                                            }
+                                          }
+                                        },
+                                        "VALUE": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "bm010",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "xrp_line_get_left",
+                                            "id": "bm011"
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "controls_if",
+                                          "id": "bm017",
+                                          "inputs": {
+                                            "IF0": {
+                                              "block": {
+                                                "type": "xrp_ble_clicked",
+                                                "id": "bm013",
+                                                "fields": {
+                                                  "BUTTON": "5"
+                                                }
+                                              }
+                                            },
+                                            "DO0": {
+                                              "block": {
+                                                "type": "xrp_ble_print",
+                                                "id": "bm016",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "bm014",
+                                                      "fields": {
+                                                        "TEXT": ""
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "text",
+                                                      "id": "bm015",
+                                                      "fields": {
+                                                        "TEXT": "Button A pressed"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_wait_seconds",
+                                              "id": "bm019",
+                                              "inputs": {
+                                                "SECONDS": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "bm018",
+                                                    "fields": {
+                                                      "NUM": 0.05
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

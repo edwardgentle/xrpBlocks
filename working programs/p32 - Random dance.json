@@ -1,0 +1,147 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1488",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 32 (manual v3.1).",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "controls_repeat_ext",
+            "id": "tp1486",
+            "inputs": {
+              "TIMES": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1487",
+                  "fields": {
+                    "NUM": 5
+                  }
+                }
+              },
+              "DO": {
+                "block": {
+                  "type": "xrp_drive_turn",
+                  "id": "tp1477",
+                  "inputs": {
+                    "ANGLE": {
+                      "block": {
+                        "type": "math_random_int",
+                        "id": "tp1474",
+                        "inputs": {
+                          "FROM": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1475",
+                              "fields": {
+                                "NUM": -180
+                              }
+                            }
+                          },
+                          "TO": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1476",
+                              "fields": {
+                                "NUM": 180
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "xrp_drive_straight",
+                      "id": "tp1478",
+                      "inputs": {
+                        "DISTANCE": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1479",
+                            "fields": {
+                              "NUM": 10
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "xrp_rgb_colour",
+                          "id": "tp1480",
+                          "fields": {
+                            "COLOUR": "magenta"
+                          },
+                          "inputs": {
+                            "BRIGHTNESS": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "tp1481",
+                                "fields": {
+                                  "NUM": 30
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp1482",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1483",
+                                    "fields": {
+                                      "NUM": 0.3
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_rgb_colour",
+                                  "id": "tp1484",
+                                  "fields": {
+                                    "COLOUR": "cyan"
+                                  },
+                                  "inputs": {
+                                    "BRIGHTNESS": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "tp1485",
+                                        "fields": {
+                                          "NUM": 30
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

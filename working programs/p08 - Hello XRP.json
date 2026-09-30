@@ -1,0 +1,85 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1318",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 8 (manual v3.1), section 1.10 Messages and lights.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp1312",
+            "inputs": {
+              "TEXT": {
+                "block": {
+                  "type": "text",
+                  "id": "tp1311",
+                  "fields": {
+                    "TEXT": "Hello XRP!"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_rgb_colour",
+                "id": "tp1313",
+                "fields": {
+                  "COLOUR": "green"
+                },
+                "inputs": {
+                  "BRIGHTNESS": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1314",
+                      "fields": {
+                        "NUM": 30
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_led_blink",
+                    "id": "tp1315",
+                    "inputs": {
+                      "COUNT": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1316",
+                          "fields": {
+                            "NUM": 3
+                          }
+                        }
+                      },
+                      "DELAY": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1317",
+                          "fields": {
+                            "NUM": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

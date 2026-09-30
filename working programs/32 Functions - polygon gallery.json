@@ -1,0 +1,362 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w32_036",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Polygon gallery using a function with an input. Press the board button before each shape: triangle, square, pentagon, hexagon. Each should close up where it started; if not, check turn calibration (program 07).",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_drive_accel",
+            "id": "w32_021",
+            "fields": {
+              "LEVEL": "0.25"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_wait_for_button",
+                "id": "w32_022",
+                "next": {
+                  "block": {
+                    "type": "procedures_callnoreturn",
+                    "id": "w32_024",
+                    "extraState": {
+                      "name": "draw polygon",
+                      "params": [
+                        "sides"
+                      ]
+                    },
+                    "inputs": {
+                      "ARG0": {
+                        "block": {
+                          "type": "math_number",
+                          "id": "w32_023",
+                          "fields": {
+                            "NUM": 3
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_wait_for_button",
+                        "id": "w32_025",
+                        "next": {
+                          "block": {
+                            "type": "procedures_callnoreturn",
+                            "id": "w32_027",
+                            "extraState": {
+                              "name": "draw polygon",
+                              "params": [
+                                "sides"
+                              ]
+                            },
+                            "inputs": {
+                              "ARG0": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "w32_026",
+                                  "fields": {
+                                    "NUM": 4
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_wait_for_button",
+                                "id": "w32_028",
+                                "next": {
+                                  "block": {
+                                    "type": "procedures_callnoreturn",
+                                    "id": "w32_030",
+                                    "extraState": {
+                                      "name": "draw polygon",
+                                      "params": [
+                                        "sides"
+                                      ]
+                                    },
+                                    "inputs": {
+                                      "ARG0": {
+                                        "block": {
+                                          "type": "math_number",
+                                          "id": "w32_029",
+                                          "fields": {
+                                            "NUM": 5
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_wait_for_button",
+                                        "id": "w32_031",
+                                        "next": {
+                                          "block": {
+                                            "type": "procedures_callnoreturn",
+                                            "id": "w32_033",
+                                            "extraState": {
+                                              "name": "draw polygon",
+                                              "params": [
+                                                "sides"
+                                              ]
+                                            },
+                                            "inputs": {
+                                              "ARG0": {
+                                                "block": {
+                                                  "type": "math_number",
+                                                  "id": "w32_032",
+                                                  "fields": {
+                                                    "NUM": 6
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "w32_035",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "w32_034",
+                                                      "fields": {
+                                                        "TEXT": "Gallery finished"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "w32_020",
+        "x": 560,
+        "y": 40,
+        "extraState": {
+          "params": [
+            {
+              "name": "sides",
+              "id": "v_sides"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "draw polygon"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "xrp_print",
+              "id": "w32_007",
+              "inputs": {
+                "TEXT": {
+                  "shadow": {
+                    "type": "text",
+                    "id": "w32_006",
+                    "fields": {
+                      "TEXT": ""
+                    }
+                  },
+                  "block": {
+                    "type": "text_join",
+                    "id": "w32_005",
+                    "extraState": {
+                      "itemCount": 3
+                    },
+                    "inputs": {
+                      "ADD0": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w32_002",
+                          "fields": {
+                            "TEXT": "Drawing a shape with "
+                          }
+                        }
+                      },
+                      "ADD1": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w32_003",
+                          "fields": {
+                            "TEXT": ""
+                          }
+                        },
+                        "block": {
+                          "type": "variables_get",
+                          "id": "w32_001",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_sides"
+                            }
+                          }
+                        }
+                      },
+                      "ADD2": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w32_004",
+                          "fields": {
+                            "TEXT": " sides"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "controls_repeat_ext",
+                  "id": "w32_019",
+                  "inputs": {
+                    "TIMES": {
+                      "shadow": {
+                        "type": "math_number",
+                        "id": "w32_009",
+                        "fields": {
+                          "NUM": 4
+                        }
+                      },
+                      "block": {
+                        "type": "variables_get",
+                        "id": "w32_008",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_sides"
+                          }
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "xrp_drive_straight",
+                        "id": "w32_011",
+                        "inputs": {
+                          "DISTANCE": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w32_010",
+                              "fields": {
+                                "NUM": 20
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_turn",
+                            "id": "w32_018",
+                            "inputs": {
+                              "ANGLE": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "w32_017",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                },
+                                "block": {
+                                  "type": "math_arithmetic",
+                                  "id": "w32_016",
+                                  "fields": {
+                                    "OP": "DIVIDE"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w32_014",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "math_number",
+                                        "id": "w32_012",
+                                        "fields": {
+                                          "NUM": 360
+                                        }
+                                      }
+                                    },
+                                    "B": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w32_015",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "w32_013",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_sides"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "sides",
+      "id": "v_sides"
+    }
+  ]
+}

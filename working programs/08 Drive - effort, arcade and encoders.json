@@ -1,0 +1,650 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0540",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Settles the open question: which way does a positive arcade turn steer? Note what you see and fix the tooltip.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0468",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0469",
+                  "fields": {
+                    "TEXT": "Test 08: raw wheel control and encoder readings"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_print",
+                "id": "tp0470",
+                "inputs": {
+                  "TEXT": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "tp0471",
+                      "fields": {
+                        "TEXT": "Lift the wheels off the table or give it room. Press button."
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_for_button",
+                    "id": "tp0472",
+                    "next": {
+                      "block": {
+                        "type": "xrp_wait_seconds",
+                        "id": "tp0473",
+                        "inputs": {
+                          "SECONDS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0474",
+                              "fields": {
+                                "NUM": 0.5
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_reset_encoders",
+                            "id": "tp0475",
+                            "next": {
+                              "block": {
+                                "type": "xrp_drive_set_effort",
+                                "id": "tp0476",
+                                "inputs": {
+                                  "LEFT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0477",
+                                      "fields": {
+                                        "NUM": 40
+                                      }
+                                    }
+                                  },
+                                  "RIGHT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp0478",
+                                      "fields": {
+                                        "NUM": 40
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_wait_seconds",
+                                    "id": "tp0479",
+                                    "inputs": {
+                                      "SECONDS": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0480",
+                                          "fields": {
+                                            "NUM": 1
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_drive_stop",
+                                        "id": "tp0481",
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_print",
+                                            "id": "tp0487",
+                                            "inputs": {
+                                              "TEXT": {
+                                                "block": {
+                                                  "type": "text_join",
+                                                  "id": "tp0486",
+                                                  "extraState": {
+                                                    "itemCount": 4
+                                                  },
+                                                  "inputs": {
+                                                    "ADD0": {
+                                                      "block": {
+                                                        "type": "text",
+                                                        "id": "tp0482",
+                                                        "fields": {
+                                                          "TEXT": "left cm "
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD1": {
+                                                      "block": {
+                                                        "type": "xrp_drive_encoder",
+                                                        "id": "tp0483",
+                                                        "fields": {
+                                                          "SIDE": "left"
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD2": {
+                                                      "block": {
+                                                        "type": "text",
+                                                        "id": "tp0484",
+                                                        "fields": {
+                                                          "TEXT": "  right cm "
+                                                        }
+                                                      }
+                                                    },
+                                                    "ADD3": {
+                                                      "block": {
+                                                        "type": "xrp_drive_encoder",
+                                                        "id": "tp0485",
+                                                        "fields": {
+                                                          "SIDE": "right"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "tp0488",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "tp0489",
+                                                      "fields": {
+                                                        "TEXT": "Arcade: forward with a turn of +30 (which way does it steer?)"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_drive_arcade",
+                                                    "id": "tp0490",
+                                                    "inputs": {
+                                                      "SPEED": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0491",
+                                                          "fields": {
+                                                            "NUM": 40
+                                                          }
+                                                        }
+                                                      },
+                                                      "TURN": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0492",
+                                                          "fields": {
+                                                            "NUM": 30
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_wait_seconds",
+                                                        "id": "tp0493",
+                                                        "inputs": {
+                                                          "SECONDS": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp0494",
+                                                              "fields": {
+                                                                "NUM": 1.5
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_drive_stop",
+                                                            "id": "tp0495",
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_print",
+                                                                "id": "tp0496",
+                                                                "inputs": {
+                                                                  "TEXT": {
+                                                                    "shadow": {
+                                                                      "type": "text",
+                                                                      "id": "tp0497",
+                                                                      "fields": {
+                                                                        "TEXT": "Arcade: turn -30"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_drive_arcade",
+                                                                    "id": "tp0498",
+                                                                    "inputs": {
+                                                                      "SPEED": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp0499",
+                                                                          "fields": {
+                                                                            "NUM": 40
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "TURN": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp0500",
+                                                                          "fields": {
+                                                                            "NUM": -30
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_wait_seconds",
+                                                                        "id": "tp0501",
+                                                                        "inputs": {
+                                                                          "SECONDS": {
+                                                                            "shadow": {
+                                                                              "type": "math_number",
+                                                                              "id": "tp0502",
+                                                                              "fields": {
+                                                                                "NUM": 1.5
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_drive_stop",
+                                                                            "id": "tp0503",
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_print",
+                                                                                "id": "tp0504",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "shadow": {
+                                                                                      "type": "text",
+                                                                                      "id": "tp0505",
+                                                                                      "fields": {
+                                                                                        "TEXT": "Speed control 10 cm/s for 2 s (expect about 20 cm)"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_drive_reset_encoders",
+                                                                                    "id": "tp0506",
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_drive_set_speed",
+                                                                                        "id": "tp0507",
+                                                                                        "inputs": {
+                                                                                          "LEFT": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "tp0508",
+                                                                                              "fields": {
+                                                                                                "NUM": 10
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "RIGHT": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "tp0509",
+                                                                                              "fields": {
+                                                                                                "NUM": 10
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_wait_seconds",
+                                                                                            "id": "tp0510",
+                                                                                            "inputs": {
+                                                                                              "SECONDS": {
+                                                                                                "shadow": {
+                                                                                                  "type": "math_number",
+                                                                                                  "id": "tp0511",
+                                                                                                  "fields": {
+                                                                                                    "NUM": 2
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_drive_stop",
+                                                                                                "id": "tp0512",
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_print",
+                                                                                                    "id": "tp0516",
+                                                                                                    "inputs": {
+                                                                                                      "TEXT": {
+                                                                                                        "block": {
+                                                                                                          "type": "text_join",
+                                                                                                          "id": "tp0515",
+                                                                                                          "extraState": {
+                                                                                                            "itemCount": 2
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "ADD0": {
+                                                                                                              "block": {
+                                                                                                                "type": "text",
+                                                                                                                "id": "tp0513",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "left cm "
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD1": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_drive_encoder",
+                                                                                                                "id": "tp0514",
+                                                                                                                "fields": {
+                                                                                                                  "SIDE": "left"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "block": {
+                                                                                                        "type": "xrp_print",
+                                                                                                        "id": "tp0517",
+                                                                                                        "inputs": {
+                                                                                                          "TEXT": {
+                                                                                                            "shadow": {
+                                                                                                              "type": "text",
+                                                                                                              "id": "tp0518",
+                                                                                                              "fields": {
+                                                                                                                "TEXT": "Effort ramp 0 to 100 and back"
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "next": {
+                                                                                                          "block": {
+                                                                                                            "type": "controls_for",
+                                                                                                            "id": "tp0524",
+                                                                                                            "fields": {
+                                                                                                              "VAR": {
+                                                                                                                "id": "v_effort"
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "inputs": {
+                                                                                                              "FROM": {
+                                                                                                                "shadow": {
+                                                                                                                  "type": "math_number",
+                                                                                                                  "id": "tp0525",
+                                                                                                                  "fields": {
+                                                                                                                    "NUM": 0
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "TO": {
+                                                                                                                "shadow": {
+                                                                                                                  "type": "math_number",
+                                                                                                                  "id": "tp0526",
+                                                                                                                  "fields": {
+                                                                                                                    "NUM": 100
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "BY": {
+                                                                                                                "shadow": {
+                                                                                                                  "type": "math_number",
+                                                                                                                  "id": "tp0527",
+                                                                                                                  "fields": {
+                                                                                                                    "NUM": 10
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "DO": {
+                                                                                                                "block": {
+                                                                                                                  "type": "xrp_drive_set_effort",
+                                                                                                                  "id": "tp0521",
+                                                                                                                  "inputs": {
+                                                                                                                    "LEFT": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "variables_get",
+                                                                                                                        "id": "tp0519",
+                                                                                                                        "fields": {
+                                                                                                                          "VAR": {
+                                                                                                                            "id": "v_effort"
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                    "RIGHT": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "variables_get",
+                                                                                                                        "id": "tp0520",
+                                                                                                                        "fields": {
+                                                                                                                          "VAR": {
+                                                                                                                            "id": "v_effort"
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "next": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_wait_seconds",
+                                                                                                                      "id": "tp0522",
+                                                                                                                      "inputs": {
+                                                                                                                        "SECONDS": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "math_number",
+                                                                                                                            "id": "tp0523",
+                                                                                                                            "fields": {
+                                                                                                                              "NUM": 0.2
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "next": {
+                                                                                                              "block": {
+                                                                                                                "type": "controls_for",
+                                                                                                                "id": "tp0533",
+                                                                                                                "fields": {
+                                                                                                                  "VAR": {
+                                                                                                                    "id": "v_effort"
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "FROM": {
+                                                                                                                    "shadow": {
+                                                                                                                      "type": "math_number",
+                                                                                                                      "id": "tp0534",
+                                                                                                                      "fields": {
+                                                                                                                        "NUM": 100
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "TO": {
+                                                                                                                    "shadow": {
+                                                                                                                      "type": "math_number",
+                                                                                                                      "id": "tp0535",
+                                                                                                                      "fields": {
+                                                                                                                        "NUM": 0
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "BY": {
+                                                                                                                    "shadow": {
+                                                                                                                      "type": "math_number",
+                                                                                                                      "id": "tp0536",
+                                                                                                                      "fields": {
+                                                                                                                        "NUM": -10
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "DO": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_drive_set_effort",
+                                                                                                                      "id": "tp0530",
+                                                                                                                      "inputs": {
+                                                                                                                        "LEFT": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "variables_get",
+                                                                                                                            "id": "tp0528",
+                                                                                                                            "fields": {
+                                                                                                                              "VAR": {
+                                                                                                                                "id": "v_effort"
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "RIGHT": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "variables_get",
+                                                                                                                            "id": "tp0529",
+                                                                                                                            "fields": {
+                                                                                                                              "VAR": {
+                                                                                                                                "id": "v_effort"
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "next": {
+                                                                                                                        "block": {
+                                                                                                                          "type": "xrp_wait_seconds",
+                                                                                                                          "id": "tp0531",
+                                                                                                                          "inputs": {
+                                                                                                                            "SECONDS": {
+                                                                                                                              "shadow": {
+                                                                                                                                "type": "math_number",
+                                                                                                                                "id": "tp0532",
+                                                                                                                                "fields": {
+                                                                                                                                  "NUM": 0.2
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "next": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "xrp_drive_stop",
+                                                                                                                    "id": "tp0537",
+                                                                                                                    "next": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "xrp_print",
+                                                                                                                        "id": "tp0538",
+                                                                                                                        "inputs": {
+                                                                                                                          "TEXT": {
+                                                                                                                            "shadow": {
+                                                                                                                              "type": "text",
+                                                                                                                              "id": "tp0539",
+                                                                                                                              "fields": {
+                                                                                                                                "TEXT": "Test 08 done"
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "effort",
+      "id": "v_effort"
+    }
+  ]
+}

@@ -1,0 +1,1295 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w29_134",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "RGB colour mixer. Choose Game D-pad and tick Show robot messages. Left and Right choose the channel (red, green, blue), hold Up or Down to raise or lower it by 5 at a time; values stay between 0 and 255 however long you hold. B switches all off. The robot does not move.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w29_119",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w29_118",
+                  "fields": {
+                    "TEXT": "XRP colour mixer"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "w29_121",
+                "fields": {
+                  "BUTTON": "6"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "w29_120",
+                      "fields": {
+                        "TEXT": "Off"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "w29_123",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_channel"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "block": {
+                          "type": "math_number",
+                          "id": "w29_122",
+                          "fields": {
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "variables_set",
+                        "id": "w29_125",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_red"
+                          }
+                        },
+                        "inputs": {
+                          "VALUE": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "w29_124",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "variables_set",
+                            "id": "w29_127",
+                            "fields": {
+                              "VAR": {
+                                "id": "v_green"
+                              }
+                            },
+                            "inputs": {
+                              "VALUE": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "w29_126",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": "w29_129",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_blue"
+                                  }
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "block": {
+                                      "type": "math_number",
+                                      "id": "w29_128",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "variables_set",
+                                    "id": "w29_131",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_step"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "VALUE": {
+                                        "block": {
+                                          "type": "math_number",
+                                          "id": "w29_130",
+                                          "fields": {
+                                            "NUM": 5
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_ble_start",
+                                        "id": "w29_132",
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_forever",
+                                            "id": "w29_133",
+                                            "inputs": {
+                                              "DO": {
+                                                "block": {
+                                                  "type": "controls_if",
+                                                  "id": "w29_012",
+                                                  "inputs": {
+                                                    "IF0": {
+                                                      "block": {
+                                                        "type": "xrp_ble_clicked",
+                                                        "id": "w29_001",
+                                                        "fields": {
+                                                          "BUTTON": "2"
+                                                        }
+                                                      }
+                                                    },
+                                                    "DO0": {
+                                                      "block": {
+                                                        "type": "variables_set",
+                                                        "id": "w29_011",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_channel"
+                                                          }
+                                                        },
+                                                        "inputs": {
+                                                          "VALUE": {
+                                                            "block": {
+                                                              "type": "math_constrain",
+                                                              "id": "w29_010",
+                                                              "inputs": {
+                                                                "VALUE": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w29_007",
+                                                                    "fields": {
+                                                                      "NUM": 0
+                                                                    }
+                                                                  },
+                                                                  "block": {
+                                                                    "type": "math_arithmetic",
+                                                                    "id": "w29_006",
+                                                                    "fields": {
+                                                                      "OP": "MINUS"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "A": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "w29_004",
+                                                                          "fields": {
+                                                                            "NUM": 0
+                                                                          }
+                                                                        },
+                                                                        "block": {
+                                                                          "type": "variables_get",
+                                                                          "id": "w29_002",
+                                                                          "fields": {
+                                                                            "VAR": {
+                                                                              "id": "v_channel"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "B": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "w29_005",
+                                                                          "fields": {
+                                                                            "NUM": 0
+                                                                          }
+                                                                        },
+                                                                        "block": {
+                                                                          "type": "math_number",
+                                                                          "id": "w29_003",
+                                                                          "fields": {
+                                                                            "NUM": 1
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "LOW": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w29_008",
+                                                                    "fields": {
+                                                                      "NUM": 1
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "HIGH": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w29_009",
+                                                                    "fields": {
+                                                                      "NUM": 3
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "controls_if",
+                                                      "id": "w29_024",
+                                                      "inputs": {
+                                                        "IF0": {
+                                                          "block": {
+                                                            "type": "xrp_ble_clicked",
+                                                            "id": "w29_013",
+                                                            "fields": {
+                                                              "BUTTON": "3"
+                                                            }
+                                                          }
+                                                        },
+                                                        "DO0": {
+                                                          "block": {
+                                                            "type": "variables_set",
+                                                            "id": "w29_023",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_channel"
+                                                              }
+                                                            },
+                                                            "inputs": {
+                                                              "VALUE": {
+                                                                "block": {
+                                                                  "type": "math_constrain",
+                                                                  "id": "w29_022",
+                                                                  "inputs": {
+                                                                    "VALUE": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w29_019",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "math_arithmetic",
+                                                                        "id": "w29_018",
+                                                                        "fields": {
+                                                                          "OP": "ADD"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "A": {
+                                                                            "shadow": {
+                                                                              "type": "math_number",
+                                                                              "id": "w29_016",
+                                                                              "fields": {
+                                                                                "NUM": 0
+                                                                              }
+                                                                            },
+                                                                            "block": {
+                                                                              "type": "variables_get",
+                                                                              "id": "w29_014",
+                                                                              "fields": {
+                                                                                "VAR": {
+                                                                                  "id": "v_channel"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "B": {
+                                                                            "shadow": {
+                                                                              "type": "math_number",
+                                                                              "id": "w29_017",
+                                                                              "fields": {
+                                                                                "NUM": 0
+                                                                              }
+                                                                            },
+                                                                            "block": {
+                                                                              "type": "math_number",
+                                                                              "id": "w29_015",
+                                                                              "fields": {
+                                                                                "NUM": 1
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "LOW": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w29_020",
+                                                                        "fields": {
+                                                                          "NUM": 1
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "HIGH": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w29_021",
+                                                                        "fields": {
+                                                                          "NUM": 3
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "controls_if",
+                                                          "id": "w29_071",
+                                                          "inputs": {
+                                                            "IF0": {
+                                                              "block": {
+                                                                "type": "logic_operation",
+                                                                "id": "w29_027",
+                                                                "fields": {
+                                                                  "OP": "OR"
+                                                                },
+                                                                "inputs": {
+                                                                  "A": {
+                                                                    "block": {
+                                                                      "type": "xrp_ble_pressed",
+                                                                      "id": "w29_025",
+                                                                      "fields": {
+                                                                        "BUTTON": "1"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "B": {
+                                                                    "block": {
+                                                                      "type": "xrp_ble_pressed",
+                                                                      "id": "w29_026",
+                                                                      "fields": {
+                                                                        "BUTTON": "4"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "DO0": {
+                                                              "block": {
+                                                                "type": "controls_if",
+                                                                "id": "w29_033",
+                                                                "extraState": {
+                                                                  "hasElse": true
+                                                                },
+                                                                "inputs": {
+                                                                  "IF0": {
+                                                                    "block": {
+                                                                      "type": "xrp_ble_pressed",
+                                                                      "id": "w29_028",
+                                                                      "fields": {
+                                                                        "BUTTON": "1"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "DO0": {
+                                                                    "block": {
+                                                                      "type": "variables_set",
+                                                                      "id": "w29_030",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_step"
+                                                                        }
+                                                                      },
+                                                                      "inputs": {
+                                                                        "VALUE": {
+                                                                          "block": {
+                                                                            "type": "math_number",
+                                                                            "id": "w29_029",
+                                                                            "fields": {
+                                                                              "NUM": 5
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "ELSE": {
+                                                                    "block": {
+                                                                      "type": "variables_set",
+                                                                      "id": "w29_032",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_step"
+                                                                        }
+                                                                      },
+                                                                      "inputs": {
+                                                                        "VALUE": {
+                                                                          "block": {
+                                                                            "type": "math_number",
+                                                                            "id": "w29_031",
+                                                                            "fields": {
+                                                                              "NUM": -5
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "controls_if",
+                                                                    "id": "w29_070",
+                                                                    "extraState": {
+                                                                      "elseIfCount": 1,
+                                                                      "hasElse": true
+                                                                    },
+                                                                    "inputs": {
+                                                                      "IF0": {
+                                                                        "block": {
+                                                                          "type": "logic_compare",
+                                                                          "id": "w29_036",
+                                                                          "fields": {
+                                                                            "OP": "EQ"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "A": {
+                                                                              "block": {
+                                                                                "type": "variables_get",
+                                                                                "id": "w29_034",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_channel"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "B": {
+                                                                              "block": {
+                                                                                "type": "math_number",
+                                                                                "id": "w29_035",
+                                                                                "fields": {
+                                                                                  "NUM": 1
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "DO0": {
+                                                                        "block": {
+                                                                          "type": "variables_set",
+                                                                          "id": "w29_046",
+                                                                          "fields": {
+                                                                            "VAR": {
+                                                                              "id": "v_red"
+                                                                            }
+                                                                          },
+                                                                          "inputs": {
+                                                                            "VALUE": {
+                                                                              "block": {
+                                                                                "type": "math_constrain",
+                                                                                "id": "w29_045",
+                                                                                "inputs": {
+                                                                                  "VALUE": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_042",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    },
+                                                                                    "block": {
+                                                                                      "type": "math_arithmetic",
+                                                                                      "id": "w29_041",
+                                                                                      "fields": {
+                                                                                        "OP": "ADD"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "A": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_039",
+                                                                                            "fields": {
+                                                                                              "NUM": 0
+                                                                                            }
+                                                                                          },
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "w29_037",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_red"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "B": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_040",
+                                                                                            "fields": {
+                                                                                              "NUM": 0
+                                                                                            }
+                                                                                          },
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "w29_038",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_step"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "LOW": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_043",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "HIGH": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_044",
+                                                                                      "fields": {
+                                                                                        "NUM": 255
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "IF1": {
+                                                                        "block": {
+                                                                          "type": "logic_compare",
+                                                                          "id": "w29_059",
+                                                                          "fields": {
+                                                                            "OP": "EQ"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "A": {
+                                                                              "block": {
+                                                                                "type": "variables_get",
+                                                                                "id": "w29_057",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_channel"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "B": {
+                                                                              "block": {
+                                                                                "type": "math_number",
+                                                                                "id": "w29_058",
+                                                                                "fields": {
+                                                                                  "NUM": 2
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "DO1": {
+                                                                        "block": {
+                                                                          "type": "variables_set",
+                                                                          "id": "w29_069",
+                                                                          "fields": {
+                                                                            "VAR": {
+                                                                              "id": "v_green"
+                                                                            }
+                                                                          },
+                                                                          "inputs": {
+                                                                            "VALUE": {
+                                                                              "block": {
+                                                                                "type": "math_constrain",
+                                                                                "id": "w29_068",
+                                                                                "inputs": {
+                                                                                  "VALUE": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_065",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    },
+                                                                                    "block": {
+                                                                                      "type": "math_arithmetic",
+                                                                                      "id": "w29_064",
+                                                                                      "fields": {
+                                                                                        "OP": "ADD"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "A": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_062",
+                                                                                            "fields": {
+                                                                                              "NUM": 0
+                                                                                            }
+                                                                                          },
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "w29_060",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_green"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "B": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_063",
+                                                                                            "fields": {
+                                                                                              "NUM": 0
+                                                                                            }
+                                                                                          },
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "w29_061",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_step"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "LOW": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_066",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "HIGH": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_067",
+                                                                                      "fields": {
+                                                                                        "NUM": 255
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "ELSE": {
+                                                                        "block": {
+                                                                          "type": "variables_set",
+                                                                          "id": "w29_056",
+                                                                          "fields": {
+                                                                            "VAR": {
+                                                                              "id": "v_blue"
+                                                                            }
+                                                                          },
+                                                                          "inputs": {
+                                                                            "VALUE": {
+                                                                              "block": {
+                                                                                "type": "math_constrain",
+                                                                                "id": "w29_055",
+                                                                                "inputs": {
+                                                                                  "VALUE": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_052",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    },
+                                                                                    "block": {
+                                                                                      "type": "math_arithmetic",
+                                                                                      "id": "w29_051",
+                                                                                      "fields": {
+                                                                                        "OP": "ADD"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "A": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_049",
+                                                                                            "fields": {
+                                                                                              "NUM": 0
+                                                                                            }
+                                                                                          },
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "w29_047",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_blue"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "B": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_050",
+                                                                                            "fields": {
+                                                                                              "NUM": 0
+                                                                                            }
+                                                                                          },
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "w29_048",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_step"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "LOW": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_053",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "HIGH": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "w29_054",
+                                                                                      "fields": {
+                                                                                        "NUM": 255
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "controls_if",
+                                                              "id": "w29_082",
+                                                              "inputs": {
+                                                                "IF0": {
+                                                                  "block": {
+                                                                    "type": "xrp_ble_clicked",
+                                                                    "id": "w29_072",
+                                                                    "fields": {
+                                                                      "BUTTON": "6"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "DO0": {
+                                                                  "block": {
+                                                                    "type": "variables_set",
+                                                                    "id": "w29_074",
+                                                                    "fields": {
+                                                                      "VAR": {
+                                                                        "id": "v_red"
+                                                                      }
+                                                                    },
+                                                                    "inputs": {
+                                                                      "VALUE": {
+                                                                        "block": {
+                                                                          "type": "math_number",
+                                                                          "id": "w29_073",
+                                                                          "fields": {
+                                                                            "NUM": 0
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "variables_set",
+                                                                        "id": "w29_076",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_green"
+                                                                          }
+                                                                        },
+                                                                        "inputs": {
+                                                                          "VALUE": {
+                                                                            "block": {
+                                                                              "type": "math_number",
+                                                                              "id": "w29_075",
+                                                                              "fields": {
+                                                                                "NUM": 0
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "variables_set",
+                                                                            "id": "w29_078",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_blue"
+                                                                              }
+                                                                            },
+                                                                            "inputs": {
+                                                                              "VALUE": {
+                                                                                "block": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "w29_077",
+                                                                                  "fields": {
+                                                                                    "NUM": 0
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_ble_print",
+                                                                                "id": "w29_081",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "shadow": {
+                                                                                      "type": "text",
+                                                                                      "id": "w29_080",
+                                                                                      "fields": {
+                                                                                        "TEXT": ""
+                                                                                      }
+                                                                                    },
+                                                                                    "block": {
+                                                                                      "type": "text",
+                                                                                      "id": "w29_079",
+                                                                                      "fields": {
+                                                                                        "TEXT": "All channels off"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "xrp_rgb_led",
+                                                                  "id": "w29_089",
+                                                                  "inputs": {
+                                                                    "RED": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w29_086",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "variables_get",
+                                                                        "id": "w29_083",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_red"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "GREEN": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w29_087",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "variables_get",
+                                                                        "id": "w29_084",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_green"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "BLUE": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w29_088",
+                                                                        "fields": {
+                                                                          "NUM": 0
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "variables_get",
+                                                                        "id": "w29_085",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_blue"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "xrp_ble_value",
+                                                                      "id": "w29_103",
+                                                                      "inputs": {
+                                                                        "NAME": {
+                                                                          "shadow": {
+                                                                            "type": "text",
+                                                                            "id": "w29_101",
+                                                                            "fields": {
+                                                                              "TEXT": "Channel"
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "VALUE": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "w29_102",
+                                                                            "fields": {
+                                                                              "NUM": 0
+                                                                            }
+                                                                          },
+                                                                          "block": {
+                                                                            "type": "logic_ternary",
+                                                                            "id": "w29_100",
+                                                                            "inputs": {
+                                                                              "IF": {
+                                                                                "block": {
+                                                                                  "type": "logic_compare",
+                                                                                  "id": "w29_092",
+                                                                                  "fields": {
+                                                                                    "OP": "EQ"
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "A": {
+                                                                                      "block": {
+                                                                                        "type": "variables_get",
+                                                                                        "id": "w29_090",
+                                                                                        "fields": {
+                                                                                          "VAR": {
+                                                                                            "id": "v_channel"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "B": {
+                                                                                      "block": {
+                                                                                        "type": "math_number",
+                                                                                        "id": "w29_091",
+                                                                                        "fields": {
+                                                                                          "NUM": 1
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "THEN": {
+                                                                                "block": {
+                                                                                  "type": "text",
+                                                                                  "id": "w29_093",
+                                                                                  "fields": {
+                                                                                    "TEXT": "red"
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "ELSE": {
+                                                                                "block": {
+                                                                                  "type": "logic_ternary",
+                                                                                  "id": "w29_099",
+                                                                                  "inputs": {
+                                                                                    "IF": {
+                                                                                      "block": {
+                                                                                        "type": "logic_compare",
+                                                                                        "id": "w29_096",
+                                                                                        "fields": {
+                                                                                          "OP": "EQ"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "A": {
+                                                                                            "block": {
+                                                                                              "type": "variables_get",
+                                                                                              "id": "w29_094",
+                                                                                              "fields": {
+                                                                                                "VAR": {
+                                                                                                  "id": "v_channel"
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "B": {
+                                                                                            "block": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "w29_095",
+                                                                                              "fields": {
+                                                                                                "NUM": 2
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "THEN": {
+                                                                                      "block": {
+                                                                                        "type": "text",
+                                                                                        "id": "w29_097",
+                                                                                        "fields": {
+                                                                                          "TEXT": "green"
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "ELSE": {
+                                                                                      "block": {
+                                                                                        "type": "text",
+                                                                                        "id": "w29_098",
+                                                                                        "fields": {
+                                                                                          "TEXT": "blue"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "xrp_ble_value",
+                                                                          "id": "w29_107",
+                                                                          "inputs": {
+                                                                            "NAME": {
+                                                                              "shadow": {
+                                                                                "type": "text",
+                                                                                "id": "w29_105",
+                                                                                "fields": {
+                                                                                  "TEXT": "Red"
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "VALUE": {
+                                                                              "shadow": {
+                                                                                "type": "math_number",
+                                                                                "id": "w29_106",
+                                                                                "fields": {
+                                                                                  "NUM": 0
+                                                                                }
+                                                                              },
+                                                                              "block": {
+                                                                                "type": "variables_get",
+                                                                                "id": "w29_104",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_red"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "xrp_ble_value",
+                                                                              "id": "w29_111",
+                                                                              "inputs": {
+                                                                                "NAME": {
+                                                                                  "shadow": {
+                                                                                    "type": "text",
+                                                                                    "id": "w29_109",
+                                                                                    "fields": {
+                                                                                      "TEXT": "Green"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "VALUE": {
+                                                                                  "shadow": {
+                                                                                    "type": "math_number",
+                                                                                    "id": "w29_110",
+                                                                                    "fields": {
+                                                                                      "NUM": 0
+                                                                                    }
+                                                                                  },
+                                                                                  "block": {
+                                                                                    "type": "variables_get",
+                                                                                    "id": "w29_108",
+                                                                                    "fields": {
+                                                                                      "VAR": {
+                                                                                        "id": "v_green"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "xrp_ble_value",
+                                                                                  "id": "w29_115",
+                                                                                  "inputs": {
+                                                                                    "NAME": {
+                                                                                      "shadow": {
+                                                                                        "type": "text",
+                                                                                        "id": "w29_113",
+                                                                                        "fields": {
+                                                                                          "TEXT": "Blue"
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "VALUE": {
+                                                                                      "shadow": {
+                                                                                        "type": "math_number",
+                                                                                        "id": "w29_114",
+                                                                                        "fields": {
+                                                                                          "NUM": 0
+                                                                                        }
+                                                                                      },
+                                                                                      "block": {
+                                                                                        "type": "variables_get",
+                                                                                        "id": "w29_112",
+                                                                                        "fields": {
+                                                                                          "VAR": {
+                                                                                            "id": "v_blue"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "xrp_wait_seconds",
+                                                                                      "id": "w29_117",
+                                                                                      "inputs": {
+                                                                                        "SECONDS": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w29_116",
+                                                                                            "fields": {
+                                                                                              "NUM": 0.05
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "channel",
+      "id": "v_channel"
+    },
+    {
+      "name": "step",
+      "id": "v_step"
+    },
+    {
+      "name": "red",
+      "id": "v_red"
+    },
+    {
+      "name": "blue",
+      "id": "v_blue"
+    },
+    {
+      "name": "green",
+      "id": "v_green"
+    }
+  ]
+}

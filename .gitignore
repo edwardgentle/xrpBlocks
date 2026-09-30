@@ -1,0 +1,18 @@
+# Private pack key and artifacts that contain it
+/delphiSource/PackKey.inc
+/delphiSource/XRPServePack.exe
+*.pak
+
+# Local scratch and generated output
+.claude/
+Claude outputs/
+tmp/
+output/
+packtest/
+__pycache__/
+*.pyc
+*.dcu
+*.dproj.local
+*.identcache
+*.otares
+*.bak*

@@ -1,0 +1,497 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w40_051",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Connection watchdog. RGB green while the phone is connected, flashing red when not. Run over USB and watch the Console: \"Phone connected (n)\" and \"Phone lost\" each time. Lock the phone, switch apps, walk away: each should show \"Phone lost\" within about a second, and reconnecting should count up.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w40_044",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w40_043",
+                  "fields": {
+                    "TEXT": "XRP watchdog"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "variables_set",
+                "id": "w40_046",
+                "fields": {
+                  "VAR": {
+                    "id": "v_connections"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "block": {
+                      "type": "math_number",
+                      "id": "w40_045",
+                      "fields": {
+                        "NUM": 0
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "w40_048",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_was_connected"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "block": {
+                          "type": "logic_boolean",
+                          "id": "w40_047",
+                          "fields": {
+                            "BOOL": "FALSE"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_ble_start",
+                        "id": "w40_049",
+                        "next": {
+                          "block": {
+                            "type": "xrp_forever",
+                            "id": "w40_050",
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "controls_if",
+                                  "id": "w40_036",
+                                  "extraState": {
+                                    "hasElse": true
+                                  },
+                                  "inputs": {
+                                    "IF0": {
+                                      "block": {
+                                        "type": "xrp_ble_connected",
+                                        "id": "w40_001"
+                                      }
+                                    },
+                                    "DO0": {
+                                      "block": {
+                                        "type": "xrp_rgb_colour",
+                                        "id": "w40_003",
+                                        "fields": {
+                                          "COLOUR": "green"
+                                        },
+                                        "inputs": {
+                                          "BRIGHTNESS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w40_002",
+                                              "fields": {
+                                                "NUM": 20
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "controls_if",
+                                            "id": "w40_023",
+                                            "inputs": {
+                                              "IF0": {
+                                                "block": {
+                                                  "type": "logic_negate",
+                                                  "id": "w40_005",
+                                                  "inputs": {
+                                                    "BOOL": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "w40_004",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_was_connected"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "DO0": {
+                                                "block": {
+                                                  "type": "math_change",
+                                                  "id": "w40_007",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_connections"
+                                                    }
+                                                  },
+                                                  "inputs": {
+                                                    "DELTA": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w40_006",
+                                                        "fields": {
+                                                          "NUM": 1
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "xrp_print",
+                                                      "id": "w40_014",
+                                                      "inputs": {
+                                                        "TEXT": {
+                                                          "shadow": {
+                                                            "type": "text",
+                                                            "id": "w40_013",
+                                                            "fields": {
+                                                              "TEXT": ""
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "text_join",
+                                                            "id": "w40_012",
+                                                            "extraState": {
+                                                              "itemCount": 3
+                                                            },
+                                                            "inputs": {
+                                                              "ADD0": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "w40_009",
+                                                                  "fields": {
+                                                                    "TEXT": "Phone connected ("
+                                                                  }
+                                                                }
+                                                              },
+                                                              "ADD1": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "w40_010",
+                                                                  "fields": {
+                                                                    "TEXT": ""
+                                                                  }
+                                                                },
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "w40_008",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_connections"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "ADD2": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "w40_011",
+                                                                  "fields": {
+                                                                    "TEXT": ")"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "xrp_ble_print",
+                                                          "id": "w40_020",
+                                                          "inputs": {
+                                                            "TEXT": {
+                                                              "shadow": {
+                                                                "type": "text",
+                                                                "id": "w40_019",
+                                                                "fields": {
+                                                                  "TEXT": ""
+                                                                }
+                                                              },
+                                                              "block": {
+                                                                "type": "text_join",
+                                                                "id": "w40_018",
+                                                                "extraState": {
+                                                                  "itemCount": 2
+                                                                },
+                                                                "inputs": {
+                                                                  "ADD0": {
+                                                                    "shadow": {
+                                                                      "type": "text",
+                                                                      "id": "w40_016",
+                                                                      "fields": {
+                                                                        "TEXT": "Hello, connection "
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "ADD1": {
+                                                                    "shadow": {
+                                                                      "type": "text",
+                                                                      "id": "w40_017",
+                                                                      "fields": {
+                                                                        "TEXT": ""
+                                                                      }
+                                                                    },
+                                                                    "block": {
+                                                                      "type": "variables_get",
+                                                                      "id": "w40_015",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_connections"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "variables_set",
+                                                              "id": "w40_022",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_was_connected"
+                                                                }
+                                                              },
+                                                              "inputs": {
+                                                                "VALUE": {
+                                                                  "block": {
+                                                                    "type": "logic_boolean",
+                                                                    "id": "w40_021",
+                                                                    "fields": {
+                                                                      "BOOL": "TRUE"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "ELSE": {
+                                      "block": {
+                                        "type": "xrp_rgb_colour",
+                                        "id": "w40_025",
+                                        "fields": {
+                                          "COLOUR": "red"
+                                        },
+                                        "inputs": {
+                                          "BRIGHTNESS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w40_024",
+                                              "fields": {
+                                                "NUM": 20
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_wait_seconds",
+                                            "id": "w40_027",
+                                            "inputs": {
+                                              "SECONDS": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w40_026",
+                                                  "fields": {
+                                                    "NUM": 0.2
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_rgb_colour",
+                                                "id": "w40_029",
+                                                "fields": {
+                                                  "COLOUR": "off"
+                                                },
+                                                "inputs": {
+                                                  "BRIGHTNESS": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w40_028",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "controls_if",
+                                                    "id": "w40_035",
+                                                    "inputs": {
+                                                      "IF0": {
+                                                        "block": {
+                                                          "type": "variables_get",
+                                                          "id": "w40_030",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_was_connected"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "DO0": {
+                                                        "block": {
+                                                          "type": "xrp_print",
+                                                          "id": "w40_032",
+                                                          "inputs": {
+                                                            "TEXT": {
+                                                              "shadow": {
+                                                                "type": "text",
+                                                                "id": "w40_031",
+                                                                "fields": {
+                                                                  "TEXT": "Phone lost"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "variables_set",
+                                                              "id": "w40_034",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_was_connected"
+                                                                }
+                                                              },
+                                                              "inputs": {
+                                                                "VALUE": {
+                                                                  "block": {
+                                                                    "type": "logic_boolean",
+                                                                    "id": "w40_033",
+                                                                    "fields": {
+                                                                      "BOOL": "FALSE"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_ble_value",
+                                      "id": "w40_040",
+                                      "inputs": {
+                                        "NAME": {
+                                          "shadow": {
+                                            "type": "text",
+                                            "id": "w40_038",
+                                            "fields": {
+                                              "TEXT": "Connections"
+                                            }
+                                          }
+                                        },
+                                        "VALUE": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "w40_039",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "w40_037",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_connections"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_wait_seconds",
+                                          "id": "w40_042",
+                                          "inputs": {
+                                            "SECONDS": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w40_041",
+                                                "fields": {
+                                                  "NUM": 0.2
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "was connected",
+      "id": "v_was_connected"
+    },
+    {
+      "name": "connections",
+      "id": "v_connections"
+    }
+  ]
+}

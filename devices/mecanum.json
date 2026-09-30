@@ -1,0 +1,587 @@
+{
+  "manifestVersion": 1,
+  "id": "mecanum",
+  "name": {
+    "en": "Mecanum wheels (4 motors)",
+    "nl": "Mecanumwielen (4 motoren)"
+  },
+  "description": {
+    "en": "Eight movement directions, speed %, encoder distance in cm and turns in degrees. Four encoded motors and X-pattern wheels."
+  },
+  "version": "1.4.0",
+  "licence": "MIT",
+  "category": {
+    "key": "Mecanum",
+    "label": "Mecanum",
+    "colour": "#527EC5"
+  },
+  "driver": {
+    "filename": "MecanumDrive.py",
+    "marker": "MecanumDrive",
+    "source": "\"\"\"Four encoded XRP motors, standard X-pattern mecanum wheels.\n\nOrder: front-left, front-right, rear-left, rear-right. Positive wheel motion\nmust propel that side forward. Distances are encoder estimates, not ground\nmeasurements: roller slip and geometry require physical calibration.\n\"\"\"\nimport math\nimport time\nfrom XRPLib.encoded_motor import EncodedMotor\n\n\nclass MecanumDrive:\n    def __init__(self):\n        self.motors = None\n        self._gyro = None\n        self.accel = 0.5  # medium; set by the Drive category's acceleration block\n        self.signs = [1, 1, 1, 1]\n        self.configure(1, 2, 3, 4, 6, 15, 15, 100)\n        self.last_move_completed = False\n\n    def configure(self, fl, fr, rl, rr, diameter, wheelbase, track, max_rpm):\n        ports = [int(p) for p in (fl, fr, rl, rr)]\n        values = [float(v) for v in (diameter, wheelbase, track, max_rpm)]\n        if len(set(ports)) != 4 or any(p not in (1, 2, 3, 4) for p in ports):\n            raise ValueError('Choose four different motor ports, 1 to 4')\n        if any(not math.isfinite(v) or v <= 0 for v in values):\n            raise ValueError('Wheel/chassis dimensions and maximum RPM must be positive')\n        if self.motors:\n            self.stop()\n        self.motors = [EncodedMotor.get_default_encoded_motor(p) for p in ports]\n        if any(not hasattr(m, 'set_speed') for m in self.motors):\n            self.motors = None\n            raise ValueError('This board must support four encoded motors')\n        self.diameter, self.wheelbase, self.track, self.max_rpm = values\n        self.ports = ports\n\n    def set_ports(self, fl, fr, rl, rr):\n        self.configure(fl, fr, rl, rr, self.diameter, self.wheelbase, self.track, self.max_rpm)\n\n    def set_geometry(self, diameter, wheelbase, track, max_rpm):\n        self.configure(*self.ports, diameter, wheelbase, track, max_rpm)\n\n    def reverse(self, wheel, reversed):\n        self.stop()\n        self.signs[int(wheel)] = -1 if reversed else 1\n\n    @staticmethod\n    def _number(value):\n        value = float(value)\n        if not math.isfinite(value):\n            raise ValueError('Movement values must be finite numbers')\n        return value\n\n    def _speed(self, percent):\n        return max(0, min(100, self._number(percent))) * self.max_rpm / 100\n\n    @staticmethod\n    def _direction(angle):\n        # 0 forward, 90 right, 180 backward, 270 left.\n        radians = angle * math.pi / 180\n        forward, right = math.cos(radians), math.sin(radians)\n        values = [forward + right, forward - right, forward - right, forward + right]\n        return [0 if abs(v) < 1e-9 else v for v in values]\n\n    def _wheel_speed(self, index, rpm):\n        motor = self.motors[index]\n        motor.set_speed(rpm * self.signs[index])\n        if rpm == 0:\n            motor.brake()\n\n    def stop(self):\n        # Disable background speed controllers before braking all four motors.\n        error = None\n        for motor in self.motors or []:\n            try:\n                motor.set_speed(None)\n                motor.brake()\n            except Exception as exc:\n                error = exc\n        if error:\n            raise error\n\n    def drive(self, angle, speed):\n        try:\n            factors = self._direction(self._number(angle))\n            rpm = self._speed(speed) / max(abs(v) for v in factors)\n            for i in range(4):\n                self._wheel_speed(i, factors[i] * rpm)\n        except BaseException:\n            self.stop()\n            raise\n\n    def _travel(self, wheel_cm, speed, timeout):\n        self.last_move_completed = False\n        try:\n            rpm = self._speed(speed)\n            timeout = self._number(timeout)\n            if timeout <= 0:\n                raise ValueError('Timeout must be positive')\n            targets = [cm / (math.pi * self.diameter) for cm in wheel_cm]\n            largest = max(abs(v) for v in targets)\n            if largest == 0:\n                self.last_move_completed = True\n                return True\n            if rpm == 0:\n                return False\n            initial = [m.get_position() for m in self.motors]\n            active = [abs(v) > 1e-9 for v in targets]\n            started = time.ticks_ms()\n            # Acceleration: medium reaches full speed in 0.4 s and slows over\n            # the last quarter wheel turn; slow takes twice as long, fast less.\n            accel = max(0.1, float(self.accel))\n            full_after = 0.4 / accel\n            slow_zone = 0.25 / accel\n            while any(active):\n                elapsed = time.ticks_diff(time.ticks_ms(), started) / 1000\n                if elapsed >= timeout:\n                    print('Mecanum: move timed out; all motors stopped')\n                    return False\n                done = 0.0\n                count = 0\n                for i in range(4):\n                    progress = (self.motors[i].get_position() - initial[i]) * self.signs[i]\n                    if active[i] and progress * (1 if targets[i] > 0 else -1) >= abs(targets[i]):\n                        self._wheel_speed(i, 0)\n                        active[i] = False\n                    if abs(targets[i]) > 1e-9:\n                        done += min(1, max(0, progress / targets[i]))\n                        count += 1\n                left = largest * (1 - done / max(count, 1))\n                scale = min(1, max(0.15, elapsed / full_after), max(0.3, left / slow_zone))\n                for i in range(4):\n                    if active[i]:\n                        self._wheel_speed(i, rpm * scale * targets[i] / largest)\n                time.sleep_ms(10)\n            self.last_move_completed = True\n            return True\n        finally:\n            self.stop()\n\n    def move(self, angle, speed, distance, timeout=15):\n        self.last_move_completed = False\n        try:\n            distance = self._number(distance)\n            if distance < 0:\n                raise ValueError('Distance must be non-negative; choose a direction')\n            factors = self._direction(self._number(angle))\n            return self._travel([v * distance for v in factors], speed, timeout)\n        finally:\n            self.stop()\n\n    def _imu(self):\n        # The XRP's gyro, if this board has one; None otherwise.\n        if self._gyro is None:\n            try:\n                from XRPLib.imu import IMU\n                self._gyro = IMU.get_default_imu()\n            except Exception:\n                self._gyro = False\n        return self._gyro or None\n\n    def _arc_turn(self, clockwise, speed, degrees, timeout):\n        arc = degrees * math.pi / 180 * (self.wheelbase + self.track) / 2\n        if not clockwise:\n            arc = -arc\n        return self._travel([arc, -arc, arc, -arc], speed, timeout)\n\n    def turn(self, clockwise, speed, degrees, timeout=15):\n        # Turn by the encoders, then check with the gyro: settle for 0.2 s and,\n        # if more than 0.5 degrees off, nudge at up to 20% speed, up to 20\n        # times. Which way the gyro counts is taken from the main turn itself,\n        # and nudging stops if a nudge ever makes the error worse. Without a\n        # gyro it is the plain encoder turn, as before.\n        self.last_move_completed = False\n        try:\n            degrees = self._number(degrees)\n            if degrees < 0:\n                raise ValueError('Degrees must be non-negative; choose left or right')\n            gyro = self._imu()\n            start = gyro.get_yaw() if gyro else 0\n            done = self._arc_turn(clockwise, speed, degrees, timeout)\n            if not gyro or not done:\n                return done\n            ccw = -1 if clockwise else 1\n            time.sleep_ms(200)\n            moved = gyro.get_yaw() - start\n            sense = 1 if moved * ccw >= 0 else -1\n            goal = start + sense * ccw * degrees\n            nudge = min(self._number(speed), 20)\n            before = None\n            for attempt in range(20):\n                left = goal - gyro.get_yaw()\n                if abs(left) <= 0.5:\n                    break\n                if before is not None and abs(left) > abs(before) + 0.5:\n                    print('Mecanum: gyro correction made it worse; stopped correcting')\n                    break\n                before = left\n                self._arc_turn(left * sense < 0, nudge, abs(left), 3)\n                time.sleep_ms(200)\n            self.last_move_completed = True\n            return True\n        finally:\n            self.stop()\n"
+  },
+  "instance": {
+    "name": "mecanum",
+    "import": "from MecanumDrive import MecanumDrive",
+    "create": "MecanumDrive()"
+  },
+  "blocks": [
+    {
+      "type": "xrp_mec_setup",
+      "text": "mecanum FL %1 FR %2 RL %3 RR %4 wheel diameter (cm) %5 wheelbase (cm) %6 track width (cm) %7 max wheel speed (RPM) %8",
+      "tooltip": "Use four different ports. Measure wheel diameter and axle-centre spacing in cm. Max RPM defines 100% speed. Default geometry is a placeholder.",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "FL",
+          "options": [
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "FR",
+          "options": [
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "RL",
+          "options": [
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "RR",
+          "options": [
+            {
+              "label": "4",
+              "value": "4"
+            },
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "name": "DIAMETER",
+          "default": "6"
+        },
+        {
+          "type": "number",
+          "name": "BASE",
+          "default": "15"
+        },
+        {
+          "type": "number",
+          "name": "TRACK",
+          "default": "15"
+        },
+        {
+          "type": "number",
+          "name": "RPM",
+          "default": "100"
+        }
+      ],
+      "inline": false,
+      "shape": "statement",
+      "code": "mecanum.configure({FL}, {FR}, {RL}, {RR}, {DIAMETER}, {BASE}, {TRACK}, {RPM})\n"
+    },
+    {
+      "type": "xrp_mec_reverse",
+      "text": "mecanum wheel %1 direction %2",
+      "tooltip": "Stops the robot and changes this wheel direction. Positive rotation must drive that side forward.",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "WHEEL",
+          "options": [
+            {
+              "label": "front left",
+              "value": "0"
+            },
+            {
+              "label": "front right",
+              "value": "1"
+            },
+            {
+              "label": "rear left",
+              "value": "2"
+            },
+            {
+              "label": "rear right",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "REVERSE",
+          "options": [
+            {
+              "label": "normal",
+              "value": "False"
+            },
+            {
+              "label": "reversed",
+              "value": "True"
+            }
+          ]
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.reverse({WHEEL}, {REVERSE})\n"
+    },
+    {
+      "type": "xrp_mec_move",
+      "text": "mecanum move %1 speed %2 %% distance %3 cm timeout %4 seconds",
+      "tooltip": "Move relative to the robot without turning. Speed 0–100% of maximum wheel RPM. Encoder distance is approximate. Waits until finished or timeout, then stops.",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "DIRECTION",
+          "options": [
+            {
+              "label": "forward",
+              "value": "0"
+            },
+            {
+              "label": "forward right",
+              "value": "45"
+            },
+            {
+              "label": "right",
+              "value": "90"
+            },
+            {
+              "label": "backward right",
+              "value": "135"
+            },
+            {
+              "label": "backward",
+              "value": "180"
+            },
+            {
+              "label": "backward left",
+              "value": "225"
+            },
+            {
+              "label": "left",
+              "value": "270"
+            },
+            {
+              "label": "forward left",
+              "value": "315"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": "30"
+        },
+        {
+          "type": "number",
+          "name": "DISTANCE",
+          "default": "20"
+        },
+        {
+          "type": "number",
+          "name": "TIMEOUT",
+          "default": "15"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.move({DIRECTION}, {SPEED}, {DISTANCE}, {TIMEOUT})\n"
+    },
+    {
+      "type": "xrp_mec_angle",
+      "text": "mecanum move angle %1 degrees speed %2 %% distance %3 cm timeout %4 seconds",
+      "tooltip": "0 forward, 90 right, 180 backward, 270 left. Distance in the chosen direction; waits and stops. Encoders estimate distance.",
+      "args": [
+        {
+          "type": "number",
+          "name": "ANGLE",
+          "default": "0"
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": "30"
+        },
+        {
+          "type": "number",
+          "name": "DISTANCE",
+          "default": "20"
+        },
+        {
+          "type": "number",
+          "name": "TIMEOUT",
+          "default": "15"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.move({ANGLE}, {SPEED}, {DISTANCE}, {TIMEOUT})\n"
+    },
+    {
+      "type": "xrp_mec_drive",
+      "text": "mecanum drive %1 speed %2 %%",
+      "tooltip": "Continues moving until another movement or stop command. Add a stop block after your loop. Speed 0–100%.",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "DIRECTION",
+          "options": [
+            {
+              "label": "forward",
+              "value": "0"
+            },
+            {
+              "label": "forward right",
+              "value": "45"
+            },
+            {
+              "label": "right",
+              "value": "90"
+            },
+            {
+              "label": "backward right",
+              "value": "135"
+            },
+            {
+              "label": "backward",
+              "value": "180"
+            },
+            {
+              "label": "backward left",
+              "value": "225"
+            },
+            {
+              "label": "left",
+              "value": "270"
+            },
+            {
+              "label": "forward left",
+              "value": "315"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": "30"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.drive({DIRECTION}, {SPEED})\n"
+    },
+    {
+      "type": "xrp_mec_turn",
+      "text": "mecanum turn %1 speed %2 %% angle %3 degrees timeout %4 seconds",
+      "tooltip": "Turn in place using encoders and measured chassis dimensions, then checked with the gyro: settles 0.2 s and nudges (up to 20 times) until within 0.5 degrees. Waits and stops.",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "CLOCKWISE",
+          "options": [
+            {
+              "label": "right (clockwise)",
+              "value": "True"
+            },
+            {
+              "label": "left (anticlockwise)",
+              "value": "False"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": "30"
+        },
+        {
+          "type": "number",
+          "name": "DEGREES",
+          "default": "90"
+        },
+        {
+          "type": "number",
+          "name": "TIMEOUT",
+          "default": "15"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.turn({CLOCKWISE}, {SPEED}, {DEGREES}, {TIMEOUT})\n"
+    },
+    {
+      "type": "xrp_mec_stop",
+      "text": "mecanum stop",
+      "tooltip": "Disable speed control and brake all four wheels.",
+      "args": [],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.stop()\n"
+    },
+    {
+      "type": "xrp_mec_completed",
+      "text": "mecanum last move completed",
+      "tooltip": "True if the last distance move or turn reached its encoder targets; false for timeout or zero speed.",
+      "args": [],
+      "inline": true,
+      "shape": "value",
+      "code": "mecanum.last_move_completed",
+      "returns": "Boolean",
+      "order": "MEMBER"
+    },
+    {
+      "type": "xrp_mec_ports",
+      "text": "mecanum motors FL %1 FR %2 RL %3 RR %4",
+      "tooltip": "Motor ports: FL = front left, FR = front right, RL = rear left, RR = rear right. Choose four different ports.",
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "FL",
+          "options": [
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "FR",
+          "options": [
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "RL",
+          "options": [
+            {
+              "label": "3",
+              "value": "3"
+            },
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "4",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "RR",
+          "options": [
+            {
+              "label": "4",
+              "value": "4"
+            },
+            {
+              "label": "1",
+              "value": "1"
+            },
+            {
+              "label": "2",
+              "value": "2"
+            },
+            {
+              "label": "3",
+              "value": "3"
+            }
+          ]
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "mecanum.set_ports({FL}, {FR}, {RL}, {RR})\n"
+    },
+    {
+      "type": "xrp_mec_geometry",
+      "text": "mecanum wheel diameter (cm) %1 wheelbase (cm) %2 track width (cm) %3 max wheel speed (RPM) %4",
+      "tooltip": "Use four different ports. Measure wheel diameter and axle-centre spacing in cm. Max RPM defines 100% speed. Default geometry is a placeholder.",
+      "args": [
+        {
+          "type": "number",
+          "name": "DIAMETER",
+          "default": "6"
+        },
+        {
+          "type": "number",
+          "name": "BASE",
+          "default": "15"
+        },
+        {
+          "type": "number",
+          "name": "TRACK",
+          "default": "15"
+        },
+        {
+          "type": "number",
+          "name": "RPM",
+          "default": "100"
+        }
+      ],
+      "inline": false,
+      "shape": "statement",
+      "code": "mecanum.set_geometry({DIAMETER}, {BASE}, {TRACK}, {RPM})\n"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_mec_ports"
+    },
+    {
+      "block": "xrp_mec_geometry",
+      "shadows": {
+        "DIAMETER": 6,
+        "BASE": 15,
+        "TRACK": 15,
+        "RPM": 100
+      }
+    },
+    {
+      "gap": 20
+    },
+    {
+      "block": "xrp_mec_reverse",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_mec_move",
+      "shadows": {
+        "SPEED": 30,
+        "DISTANCE": 20,
+        "TIMEOUT": 15
+      }
+    },
+    {
+      "block": "xrp_mec_angle",
+      "shadows": {
+        "ANGLE": 0,
+        "SPEED": 30,
+        "DISTANCE": 20,
+        "TIMEOUT": 15
+      }
+    },
+    {
+      "block": "xrp_mec_drive",
+      "shadows": {
+        "SPEED": 30
+      }
+    },
+    {
+      "block": "xrp_mec_turn",
+      "shadows": {
+        "SPEED": 30,
+        "DEGREES": 90,
+        "TIMEOUT": 15
+      }
+    },
+    {
+      "block": "xrp_mec_stop",
+      "shadows": {}
+    },
+    {
+      "block": "xrp_mec_completed",
+      "shadows": {}
+    }
+  ]
+}

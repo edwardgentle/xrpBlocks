@@ -1,0 +1,101 @@
+{
+  "title": "Les 3: Obstakels ontwijken",
+  "steps": [
+    "🚧 In deze les leert de robot zichzelf te stoppen wanneer er een obstakel in de weg staat! Daarvoor gebruiken we de <b>afstandssensor</b> aan de voorkant van de XRP. Die meet hoever het dichtstbijzijnde object is.",
+    "Bekijk het programma. Er staat al een <b>zolang</b>-lus klaar. De conditie controleert de afstandssensor: <b>zolang de afstand groter is dan 20 cm</b>, rijdt de robot steeds 5 cm verder.",
+    "Maar wat als de robot stopt? Dan hangt het programma gewoon op — de robot staat stil maar is niet echt gestopt. Sleep een <b>stop met rijden</b>-blok uit de toolbox en zet het <i>ná</i> de zolang-lus.",
+    "Probeer nu de drempelwaarde te veranderen. Klik op het getal <code>20</code> in de conditie en verander het naar <code>30</code>. De robot stopt nu al eerder. Probeer ook <code>10</code> — wat merk je?",
+    "De robot rijdt in stapjes van 5 cm. Dat voelt schokkerig. Verander de stapgrootte naar <code>2</code> cm voor vloeiendere beweging. Wat is het nadeel van een kleinere stap?",
+    "Voeg nu een <b>print</b>-blok toe vanuit <b>Printplaat</b>, ín de lus, na het rijblok. Verbind er een <b>afstandssensor</b>-blok mee — zo zie je live in de console hoe dicht het obstakel is!",
+    "🎉 Knap gedaan! Je robot detecteert nu zelfstandig obstakels. Dit principe — een sensor die bepaalt wanneer een lus stopt — heet een <b>sensor-gestuurde lus</b>. Zelfrijdende auto's werken op precies hetzelfde idee!"
+  ],
+  "toolbox": {
+    "Drive": [
+      "xrp_drive_straight",
+      "xrp_drive_stop"
+    ],
+    "Sensors": [
+      "xrp_distance_sensor"
+    ],
+    "Board": [
+      "xrp_wait_seconds",
+      "xrp_print"
+    ],
+    "Logic": [
+      "logic_compare"
+    ],
+    "Loops": [
+      "controls_whileUntil"
+    ],
+    "Text": [
+      "text"
+    ]
+  },
+  "template": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "xrp_start",
+          "id": "les3_start",
+          "x": 60,
+          "y": 60,
+          "next": {
+            "block": {
+              "type": "controls_whileUntil",
+              "id": "les3_while",
+              "fields": {
+                "MODE": "WHILE"
+              },
+              "inputs": {
+                "BOOL": {
+                  "block": {
+                    "type": "logic_compare",
+                    "id": "les3_compare",
+                    "fields": {
+                      "OP": "GT"
+                    },
+                    "inputs": {
+                      "A": {
+                        "block": {
+                          "type": "xrp_distance_sensor",
+                          "id": "les3_sensor"
+                        }
+                      },
+                      "B": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "les3_threshold",
+                          "fields": {
+                            "NUM": 20
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "xrp_drive_straight",
+                    "id": "les3_drive",
+                    "inputs": {
+                      "DISTANCE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "les3_dist",
+                          "fields": {
+                            "NUM": 5
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

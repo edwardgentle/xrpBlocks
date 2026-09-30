@@ -1,0 +1,524 @@
+{
+  "manifestVersion": 1,
+  "id": "neopixel",
+  "name": {
+    "en": "NeoPixel strip",
+    "nl": "NeoPixel-strip"
+  },
+  "description": {
+    "en": "WS2812 addressable LED strip on a servo header or a free GPIO.",
+    "nl": "WS2812 adresseerbare LED-strip op een servo-aansluiting of vrije GPIO."
+  },
+  "version": "1.0.0",
+  "author": "XRP Blocks (Limpopo DoE fork)",
+  "licence": "MIT",
+  "homepage": "",
+  "category": {
+    "key": "NeoPixel",
+    "label": {
+      "en": "NeoPixel",
+      "nl": "NeoPixel"
+    },
+    "colour": "#E27DA8",
+    "colourDark": "#E5136D",
+    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M2 9.5h20a1.5 1.5 0 0 1 1.5 1.5v2A1.5 1.5 0 0 1 22 14.5H2A1.5 1.5 0 0 1 .5 13v-2A1.5 1.5 0 0 1 2 9.5zm2.6 1.4a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zm3.7 0a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zm3.7 0a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zm3.7 0a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zm3.7 0a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zM11 3h2v4.5h-2zm0 13.5h2V21h-2z\"/></svg>"
+  },
+  "driver": {
+    "filename": "NeoPixelStrip.py",
+    "marker": "NeoPixelStrip",
+    "source": "\"\"\"NeoPixelStrip - WS2812 / NeoPixel strip helper for MicroPython on the XRP.\n\nBuilt on MicroPython's own `neopixel` module, which on the RP2 port drives the\nstrip with exact hardware timing. This wrapper adds the things a classroom\nneeds: brightness scaling, named colours, a rainbow, and a shift.\n\nWIRING\n------\nData  -> a real GPIO on the XRP. The signal wire of a servo header is the\n         easiest physical connector (Servo 1 = GPIO 6, Servo 2 = GPIO 9,\n         Servo 3 = GPIO 7, Servo 4 = GPIO 8), or use a spare pin, GPIO 12\n         to GPIO 19.\nPower -> for more than two or three pixels, give the strip its own supply\n         and tie the grounds together. Ten pixels at full white draw about\n         600 mA, which is far more than the board should provide.\nLevel -> a WS2812 running on 5 V wants a data HIGH of about 3.5 V and the\n         XRP gives 3.3 V. It often works, but it is marginal. Powering the\n         strip from about 3.7 to 4.2 V, or adding a level shifter, is the\n         reliable fix.\n\nA PCF8575 pin CANNOT drive a strip: WS2812 bits are 1.25 us long and an\nI2C write takes tens of microseconds.\n\nPIXEL NUMBERING\n---------------\nPixels are numbered from 0, like the Python list they really are. The first\npixel on the strip is 0.\n\nBRIGHTNESS\n----------\nset_brightness() takes a percentage, 0 to 100. It scales what is sent to the\nstrip; the colours you set are remembered at full value, so turning the\nbrightness back up restores them exactly.\n\"\"\"\n\nfrom machine import Pin\n\ntry:\n    import neopixel\nexcept ImportError:\n    raise ImportError(\n        \"This MicroPython build has no 'neopixel' module. \"\n        \"Update the firmware on the XRP.\"\n    )\n\n# Named colours at full value. Brightness scaling happens at write time.\nCOLOURS = {\n    \"off\": (0, 0, 0),\n    \"black\": (0, 0, 0),\n    \"red\": (255, 0, 0),\n    \"orange\": (255, 80, 0),\n    \"yellow\": (255, 200, 0),\n    \"green\": (0, 255, 0),\n    \"cyan\": (0, 255, 255),\n    \"blue\": (0, 0, 255),\n    \"purple\": (128, 0, 255),\n    \"magenta\": (255, 0, 255),\n    \"pink\": (255, 80, 120),\n    \"white\": (255, 255, 255),\n}\n\n\ndef colour(name):\n    \"\"\"Look up a named colour, returning an (r, g, b) tuple.\"\"\"\n    try:\n        return COLOURS[str(name).lower()]\n    except KeyError:\n        raise ValueError(\"Unknown colour: %s\" % name)\n\n\ndef wheel(position):\n    \"\"\"Map 0-255 onto a colour wheel, returning an (r, g, b) tuple.\"\"\"\n    position = int(position) % 256\n    if position < 85:\n        return (255 - position * 3, position * 3, 0)\n    if position < 170:\n        position -= 85\n        return (0, 255 - position * 3, position * 3)\n    position -= 170\n    return (position * 3, 0, 255 - position * 3)\n\n\nclass NeoPixelStrip:\n    \"\"\"A strip of WS2812 pixels on one GPIO pin.\"\"\"\n\n    def __init__(self, pin=6, count=10, brightness=30, auto_show=True):\n        pin = int(pin)\n        count = int(count)\n        if count < 1 or count > 300:\n            raise ValueError(\"Pixel count must be 1 to 300\")\n        self.pin = pin\n        self.count = count\n        self.auto_show = bool(auto_show)\n        self._brightness = 0.0\n        self._pixels = [(0, 0, 0)] * count      # colours as the user set them\n        self._np = neopixel.NeoPixel(Pin(pin, Pin.OUT), count)\n        self.set_brightness(brightness)          # this also blanks the strip\n\n    # -- internals --------------------------------------------------------\n\n    def _check(self, index):\n        index = int(index)\n        if index < 0 or index >= self.count:\n            raise ValueError(\n                \"Pixel must be 0 to %d on this strip\" % (self.count - 1)\n            )\n        return index\n\n    @staticmethod\n    def _as_rgb(value):\n        \"\"\"Accept (r, g, b), a colour name, or a 24-bit number.\"\"\"\n        if isinstance(value, str):\n            return colour(value)\n        if isinstance(value, int):\n            return ((value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF)\n        r, g, b = value\n        return (_clamp(r), _clamp(g), _clamp(b))\n\n    def _push(self):\n        \"\"\"Copy the buffer to the strip, scaled by the brightness.\"\"\"\n        scale = self._brightness\n        for i in range(self.count):\n            r, g, b = self._pixels[i]\n            self._np[i] = (int(r * scale), int(g * scale), int(b * scale))\n        self._np.write()\n\n    def _maybe_show(self):\n        if self.auto_show:\n            self._push()\n\n    # -- settings ---------------------------------------------------------\n\n    def set_brightness(self, percent):\n        \"\"\"Set the brightness as a percentage, 0 to 100.\"\"\"\n        percent = float(percent)\n        if percent < 0:\n            percent = 0.0\n        elif percent > 100:\n            percent = 100.0\n        self._brightness = percent / 100.0\n        self._push()   # brightness always takes effect at once\n\n    def get_brightness(self):\n        return int(round(self._brightness * 100))\n\n    def set_auto_show(self, on):\n        \"\"\"True updates the strip on every change; False waits for show().\"\"\"\n        self.auto_show = bool(on)\n        if self.auto_show:\n            self._push()\n\n    # -- setting colours --------------------------------------------------\n\n    def set_pixel(self, index, value):\n        \"\"\"Set one pixel. Accepts (r, g, b), a colour name or a 24-bit int.\"\"\"\n        self._pixels[self._check(index)] = self._as_rgb(value)\n        self._maybe_show()\n\n    def set_rgb(self, index, r, g, b):\n        \"\"\"Set one pixel from three separate 0-255 values.\"\"\"\n        self._pixels[self._check(index)] = (_clamp(r), _clamp(g), _clamp(b))\n        self._maybe_show()\n\n    def get_pixel(self, index):\n        \"\"\"The colour a pixel was set to, ignoring brightness.\"\"\"\n        return self._pixels[self._check(index)]\n\n    def fill(self, value):\n        \"\"\"Set every pixel to the same colour.\"\"\"\n        self._pixels = [self._as_rgb(value)] * self.count\n        self._maybe_show()\n\n    def clear(self):\n        \"\"\"Switch every pixel off.\"\"\"\n        self._pixels = [(0, 0, 0)] * self.count\n        self._push()   # off always takes effect at once\n\n    def show(self):\n        \"\"\"Send the buffer to the strip.\"\"\"\n        self._push()\n\n    # -- patterns ---------------------------------------------------------\n\n    def shift(self, step=1):\n        \"\"\"Rotate the pattern along the strip. Positive moves towards the end.\"\"\"\n        step = int(step) % self.count\n        if step:\n            self._pixels = self._pixels[-step:] + self._pixels[:-step]\n        self._maybe_show()\n\n    def rainbow(self, offset=0):\n        \"\"\"Spread one full colour wheel across the whole strip.\"\"\"\n        offset = int(offset)\n        span = 256 // self.count if self.count < 256 else 1\n        self._pixels = [\n            wheel(offset + i * span) for i in range(self.count)\n        ]\n        self._maybe_show()\n\n\ndef _clamp(value):\n    value = int(value)\n    if value < 0:\n        return 0\n    if value > 255:\n        return 255\n    return value\n"
+  },
+  "instance": {
+    "name": "strip",
+    "import": "from NeoPixelStrip import NeoPixelStrip, colour",
+    "create": "NeoPixelStrip()",
+    "createConfigured": "NeoPixelStrip(pin={PIN}, count={COUNT})"
+  },
+  "lists": {
+    "pins": [
+      {
+        "label": "Servo 1 (GPIO 6)",
+        "value": "6"
+      },
+      {
+        "label": "Servo 2 (GPIO 9)",
+        "value": "9"
+      },
+      {
+        "label": "Servo 3 (GPIO 7)",
+        "value": "7"
+      },
+      {
+        "label": "Servo 4 (GPIO 8)",
+        "value": "8"
+      },
+      {
+        "label": "GPIO 12",
+        "value": "12"
+      },
+      {
+        "label": "GPIO 13",
+        "value": "13"
+      },
+      {
+        "label": "GPIO 14",
+        "value": "14"
+      },
+      {
+        "label": "GPIO 15",
+        "value": "15"
+      },
+      {
+        "label": "GPIO 16",
+        "value": "16"
+      },
+      {
+        "label": "GPIO 17",
+        "value": "17"
+      },
+      {
+        "label": "GPIO 18",
+        "value": "18"
+      },
+      {
+        "label": "GPIO 19",
+        "value": "19"
+      }
+    ],
+    "colours": [
+      {
+        "label": {
+          "en": "red",
+          "nl": "rood"
+        },
+        "value": "red"
+      },
+      {
+        "label": {
+          "en": "orange",
+          "nl": "oranje"
+        },
+        "value": "orange"
+      },
+      {
+        "label": {
+          "en": "yellow",
+          "nl": "geel"
+        },
+        "value": "yellow"
+      },
+      {
+        "label": {
+          "en": "green",
+          "nl": "groen"
+        },
+        "value": "green"
+      },
+      {
+        "label": {
+          "en": "cyan",
+          "nl": "cyaan"
+        },
+        "value": "cyan"
+      },
+      {
+        "label": {
+          "en": "blue",
+          "nl": "blauw"
+        },
+        "value": "blue"
+      },
+      {
+        "label": {
+          "en": "purple",
+          "nl": "paars"
+        },
+        "value": "purple"
+      },
+      {
+        "label": {
+          "en": "magenta",
+          "nl": "magenta"
+        },
+        "value": "magenta"
+      },
+      {
+        "label": {
+          "en": "pink",
+          "nl": "roze"
+        },
+        "value": "pink"
+      },
+      {
+        "label": {
+          "en": "white",
+          "nl": "wit"
+        },
+        "value": "white"
+      },
+      {
+        "label": {
+          "en": "off",
+          "nl": "uit"
+        },
+        "value": "off"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "type": "xrp_np_setup",
+      "text": {
+        "en": "set up NeoPixel strip on %1 with %2 pixels",
+        "nl": "stel NeoPixel-strip in op %1 met %2 pixels"
+      },
+      "tooltip": {
+        "en": "Tell the robot where the strip is plugged in and how long it is. Pixels are numbered from 0.",
+        "nl": "Geef aan waar de strip is aangesloten en hoe lang hij is. Pixels tellen vanaf 0."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "number",
+          "name": "COUNT",
+          "default": 10
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "configuresInstance": true,
+      "code": ""
+    },
+    {
+      "type": "xrp_np_brightness",
+      "text": {
+        "en": "set NeoPixel brightness to %1 %%",
+        "nl": "stel NeoPixel-helderheid in op %1 %%"
+      },
+      "tooltip": {
+        "en": "Brightness from 0 to 100 percent. Keep it low: a bright strip draws a lot of current.",
+        "nl": "Helderheid van 0 tot 100 procent. Houd het laag: een felle strip gebruikt veel stroom."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "PERCENT",
+          "default": 30
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "strip.set_brightness({PERCENT})\n"
+    },
+    {
+      "type": "xrp_np_colour",
+      "text": {
+        "en": "colour %1",
+        "nl": "kleur %1"
+      },
+      "tooltip": {
+        "en": "A colour to plug into a NeoPixel block.",
+        "nl": "Een kleur om in een NeoPixel-blok te zetten."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "NAME",
+          "options": "$colours"
+        }
+      ],
+      "shape": "value",
+      "returns": "Colour",
+      "order": "FUNCTION_CALL",
+      "code": "colour('{NAME}')"
+    },
+    {
+      "type": "xrp_np_rgb",
+      "text": {
+        "en": "colour red %1 green %2 blue %3",
+        "nl": "kleur rood %1 groen %2 blauw %3"
+      },
+      "tooltip": {
+        "en": "Mix your own colour from three values of 0 to 255.",
+        "nl": "Meng je eigen kleur uit drie waarden van 0 tot 255."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "RED",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "GREEN",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "BLUE",
+          "default": 0
+        }
+      ],
+      "inline": true,
+      "shape": "value",
+      "returns": "Colour",
+      "order": "ATOMIC",
+      "code": "({RED}, {GREEN}, {BLUE})"
+    },
+    {
+      "type": "xrp_np_set_pixel",
+      "text": {
+        "en": "set NeoPixel %1 to %2",
+        "nl": "zet NeoPixel %1 op %2"
+      },
+      "tooltip": {
+        "en": "Set one pixel. The first pixel on the strip is 0.",
+        "nl": "Zet een pixel. De eerste pixel op de strip is 0."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "INDEX",
+          "default": 0
+        },
+        {
+          "type": "value",
+          "name": "COLOUR",
+          "check": "Colour",
+          "default": "colour('off')"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "strip.set_pixel({INDEX}, {COLOUR})\n"
+    },
+    {
+      "type": "xrp_np_fill",
+      "text": {
+        "en": "set whole NeoPixel strip to %1",
+        "nl": "zet hele NeoPixel-strip op %1"
+      },
+      "tooltip": {
+        "en": "Set every pixel on the strip to the same colour.",
+        "nl": "Zet elke pixel op de strip op dezelfde kleur."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "COLOUR",
+          "check": "Colour",
+          "default": "colour('off')"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "strip.fill({COLOUR})\n"
+    },
+    {
+      "type": "xrp_np_clear",
+      "text": {
+        "en": "switch NeoPixel strip off",
+        "nl": "zet NeoPixel-strip uit"
+      },
+      "tooltip": {
+        "en": "Switch every pixel off at once.",
+        "nl": "Zet elke pixel in een keer uit."
+      },
+      "shape": "statement",
+      "code": "strip.clear()\n"
+    },
+    {
+      "type": "xrp_np_rainbow",
+      "text": {
+        "en": "rainbow across NeoPixel strip shifted by %1",
+        "nl": "regenboog over NeoPixel-strip verschoven met %1"
+      },
+      "tooltip": {
+        "en": "Spread a rainbow along the strip. Increase the shift a little at a time to make it move.",
+        "nl": "Spreid een regenboog over de strip. Verhoog de verschuiving stap voor stap om hem te laten bewegen."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "OFFSET",
+          "default": 0
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "strip.rainbow({OFFSET})\n"
+    },
+    {
+      "type": "xrp_np_shift",
+      "text": {
+        "en": "shift NeoPixel strip by %1",
+        "nl": "verschuif NeoPixel-strip met %1"
+      },
+      "tooltip": {
+        "en": "Move the whole pattern along the strip and wrap it around.",
+        "nl": "Verplaats het hele patroon over de strip en laat het rondlopen."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "STEP",
+          "default": 1
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "strip.shift({STEP})\n"
+    },
+    {
+      "type": "xrp_np_show",
+      "text": {
+        "en": "show NeoPixel changes",
+        "nl": "toon NeoPixel-wijzigingen"
+      },
+      "tooltip": {
+        "en": "Send the colours to the strip. Only needed when updating is set to \"only when I say show\".",
+        "nl": "Stuur de kleuren naar de strip. Alleen nodig bij \"alleen als ik toon zeg\"."
+      },
+      "shape": "statement",
+      "code": "strip.show()\n"
+    },
+    {
+      "type": "xrp_np_auto_show",
+      "text": {
+        "en": "update NeoPixel strip %1",
+        "nl": "werk NeoPixel-strip bij %1"
+      },
+      "tooltip": {
+        "en": "Choose whether every change appears at once, or waits for the show block.",
+        "nl": "Kies of elke wijziging meteen verschijnt of wacht op het toon-blok."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "MODE",
+          "options": [
+            {
+              "label": {
+                "en": "straight away",
+                "nl": "meteen"
+              },
+              "value": "True"
+            },
+            {
+              "label": {
+                "en": "only when I say show",
+                "nl": "alleen als ik toon zeg"
+              },
+              "value": "False"
+            }
+          ]
+        }
+      ],
+      "shape": "statement",
+      "code": "strip.set_auto_show({MODE})\n"
+    },
+    {
+      "type": "xrp_np_count",
+      "text": {
+        "en": "number of NeoPixels",
+        "nl": "aantal NeoPixels"
+      },
+      "tooltip": {
+        "en": "How many pixels the strip was set up with.",
+        "nl": "Hoeveel pixels de strip heeft."
+      },
+      "shape": "value",
+      "returns": "Number",
+      "order": "MEMBER",
+      "code": "strip.count"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_np_setup",
+      "shadows": {
+        "COUNT": 10
+      }
+    },
+    {
+      "block": "xrp_np_brightness",
+      "shadows": {
+        "PERCENT": 30
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_np_colour"
+    },
+    {
+      "block": "xrp_np_rgb",
+      "shadows": {
+        "RED": 255,
+        "GREEN": 0,
+        "BLUE": 0
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_np_set_pixel",
+      "shadows": {
+        "INDEX": 0,
+        "COLOUR": {
+          "type": "xrp_np_colour",
+          "fields": {
+            "NAME": "red"
+          }
+        }
+      }
+    },
+    {
+      "block": "xrp_np_fill",
+      "shadows": {
+        "COLOUR": {
+          "type": "xrp_np_colour",
+          "fields": {
+            "NAME": "blue"
+          }
+        }
+      }
+    },
+    {
+      "block": "xrp_np_clear"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_np_rainbow",
+      "shadows": {
+        "OFFSET": 0
+      }
+    },
+    {
+      "block": "xrp_np_shift",
+      "shadows": {
+        "STEP": 1
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_np_show"
+    },
+    {
+      "block": "xrp_np_auto_show"
+    },
+    {
+      "block": "xrp_np_count"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1550",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 43 (manual v3.1), section 9.6 Worked examples.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_oled_setup",
+            "id": "tp1543",
+            "fields": {
+              "ADDR": "0x3c"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_forever",
+                "id": "tp1549",
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "xrp_oled_value",
+                      "id": "tp1545",
+                      "fields": {
+                        "LINE": "1"
+                      },
+                      "inputs": {
+                        "LABEL": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "tp1546",
+                            "fields": {
+                              "TEXT": "distance"
+                            }
+                          }
+                        },
+                        "VALUE": {
+                          "block": {
+                            "type": "xrp_distance_sensor",
+                            "id": "tp1544"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "xrp_wait_seconds",
+                          "id": "tp1547",
+                          "inputs": {
+                            "SECONDS": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "tp1548",
+                                "fields": {
+                                  "NUM": 0.2
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

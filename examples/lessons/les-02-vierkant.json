@@ -1,0 +1,71 @@
+{
+  "title": "Les 2: Rijden in een vierkant",
+  "steps": [
+    "🔷 In deze les leer je de robot in een <b>vierkant</b> te laten rijden. Een vierkant heeft 4 gelijke zijden en bij elke hoek draait de robot 90°. De eerste zijde staat al klaar!",
+    "Bekijk de blokken op het canvas: de robot rijdt 30 cm en draait dan 90° naar rechts. Dit is de <b>eerste zijde</b> van het vierkant. Je moet dit nog 3 keer herhalen voor de andere zijden.",
+    "Sleep 3 extra <b>rij rechtdoor 30 cm</b>- en 3 extra <b>draai 90 graden</b>-blokken eronder. Zorg dat er steeds een draai-blok ná een rijblok komt — zo maak je alle 4 de hoeken.",
+    "Heb je alle blokken? Druk op <b>Start</b> en kijk of de robot een vierkant rijdt. Sluit het vierkant zich netjes? Zo niet, controleer of alle afstanden en hoeken kloppen!",
+    "💡 <b>Slimmere manier:</b> gebruik een <b>herhaal 4 keer</b>-lus uit de categorie <b>Lussen</b>. Verwijder de losse blokken en zet één rijblok + één draai-blok <i>in</i> de lus. Dat is veel minder werk!",
+    "🎉 Super gedaan! Je robot rijdt nu een perfect vierkant. Uitdaging: verander de hoek naar <code>120</code> graden en herhaal <code>3</code> keer — wat voor figuur krijg je dan?"
+  ],
+  "toolbox": {
+    "Drive": [
+      "xrp_drive_straight",
+      "xrp_drive_turn",
+      "xrp_drive_stop"
+    ],
+    "Loops": [
+      "controls_repeat_ext"
+    ],
+    "Math": [
+      "math_number"
+    ]
+  },
+  "template": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "xrp_start",
+          "id": "les2_start",
+          "x": 60,
+          "y": 60,
+          "next": {
+            "block": {
+              "type": "xrp_drive_straight",
+              "id": "les2_drive1",
+              "inputs": {
+                "DISTANCE": {
+                  "shadow": {
+                    "type": "math_number",
+                    "id": "les2_dist1",
+                    "fields": {
+                      "NUM": 30
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "xrp_drive_turn",
+                  "id": "les2_turn1",
+                  "inputs": {
+                    "ANGLE": {
+                      "shadow": {
+                        "type": "math_number",
+                        "id": "les2_angle1",
+                        "fields": {
+                          "NUM": 90
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

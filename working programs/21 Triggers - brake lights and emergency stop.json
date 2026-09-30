@@ -1,0 +1,434 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1245",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Expect green pulse going forward, red flash on braking, orange blink turning, white reversing. Press the board button mid-drive to test the emergency stop. Press Stop afterwards and check the RGB goes off.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp1199",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp1200",
+                  "fields": {
+                    "TEXT": "Test 21: trigger engine with onboard RGB lights"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_trig_setup",
+                "id": "tp1201",
+                "inputs": {
+                  "RATE": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1202",
+                      "fields": {
+                        "NUM": 20
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_trig_use_rgb",
+                    "id": "tp1203",
+                    "fields": {
+                      "ROLE": "brake"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_trig_light_rule",
+                        "id": "tp1204",
+                        "fields": {
+                          "EVENT": "braking",
+                          "COLOUR": "red",
+                          "PATTERN": "solid",
+                          "ROLE": "brake"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_trig_light_rule",
+                            "id": "tp1205",
+                            "fields": {
+                              "EVENT": "reverse",
+                              "COLOUR": "white",
+                              "PATTERN": "solid",
+                              "ROLE": "reverse"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_trig_light_rule",
+                                "id": "tp1206",
+                                "fields": {
+                                  "EVENT": "left",
+                                  "COLOUR": "orange",
+                                  "PATTERN": "blink",
+                                  "ROLE": "left"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_trig_light_rule",
+                                    "id": "tp1207",
+                                    "fields": {
+                                      "EVENT": "right",
+                                      "COLOUR": "orange",
+                                      "PATTERN": "blink",
+                                      "ROLE": "right"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_trig_light_rule",
+                                        "id": "tp1208",
+                                        "fields": {
+                                          "EVENT": "forward",
+                                          "COLOUR": "green",
+                                          "PATTERN": "pulse",
+                                          "ROLE": "status"
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_trig_braking",
+                                            "id": "tp1209",
+                                            "fields": {
+                                              "LEVEL": "medium"
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_trig_hold",
+                                                "id": "tp1210",
+                                                "inputs": {
+                                                  "SECONDS": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "tp1211",
+                                                      "fields": {
+                                                        "NUM": 0.5
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_trig_estop_rule",
+                                                    "id": "tp1212",
+                                                    "fields": {
+                                                      "EVENT": "button"
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_trig_enable",
+                                                        "id": "tp1213",
+                                                        "fields": {
+                                                          "STATE": "ON"
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_print",
+                                                            "id": "tp1214",
+                                                            "inputs": {
+                                                              "TEXT": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "tp1215",
+                                                                  "fields": {
+                                                                    "TEXT": "Press the button to drive (press it again while driving = emergency stop)"
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_wait_for_button",
+                                                                "id": "tp1216",
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_wait_seconds",
+                                                                    "id": "tp1217",
+                                                                    "inputs": {
+                                                                      "SECONDS": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp1218",
+                                                                          "fields": {
+                                                                            "NUM": 0.5
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_trig_estop_clear",
+                                                                        "id": "tp1219",
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_drive_straight",
+                                                                            "id": "tp1220",
+                                                                            "inputs": {
+                                                                              "DISTANCE": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "tp1221",
+                                                                                  "fields": {
+                                                                                    "NUM": 40
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_print",
+                                                                                "id": "tp1226",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "block": {
+                                                                                      "type": "text_join",
+                                                                                      "id": "tp1225",
+                                                                                      "extraState": {
+                                                                                        "itemCount": 2
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "ADD0": {
+                                                                                          "block": {
+                                                                                            "type": "text",
+                                                                                            "id": "tp1222",
+                                                                                            "fields": {
+                                                                                              "TEXT": "distance travelled (about 40): "
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "ADD1": {
+                                                                                          "block": {
+                                                                                            "type": "math_round",
+                                                                                            "id": "tp1224",
+                                                                                            "fields": {
+                                                                                              "OP": "ROUND"
+                                                                                            },
+                                                                                            "inputs": {
+                                                                                              "NUM": {
+                                                                                                "block": {
+                                                                                                  "type": "xrp_trig_measure",
+                                                                                                  "id": "tp1223",
+                                                                                                  "fields": {
+                                                                                                    "MEASURE": "distance"
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_drive_turn",
+                                                                                    "id": "tp1227",
+                                                                                    "inputs": {
+                                                                                      "ANGLE": {
+                                                                                        "shadow": {
+                                                                                          "type": "math_number",
+                                                                                          "id": "tp1228",
+                                                                                          "fields": {
+                                                                                            "NUM": 90
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_drive_turn",
+                                                                                        "id": "tp1229",
+                                                                                        "inputs": {
+                                                                                          "ANGLE": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "tp1230",
+                                                                                              "fields": {
+                                                                                                "NUM": -90
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_drive_straight",
+                                                                                            "id": "tp1231",
+                                                                                            "inputs": {
+                                                                                              "DISTANCE": {
+                                                                                                "shadow": {
+                                                                                                  "type": "math_number",
+                                                                                                  "id": "tp1232",
+                                                                                                  "fields": {
+                                                                                                    "NUM": -20
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_print",
+                                                                                                "id": "tp1236",
+                                                                                                "inputs": {
+                                                                                                  "TEXT": {
+                                                                                                    "block": {
+                                                                                                      "type": "text_join",
+                                                                                                      "id": "tp1235",
+                                                                                                      "extraState": {
+                                                                                                        "itemCount": 2
+                                                                                                      },
+                                                                                                      "inputs": {
+                                                                                                        "ADD0": {
+                                                                                                          "block": {
+                                                                                                            "type": "text",
+                                                                                                            "id": "tp1233",
+                                                                                                            "fields": {
+                                                                                                              "TEXT": "battery V: "
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "ADD1": {
+                                                                                                          "block": {
+                                                                                                            "type": "xrp_trig_measure",
+                                                                                                            "id": "tp1234",
+                                                                                                            "fields": {
+                                                                                                              "MEASURE": "battery"
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_print",
+                                                                                                    "id": "tp1240",
+                                                                                                    "inputs": {
+                                                                                                      "TEXT": {
+                                                                                                        "block": {
+                                                                                                          "type": "text_join",
+                                                                                                          "id": "tp1239",
+                                                                                                          "extraState": {
+                                                                                                            "itemCount": 2
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "ADD0": {
+                                                                                                              "block": {
+                                                                                                                "type": "text",
+                                                                                                                "id": "tp1237",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "emergency stop was used: "
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "ADD1": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_trig_estop_active",
+                                                                                                                "id": "tp1238"
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "block": {
+                                                                                                        "type": "xrp_trig_estop_clear",
+                                                                                                        "id": "tp1241",
+                                                                                                        "next": {
+                                                                                                          "block": {
+                                                                                                            "type": "xrp_trig_enable",
+                                                                                                            "id": "tp1242",
+                                                                                                            "fields": {
+                                                                                                              "STATE": "OFF"
+                                                                                                            },
+                                                                                                            "next": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_print",
+                                                                                                                "id": "tp1243",
+                                                                                                                "inputs": {
+                                                                                                                  "TEXT": {
+                                                                                                                    "shadow": {
+                                                                                                                      "type": "text",
+                                                                                                                      "id": "tp1244",
+                                                                                                                      "fields": {
+                                                                                                                        "TEXT": "Test 21 done"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

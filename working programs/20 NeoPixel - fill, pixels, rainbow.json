@@ -1,0 +1,622 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1198",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Change the pin and pixel count in the first block to match your strip. Expect four whole-strip colours, a blue fill one by one, one orange pixel running round twice, then a moving rainbow.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp1130",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp1131",
+                  "fields": {
+                    "TEXT": "Test 20: 8-pixel strip on Servo 1 (GPIO 6)"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_np_setup",
+                "id": "tp1132",
+                "fields": {
+                  "PIN": "6"
+                },
+                "inputs": {
+                  "COUNT": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1133",
+                      "fields": {
+                        "NUM": 8
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_np_brightness",
+                    "id": "tp1134",
+                    "inputs": {
+                      "PERCENT": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1135",
+                          "fields": {
+                            "NUM": 20
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_print",
+                        "id": "tp1139",
+                        "inputs": {
+                          "TEXT": {
+                            "block": {
+                              "type": "text_join",
+                              "id": "tp1138",
+                              "extraState": {
+                                "itemCount": 2
+                              },
+                              "inputs": {
+                                "ADD0": {
+                                  "block": {
+                                    "type": "text",
+                                    "id": "tp1136",
+                                    "fields": {
+                                      "TEXT": "pixels: "
+                                    }
+                                  }
+                                },
+                                "ADD1": {
+                                  "block": {
+                                    "type": "xrp_np_count",
+                                    "id": "tp1137"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_np_fill",
+                            "id": "tp1141",
+                            "inputs": {
+                              "COLOUR": {
+                                "block": {
+                                  "type": "xrp_np_colour",
+                                  "id": "tp1140",
+                                  "fields": {
+                                    "NAME": "red"
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_wait_seconds",
+                                "id": "tp1142",
+                                "inputs": {
+                                  "SECONDS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1143",
+                                      "fields": {
+                                        "NUM": 0.7
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_np_fill",
+                                    "id": "tp1145",
+                                    "inputs": {
+                                      "COLOUR": {
+                                        "block": {
+                                          "type": "xrp_np_colour",
+                                          "id": "tp1144",
+                                          "fields": {
+                                            "NAME": "green"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_wait_seconds",
+                                        "id": "tp1146",
+                                        "inputs": {
+                                          "SECONDS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "tp1147",
+                                              "fields": {
+                                                "NUM": 0.7
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_np_fill",
+                                            "id": "tp1149",
+                                            "inputs": {
+                                              "COLOUR": {
+                                                "block": {
+                                                  "type": "xrp_np_colour",
+                                                  "id": "tp1148",
+                                                  "fields": {
+                                                    "NAME": "blue"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_wait_seconds",
+                                                "id": "tp1150",
+                                                "inputs": {
+                                                  "SECONDS": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "tp1151",
+                                                      "fields": {
+                                                        "NUM": 0.7
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_np_fill",
+                                                    "id": "tp1153",
+                                                    "inputs": {
+                                                      "COLOUR": {
+                                                        "block": {
+                                                          "type": "xrp_np_colour",
+                                                          "id": "tp1152",
+                                                          "fields": {
+                                                            "NAME": "white"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_wait_seconds",
+                                                        "id": "tp1154",
+                                                        "inputs": {
+                                                          "SECONDS": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp1155",
+                                                              "fields": {
+                                                                "NUM": 0.7
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_np_clear",
+                                                            "id": "tp1156",
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "controls_for",
+                                                                "id": "tp1168",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_px"
+                                                                  }
+                                                                },
+                                                                "inputs": {
+                                                                  "FROM": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp1169",
+                                                                      "fields": {
+                                                                        "NUM": 0
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "TO": {
+                                                                    "block": {
+                                                                      "type": "math_arithmetic",
+                                                                      "id": "tp1159",
+                                                                      "fields": {
+                                                                        "OP": "MINUS"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "A": {
+                                                                          "block": {
+                                                                            "type": "xrp_np_count",
+                                                                            "id": "tp1157"
+                                                                          }
+                                                                        },
+                                                                        "B": {
+                                                                          "block": {
+                                                                            "type": "math_number",
+                                                                            "id": "tp1158",
+                                                                            "fields": {
+                                                                              "NUM": 1
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "BY": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp1170",
+                                                                      "fields": {
+                                                                        "NUM": 1
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "DO": {
+                                                                    "block": {
+                                                                      "type": "xrp_np_set_pixel",
+                                                                      "id": "tp1165",
+                                                                      "inputs": {
+                                                                        "INDEX": {
+                                                                          "block": {
+                                                                            "type": "variables_get",
+                                                                            "id": "tp1160",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_px"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "COLOUR": {
+                                                                          "block": {
+                                                                            "type": "xrp_np_rgb",
+                                                                            "id": "tp1161",
+                                                                            "inputs": {
+                                                                              "RED": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "tp1162",
+                                                                                  "fields": {
+                                                                                    "NUM": 0
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "GREEN": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "tp1163",
+                                                                                  "fields": {
+                                                                                    "NUM": 0
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "BLUE": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "tp1164",
+                                                                                  "fields": {
+                                                                                    "NUM": 255
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "xrp_wait_seconds",
+                                                                          "id": "tp1166",
+                                                                          "inputs": {
+                                                                            "SECONDS": {
+                                                                              "shadow": {
+                                                                                "type": "math_number",
+                                                                                "id": "tp1167",
+                                                                                "fields": {
+                                                                                  "NUM": 0.15
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_wait_seconds",
+                                                                    "id": "tp1171",
+                                                                    "inputs": {
+                                                                      "SECONDS": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "tp1172",
+                                                                          "fields": {
+                                                                            "NUM": 0.5
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_np_auto_show",
+                                                                        "id": "tp1173",
+                                                                        "fields": {
+                                                                          "MODE": "False"
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_np_clear",
+                                                                            "id": "tp1174",
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_np_set_pixel",
+                                                                                "id": "tp1176",
+                                                                                "inputs": {
+                                                                                  "INDEX": {
+                                                                                    "shadow": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "tp1177",
+                                                                                      "fields": {
+                                                                                        "NUM": 0
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "COLOUR": {
+                                                                                    "block": {
+                                                                                      "type": "xrp_np_colour",
+                                                                                      "id": "tp1175",
+                                                                                      "fields": {
+                                                                                        "NAME": "orange"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_np_show",
+                                                                                    "id": "tp1178",
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "controls_repeat_ext",
+                                                                                        "id": "tp1184",
+                                                                                        "inputs": {
+                                                                                          "TIMES": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "tp1185",
+                                                                                              "fields": {
+                                                                                                "NUM": 16
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "DO": {
+                                                                                            "block": {
+                                                                                              "type": "xrp_np_shift",
+                                                                                              "id": "tp1179",
+                                                                                              "inputs": {
+                                                                                                "STEP": {
+                                                                                                  "shadow": {
+                                                                                                    "type": "math_number",
+                                                                                                    "id": "tp1180",
+                                                                                                    "fields": {
+                                                                                                      "NUM": 1
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              },
+                                                                                              "next": {
+                                                                                                "block": {
+                                                                                                  "type": "xrp_np_show",
+                                                                                                  "id": "tp1181",
+                                                                                                  "next": {
+                                                                                                    "block": {
+                                                                                                      "type": "xrp_wait_seconds",
+                                                                                                      "id": "tp1182",
+                                                                                                      "inputs": {
+                                                                                                        "SECONDS": {
+                                                                                                          "shadow": {
+                                                                                                            "type": "math_number",
+                                                                                                            "id": "tp1183",
+                                                                                                            "fields": {
+                                                                                                              "NUM": 0.1
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_print",
+                                                                                            "id": "tp1186",
+                                                                                            "inputs": {
+                                                                                              "TEXT": {
+                                                                                                "shadow": {
+                                                                                                  "type": "text",
+                                                                                                  "id": "tp1187",
+                                                                                                  "fields": {
+                                                                                                    "TEXT": "Rainbow, Stop to end"
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "variables_set",
+                                                                                                "id": "tp1188",
+                                                                                                "fields": {
+                                                                                                  "VAR": {
+                                                                                                    "id": "v_offset"
+                                                                                                  }
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "VALUE": {
+                                                                                                    "shadow": {
+                                                                                                      "type": "math_number",
+                                                                                                      "id": "tp1189",
+                                                                                                      "fields": {
+                                                                                                        "NUM": 0
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_forever",
+                                                                                                    "id": "tp1197",
+                                                                                                    "inputs": {
+                                                                                                      "DO": {
+                                                                                                        "block": {
+                                                                                                          "type": "xrp_np_rainbow",
+                                                                                                          "id": "tp1191",
+                                                                                                          "inputs": {
+                                                                                                            "OFFSET": {
+                                                                                                              "block": {
+                                                                                                                "type": "variables_get",
+                                                                                                                "id": "tp1190",
+                                                                                                                "fields": {
+                                                                                                                  "VAR": {
+                                                                                                                    "id": "v_offset"
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          },
+                                                                                                          "next": {
+                                                                                                            "block": {
+                                                                                                              "type": "xrp_np_show",
+                                                                                                              "id": "tp1192",
+                                                                                                              "next": {
+                                                                                                                "block": {
+                                                                                                                  "type": "math_change",
+                                                                                                                  "id": "tp1193",
+                                                                                                                  "fields": {
+                                                                                                                    "VAR": {
+                                                                                                                      "id": "v_offset"
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "inputs": {
+                                                                                                                    "DELTA": {
+                                                                                                                      "shadow": {
+                                                                                                                        "type": "math_number",
+                                                                                                                        "id": "tp1194",
+                                                                                                                        "fields": {
+                                                                                                                          "NUM": 1
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "next": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_wait_seconds",
+                                                                                                                      "id": "tp1195",
+                                                                                                                      "inputs": {
+                                                                                                                        "SECONDS": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "math_number",
+                                                                                                                            "id": "tp1196",
+                                                                                                                            "fields": {
+                                                                                                                              "NUM": 0.03
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "offset",
+      "id": "v_offset"
+    },
+    {
+      "name": "px",
+      "id": "v_px"
+    }
+  ]
+}

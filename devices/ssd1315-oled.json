@@ -1,0 +1,1047 @@
+{
+  "manifestVersion": 1,
+  "id": "ssd1315-oled",
+  "name": {
+    "en": "OLED screen (SSD1315 / SSD1306)",
+    "nl": "OLED-scherm (SSD1315 / SSD1306)"
+  },
+  "description": {
+    "en": "128x64 monochrome OLED on the Qwiic connector. Text, numbers, drawing, a compass arrow and sketched pictures.",
+    "nl": "128x64 monochroom OLED op de Qwiic-connector. Tekst, getallen, tekenen, een kompaspijl en getekende plaatjes."
+  },
+  "version": "2.2.0",
+  "author": "XRP Blocks (Limpopo DoE fork)",
+  "licence": "MIT",
+  "homepage": "https://www.displaymodule.com/apps/resources/dm-oled096-636-controller-ic-datasheet",
+  "category": {
+    "key": "OLED",
+    "label": {
+      "en": "OLED",
+      "nl": "OLED"
+    },
+    "colour": "#4DB6AC",
+    "colourDark": "#00796B",
+    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1.6 1.6v12.8h14.8V5.6z\"/><path d=\"M6.4 8h8v1.7h-8zm0 3.2h11.2v1.7H6.4zm0 3.2h6.4v1.7H6.4z\"/></svg>"
+  },
+  "driver": {
+    "filename": "SSD1315.py",
+    "marker": "SSD1315",
+    "source": "\"\"\"SSD1315 - 128x64 monochrome OLED driver for MicroPython on the XRP.\n\nFor the DisplayModule DM-OLED096-636 and the many 0.96\" I2C OLED boards that\nuse the same controller. The SSD1315 takes the same commands as the older and\nfar more common SSD1306, so this driver works with both.\n\nController: Solomon Systech SSD1315, 128 x 64 passive-matrix OLED.\n\nWIRING\n------\nThe display is an I2C device, so it goes on a Qwiic connector: four wires,\n3.3 V, GND, SDA, SCL. Qwiic 0 is normally free; Qwiic 1 shares the bus the\nIMU sits on. This driver tries both.\n\nIf your module came without a breakout board, check its own datasheet for the\nsupply voltage before wiring it to 3.3 V. The bare panel runs at 2.8 V; the\nusual breakout boards include a regulator and accept 3.3 V.\n\nADDRESSES\n---------\nThe datasheet gives the slave address as 0x78 or 0x7A, which is the 8-bit\nform including the read/write bit. MicroPython uses 7-bit addresses, so those\nare 0x3C and 0x3D here. The choice is made by the SA0 pin, usually a solder\nlink on the back of the module. Almost every board ships as 0x3C.\n\nMISSING DISPLAY\n---------------\nIf nothing answers, this driver says so on the console and then quietly does\nnothing, rather than stopping the program. A robot should keep driving when\nits screen falls off. `is_connected()` tells a program which it is.\n\nWHAT IT DRAWS WITH\n------------------\nMicroPython's own `framebuf` module, which carries an 8 x 8 font. That gives\n16 characters across and 8 lines down, and it is why the text blocks count\nlines 1 to 8.\n\nPICTURES\n--------\ndraw_picture() takes a string made by tools/oled-designer.html, which is a\nmouse-driven sketch pad the size of the screen. The format is described at\n_decode_picture() below: it is plain text, so it travels in a Blockly text\nblock, in an email, or in a lesson file.\n\"\"\"\n\ntry:\n    import framebuf\nexcept ImportError:\n    raise ImportError(\n        \"This MicroPython build has no framebuf module, which the OLED \"\n        \"driver needs. Update the firmware on the XRP.\"\n    )\n\nimport math\nimport time\nfrom machine import I2C, Pin\n\n# (bus id, named sda, named scl, fallback sda gpio, fallback scl gpio)\n# Qwiic 1 shares the bus the IMU uses; Qwiic 0 is normally free.\n_BUS_CANDIDATES = (\n    (1, \"I2C_SDA_1\", \"I2C_SCL_1\", 38, 39),\n    (0, \"I2C_SDA_0\", \"I2C_SCL_0\", 4, 5),\n)\n\n# Commands used here. Names follow the SSD1315 datasheet.\n_SET_CONTRAST = 0x81\n_SET_ENTIRE_ON = 0xA4\n_SET_NORM_INV = 0xA6\n_SET_DISP = 0xAE\n_SET_MEM_ADDR = 0x20\n_SET_COL_ADDR = 0x21\n_SET_PAGE_ADDR = 0x22\n_SET_DISP_START_LINE = 0x40\n_SET_SEG_REMAP = 0xA0\n_SET_MUX_RATIO = 0xA8\n_SET_COM_OUT_DIR = 0xC0\n_SET_DISP_OFFSET = 0xD3\n_SET_COM_PIN_CFG = 0xDA\n_SET_DISP_CLK_DIV = 0xD5\n_SET_PRECHARGE = 0xD9\n_SET_VCOM_DESEL = 0xDB\n_SET_CHARGE_PUMP = 0x8D\n_NOP = 0xE3\n\n_CONTROL_CMD = 0x00\n_CONTROL_DATA = 0x40\n\n\ndef _open_bus(bus_id, sda_name, scl_name, sda_gpio, scl_gpio, freq):\n    \"\"\"Open an I2C bus by board pin name, falling back to raw GPIO numbers.\"\"\"\n    try:\n        return I2C(bus_id, sda=Pin(sda_name), scl=Pin(scl_name), freq=freq)\n    except Exception:\n        return I2C(bus_id, sda=Pin(sda_gpio), scl=Pin(scl_gpio), freq=freq)\n\n\ndef scan(freq=400000):\n    \"\"\"Return a list of (bus_id, address) for every OLED found.\"\"\"\n    found = []\n    for spec in _BUS_CANDIDATES:\n        try:\n            bus = _open_bus(spec[0], spec[1], spec[2], spec[3], spec[4], freq)\n            for addr in bus.scan():\n                if addr in (0x3C, 0x3D):\n                    found.append((spec[0], addr))\n        except Exception:\n            pass\n    return found\n\n\n_B64 = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\"\n\n\ndef _b64_decode(text):\n    \"\"\"Decode base64 without binascii, so the driver has no dependency on it.\"\"\"\n    out = bytearray()\n    accumulator = 0\n    bits = 0\n    for char in text:\n        if char == \"=\":\n            break\n        index = _B64.find(char)\n        if index < 0:\n            continue                     # whitespace and line breaks are ignored\n        accumulator = (accumulator << 6) | index\n        bits += 6\n        if bits >= 8:\n            bits -= 8\n            out.append((accumulator >> bits) & 0xFF)\n    return out\n\n\ndef _rle_decode(data):\n    \"\"\"Undo the (count, value) pairs the designer writes for blank areas.\"\"\"\n    out = bytearray()\n    for i in range(0, len(data) - 1, 2):\n        out.extend(bytes([data[i + 1]]) * data[i])\n    return out\n\n\ndef _decode_picture(text):\n    \"\"\"Turn a designer string into (width, height, pixels).\n\n    The format is one line of plain text:\n\n        XRPI1:<width>:<height>:<base64>\n\n    The decoded bytes start with a mode byte: 0 means the screen bytes follow\n    as they are, 1 means they are (count, value) pairs. The pixels themselves\n    are MONO_VLSB, the same layout the SSD1315 wants, so they go straight out.\n    \"\"\"\n    text = str(text).strip()\n    if not text.startswith(\"XRPI1:\"):\n        raise ValueError(\n            \"That is not a picture from the OLED designer. Draw one in \"\n            \"tools/oled-designer.html and use its Copy button.\"\n        )\n\n    parts = text.split(\":\")\n    if len(parts) < 4:\n        raise ValueError(\"The picture text is incomplete.\")\n\n    width = int(parts[1])\n    height = int(parts[2])\n    if width <= 0 or height <= 0 or height % 8:\n        raise ValueError(\"A picture must be at least 1 wide and a multiple of 8 high.\")\n\n    raw = _b64_decode(parts[3])\n    if not raw:\n        raise ValueError(\"The picture text has no picture in it.\")\n\n    pixels = raw[1:] if raw[0] == 0 else _rle_decode(raw[1:])\n    needed = width * (height // 8)\n    if len(pixels) < needed:\n        raise ValueError(\n            \"The picture is %d bytes short of the %dx%d it claims to be.\"\n            % (needed - len(pixels), width, height)\n        )\n    return width, height, bytearray(pixels[:needed])\n\n\ndef _format(value):\n    \"\"\"Print a number the way a learner expects: 3 not 3.0, 1.25 not 1.2500001.\"\"\"\n    if isinstance(value, bool):\n        return \"yes\" if value else \"no\"\n    if isinstance(value, float):\n        if value != value:               # NaN\n            return \"?\"\n        rounded = round(value, 2)\n        if rounded == int(rounded):\n            return str(int(rounded))\n        return str(rounded)\n    return str(value)\n\n\nclass SSD1315:\n    \"\"\"A 128 x 64 SSD1315 or SSD1306 OLED on the XRP's Qwiic bus.\"\"\"\n\n    def __init__(self, address=0x3C, width=128, height=64,\n                 i2c=None, freq=400000, auto_show=True):\n        if address not in (0x3C, 0x3D):\n            raise ValueError(\"OLED address must be 0x3C or 0x3D\")\n\n        self.address = address\n        self.width = int(width)\n        self.height = int(height)\n        self.pages = self.height // 8\n        self.rows = self.pages              # one text row per 8-pixel page\n        self.columns = self.width // 8      # 8 x 8 font\n        self.auto_show = bool(auto_show)\n\n        self._cmd = bytearray(2)\n        self._cmd[0] = _CONTROL_CMD\n        self._line = 0\n        self._scrolling = {}\n        self._glyphs = {}        # scaled-up characters, rendered once each\n        self._picture = None     # (text, width, height, FrameBuffer) most recently drawn\n\n        # One leading control byte, then the pixels, so the whole screen goes\n        # out in a single I2C write.\n        self._buffer = bytearray(1 + self.pages * self.width)\n        self._buffer[0] = _CONTROL_DATA\n        self.frame = framebuf.FrameBuffer(\n            memoryview(self._buffer)[1:], self.width, self.height, framebuf.MONO_VLSB\n        )\n\n        self.i2c = i2c if i2c is not None else self._find_bus(address, freq)\n        self.present = self.i2c is not None\n\n        if self.present:\n            try:\n                self._init_display()\n            except Exception as err:\n                self.present = False\n                print(\"OLED at 0x%02X stopped answering: %s\" % (address, err))\n        else:\n            print(\n                \"No OLED answering at 0x%02X. Check the Qwiic cable and the \"\n                \"address link on the back of the module. The program will \"\n                \"carry on without the screen.\" % address\n            )\n\n    # -- setup ------------------------------------------------------------\n\n    @staticmethod\n    def _find_bus(address, freq):\n        for spec in _BUS_CANDIDATES:\n            try:\n                bus = _open_bus(spec[0], spec[1], spec[2], spec[3], spec[4], freq)\n                if address in bus.scan():\n                    return bus\n            except Exception:\n                pass\n        return None\n\n    def _write_cmd(self, command):\n        self._cmd[1] = command & 0xFF\n        self.i2c.writeto(self.address, self._cmd)\n\n    def _init_display(self):\n        for command in (\n            _SET_DISP,                      # display off while we set up\n            _SET_MEM_ADDR, 0x00,            # horizontal addressing\n            _SET_DISP_START_LINE,           # start at line 0\n            _SET_SEG_REMAP | 0x01,          # column 127 is segment 0\n            _SET_MUX_RATIO, self.height - 1,\n            _SET_COM_OUT_DIR | 0x08,        # scan from COM[N-1] to COM0\n            _SET_DISP_OFFSET, 0x00,\n            _SET_COM_PIN_CFG, 0x12 if self.height > 32 else 0x02,\n            _SET_DISP_CLK_DIV, 0x80,\n            _SET_PRECHARGE, 0xF1,\n            _SET_VCOM_DESEL, 0x30,\n            _SET_CONTRAST, 0x7F,\n            _SET_ENTIRE_ON,                 # follow the RAM, not all-on\n            _SET_NORM_INV,                  # not inverted\n            _SET_CHARGE_PUMP, 0x14,         # internal charge pump, 7.5 V\n            _SET_DISP | 0x01,               # display on\n        ):\n            self._write_cmd(command)\n        self.clear()\n\n    # -- sending pixels ---------------------------------------------------\n\n    def show(self):\n        \"\"\"Send the picture we have built to the screen.\"\"\"\n        if not self.present:\n            return\n        try:\n            self._write_cmd(_SET_COL_ADDR)\n            self._write_cmd(0)\n            self._write_cmd(self.width - 1)\n            self._write_cmd(_SET_PAGE_ADDR)\n            self._write_cmd(0)\n            self._write_cmd(self.pages - 1)\n            self.i2c.writeto(self.address, self._buffer)\n        except Exception as err:\n            self.present = False\n            print(\"Lost the OLED at 0x%02X: %s\" % (self.address, err))\n\n    def set_auto_show(self, on=True):\n        \"\"\"Whether every change appears at once, or waits for show().\"\"\"\n        self.auto_show = bool(on)\n        if self.auto_show:\n            self.show()\n\n    def _auto(self):\n        if self.auto_show:\n            self.show()\n\n    # -- text -------------------------------------------------------------\n\n    def clear(self):\n        \"\"\"Wipe the screen and start printing from the top again.\"\"\"\n        self.frame.fill(0)\n        self._line = 0\n        self._scrolling.clear()\n        self._auto()\n\n    def _row_y(self, line):\n        \"\"\"Line 1 is the top row. Out-of-range lines are pulled back in.\"\"\"\n        line = int(line)\n        if line < 1:\n            line = 1\n        if line > self.rows:\n            line = self.rows\n        return (line - 1) * 8\n\n    def write_line(self, message, line):\n        \"\"\"Put text on one of the 8 text rows, replacing what was there.\"\"\"\n        y = self._row_y(line)\n        self._scrolling.pop(y, None)\n        self.frame.fill_rect(0, y, self.width, 8, 0)\n        self.frame.text(str(message), 0, y, 1)\n        self._auto()\n\n    def scroll_text(self, message, line=1, speed=30):\n        \"\"\"Call repeatedly. Scroll long text left, pausing at each end.\n\n        Speed is pixels per second (1..120). No sleeps: other robot work can\n        continue. Short text stays still. Honour the normal auto-show setting.\n        \"\"\"\n        if not self.present:\n            return\n        text = _format(message).replace('\\n', ' ').replace('\\r', ' ')\n        speed = float(speed)\n        if not math.isfinite(speed):\n            raise ValueError('Scroll speed must be finite')\n        speed = max(1, min(120, speed))\n        y = self._row_y(line)\n        now = time.ticks_ms()\n        state = self._scrolling.get(y)\n        if state is None or state['text'] != text or state['speed'] != speed:\n            state = {'text': text, 'speed': speed, 'offset': 0, 'last': now, 'wait': 700}\n            self._scrolling[y] = state\n        else:\n            end = max(0, len(text) * 8 - self.width)\n            if end == 0:\n                return\n            elapsed = time.ticks_diff(now, state['last'])\n            interval = max(1, int(1000 / speed))\n            if elapsed < state['wait']:\n                return\n            if state['offset'] >= end:\n                state['offset'] = 0\n                state['wait'] = 700\n            else:\n                # Bound catch-up so a slow loop does not jump over the text.\n                state['offset'] = min(end, state['offset'] + max(1, min(4, elapsed // interval)))\n                state['wait'] = 700 if state['offset'] == end else interval\n            state['last'] = now\n        self.frame.fill_rect(0, y, self.width, 8, 0)\n        # Render only visible characters, avoiding a large off-screen draw.\n        start = state['offset'] // 8\n        self.frame.text(text[start:start + self.columns + 1], -(state['offset'] % 8), y, 1)\n        self._auto()\n\n    def write_value(self, label, value, line):\n        \"\"\"Put \"label: value\" on one row. The everyday sensor-reading block.\"\"\"\n        self.write_line(\"%s: %s\" % (label, _format(value)), line)\n\n    def write_at(self, message, x, y):\n        \"\"\"Put text anywhere, by pixel. Nothing already on screen is cleared.\"\"\"\n        self.frame.text(str(message), int(x), int(y), 1)\n        self._auto()\n\n    def println(self, message):\n        \"\"\"Print a line like a console: fills down, then scrolls.\"\"\"\n        if self._line >= self.rows:\n            self.frame.scroll(0, -8)\n            y = (self.rows - 1) * 8\n            self.frame.fill_rect(0, y, self.width, 8, 0)\n        else:\n            y = self._line * 8\n            self._line += 1\n        self.frame.text(str(message), 0, y, 1)\n        self._auto()\n\n    # -- drawing ----------------------------------------------------------\n\n    def set_pixel(self, x, y, on=True):\n        \"\"\"Light or clear one pixel. x is 0 to 127, y is 0 to 63.\"\"\"\n        self.frame.pixel(int(x), int(y), 1 if on else 0)\n        self._auto()\n\n    def line(self, x1, y1, x2, y2, on=True):\n        \"\"\"A straight line between two points.\"\"\"\n        self.frame.line(int(x1), int(y1), int(x2), int(y2), 1 if on else 0)\n        self._auto()\n\n    def rect(self, x, y, width, height, filled=False, on=True):\n        \"\"\"A rectangle, outline or solid.\"\"\"\n        x, y = int(x), int(y)\n        width, height = int(width), int(height)\n        colour = 1 if on else 0\n        if filled:\n            self.frame.fill_rect(x, y, width, height, colour)\n        else:\n            self.frame.rect(x, y, width, height, colour)\n        self._auto()\n\n    def circle(self, x, y, radius, filled=False, on=True):\n        \"\"\"A circle, outline or solid.\n\n        Drawn here with the midpoint algorithm rather than framebuf.ellipse,\n        so the library does not depend on how new the firmware's framebuf is.\n        \"\"\"\n        cx, cy, r = int(x), int(y), int(radius)\n        colour = 1 if on else 0\n        if r < 0:\n            return\n\n        px, py = r, 0\n        error = 1 - r\n        while px >= py:\n            if filled:\n                self.frame.hline(cx - px, cy + py, 2 * px + 1, colour)\n                self.frame.hline(cx - px, cy - py, 2 * px + 1, colour)\n                self.frame.hline(cx - py, cy + px, 2 * py + 1, colour)\n                self.frame.hline(cx - py, cy - px, 2 * py + 1, colour)\n            else:\n                for ox, oy in ((px, py), (py, px), (-px, py), (-py, px),\n                               (-px, -py), (-py, -px), (px, -py), (py, -px)):\n                    self.frame.pixel(cx + ox, cy + oy, colour)\n            py += 1\n            if error < 0:\n                error += 2 * py + 1\n            else:\n                px -= 1\n                error += 2 * (py - px) + 1\n        self._auto()\n\n    def bar(self, value, minimum=0, maximum=100, line=8, on=True):\n        \"\"\"A horizontal bar across one text row, for a sensor reading.\"\"\"\n        y = self._row_y(line)\n        try:\n            span = float(maximum) - float(minimum)\n            fraction = 0.0 if span == 0 else (float(value) - float(minimum)) / span\n        except (TypeError, ValueError):\n            fraction = 0.0\n        if fraction < 0:\n            fraction = 0.0\n        if fraction > 1:\n            fraction = 1.0\n\n        colour = 1 if on else 0\n        self.frame.fill_rect(0, y, self.width, 8, 0)\n        self.frame.rect(0, y, self.width, 8, colour)\n        filled = int((self.width - 4) * fraction)\n        if filled > 0:\n            self.frame.fill_rect(2, y + 2, filled, 4, colour)\n        self._auto()\n\n    def _fill_triangle(self, points, colour):\n        \"\"\"Solid triangle, used for the arrow head.\"\"\"\n        (x1, y1), (x2, y2), (x3, y3) = points\n        left = max(0, min(x1, x2, x3))\n        right = min(self.width - 1, max(x1, x2, x3))\n        top = max(0, min(y1, y2, y3))\n        bottom = min(self.height - 1, max(y1, y2, y3))\n\n        def side(ax, ay, bx, by, px, py):\n            return (bx - ax) * (py - ay) - (by - ay) * (px - ax)\n\n        for py in range(top, bottom + 1):\n            for px in range(left, right + 1):\n                a = side(x1, y1, x2, y2, px, py)\n                b = side(x2, y2, x3, y3, px, py)\n                c = side(x3, y3, x1, y1, px, py)\n                if (a >= 0 and b >= 0 and c >= 0) or (a <= 0 and b <= 0 and c <= 0):\n                    self.frame.pixel(px, py, colour)\n\n    def arrow(self, angle, x=None, y=None, size=None, on=True):\n        \"\"\"An arrow pointing at a compass angle.\n\n        0 degrees is up, 90 is right, 180 is down, 270 is left, which is what\n        the gyro heading block reports. Plug that block straight in and the\n        arrow swings like a compass needle as the robot turns.\n        \"\"\"\n        try:\n            angle = float(angle)\n        except (TypeError, ValueError):\n            angle = 0.0\n\n        cx = self.width // 2 if x is None else int(x)\n        cy = self.height // 2 if y is None else int(y)\n        length = (min(self.width, self.height) // 2 - 2) if size is None else int(size)\n        if length < 3:\n            length = 3\n\n        radians = math.radians(angle)\n        dx = math.sin(radians)\n        dy = -math.cos(radians)          # screen y grows downwards\n\n        tip_x = int(round(cx + dx * length))\n        tip_y = int(round(cy + dy * length))\n        tail_x = int(round(cx - dx * length * 0.75))\n        tail_y = int(round(cy - dy * length * 0.75))\n\n        colour = 1 if on else 0\n        self.frame.line(tail_x, tail_y, tip_x, tip_y, colour)\n\n        # The head: a solid triangle sitting on the shaft, behind the tip.\n        head = length * 0.45\n        spread = length * 0.22\n        base_x = cx + dx * (length - head)\n        base_y = cy + dy * (length - head)\n        self._fill_triangle((\n            (tip_x, tip_y),\n            (int(round(base_x - dy * spread)), int(round(base_y + dx * spread))),\n            (int(round(base_x + dy * spread)), int(round(base_y - dx * spread))),\n        ), colour)\n        self._auto()\n\n    def _glyph(self, char):\n        \"\"\"The 8x8 font's picture of one character, as rows of 0 and 1.\"\"\"\n        if char in self._glyphs:\n            return self._glyphs[char]\n        buffer = bytearray(8)\n        cell = framebuf.FrameBuffer(buffer, 8, 8, framebuf.MONO_VLSB)\n        cell.text(char, 0, 0, 1)\n        rows = [[cell.pixel(px, py) for px in range(8)] for py in range(8)]\n        if len(self._glyphs) < 64:\n            self._glyphs[char] = rows\n        return rows\n\n    def big(self, message, scale=3, x=None, y=None, on=True):\n        \"\"\"Text drawn several times its normal size.\n\n        The 8 x 8 font blown up, so \"^\" or \">\" becomes a chunky arrow and a\n        countdown digit can be read from across the room.\n        \"\"\"\n        message = str(message)\n        scale = int(scale)\n        if scale < 1:\n            scale = 1\n\n        block_width = 8 * scale\n        total = block_width * len(message)\n        start_x = (self.width - total) // 2 if x is None else int(x)\n        start_y = (self.height - block_width) // 2 if y is None else int(y)\n\n        colour = 1 if on else 0\n        for index, char in enumerate(message):\n            rows = self._glyph(char)\n            origin_x = start_x + index * block_width\n            for row, pixels in enumerate(rows):\n                for column, lit in enumerate(pixels):\n                    if lit:\n                        self.frame.fill_rect(\n                            origin_x + column * scale,\n                            start_y + row * scale,\n                            scale, scale, colour,\n                        )\n        self._auto()\n\n    def draw_picture(self, text, x=0, y=0):\n        \"\"\"Draw a picture made in tools/oled-designer.html.\n\n        The decoded picture is kept, so redrawing the same one inside a loop\n        costs nothing after the first time.\n        \"\"\"\n        text = str(text)\n        if self._picture is None or self._picture[0] != text:\n            width, height, pixels = _decode_picture(text)\n            source = framebuf.FrameBuffer(pixels, width, height, framebuf.MONO_VLSB)\n            self._picture = (text, width, height, source)\n        self.frame.blit(self._picture[3], int(x), int(y))\n        self._auto()\n\n    # -- display control --------------------------------------------------\n\n    def set_brightness(self, percent):\n        \"\"\"Contrast, 0 to 100 percent. The panel is readable well below 50.\"\"\"\n        if not self.present:\n            return\n        try:\n            percent = float(percent)\n        except (TypeError, ValueError):\n            percent = 50.0\n        if percent < 0:\n            percent = 0.0\n        if percent > 100:\n            percent = 100.0\n        self._write_cmd(_SET_CONTRAST)\n        self._write_cmd(int(percent * 255 / 100))\n\n    def invert(self, on=True):\n        \"\"\"Swap lit and unlit pixels. Nothing in the picture changes.\"\"\"\n        if not self.present:\n            return\n        self._write_cmd(_SET_NORM_INV | (1 if on else 0))\n\n    def power(self, on=True):\n        \"\"\"Switch the panel off to save current. The picture is kept.\"\"\"\n        if not self.present:\n            return\n        self._write_cmd(_SET_DISP | (1 if on else 0))\n\n    # -- questions a program can ask --------------------------------------\n\n    def is_connected(self):\n        \"\"\"True if the display answers right now.\"\"\"\n        if self.i2c is None:\n            return False\n        try:\n            self._write_cmd(_NOP)\n            self.present = True\n        except Exception:\n            self.present = False\n        return self.present\n"
+  },
+  "instance": {
+    "name": "oled",
+    "import": "from SSD1315 import SSD1315",
+    "create": "SSD1315()",
+    "createConfigured": "SSD1315(address={ADDR})"
+  },
+  "lists": {
+    "lines": [
+      {
+        "label": "1",
+        "value": "1"
+      },
+      {
+        "label": "2",
+        "value": "2"
+      },
+      {
+        "label": "3",
+        "value": "3"
+      },
+      {
+        "label": "4",
+        "value": "4"
+      },
+      {
+        "label": "5",
+        "value": "5"
+      },
+      {
+        "label": "6",
+        "value": "6"
+      },
+      {
+        "label": "7",
+        "value": "7"
+      },
+      {
+        "label": "8",
+        "value": "8"
+      }
+    ],
+    "addresses": [
+      {
+        "label": "0x3C",
+        "value": "0x3c"
+      },
+      {
+        "label": "0x3D",
+        "value": "0x3d"
+      }
+    ],
+    "sizes": [
+      {
+        "label": {
+          "en": "2x",
+          "nl": "2x"
+        },
+        "value": "2"
+      },
+      {
+        "label": {
+          "en": "3x",
+          "nl": "3x"
+        },
+        "value": "3"
+      },
+      {
+        "label": {
+          "en": "4x",
+          "nl": "4x"
+        },
+        "value": "4"
+      },
+      {
+        "label": {
+          "en": "6x",
+          "nl": "6x"
+        },
+        "value": "6"
+      }
+    ],
+    "onoff": [
+      {
+        "label": {
+          "en": "on",
+          "nl": "aan"
+        },
+        "value": "ON",
+        "code": "True"
+      },
+      {
+        "label": {
+          "en": "off",
+          "nl": "uit"
+        },
+        "value": "OFF",
+        "code": "False"
+      }
+    ],
+    "fills": [
+      {
+        "label": {
+          "en": "outline",
+          "nl": "omtrek"
+        },
+        "value": "OUTLINE",
+        "code": "False"
+      },
+      {
+        "label": {
+          "en": "filled",
+          "nl": "gevuld"
+        },
+        "value": "FILLED",
+        "code": "True"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "type": "xrp_oled_setup",
+      "text": {
+        "en": "set up OLED screen at address %1",
+        "nl": "stel OLED-scherm in op adres %1"
+      },
+      "tooltip": {
+        "en": "Find the OLED on a Qwiic connector. Almost every module is 0x3C; the link on the back changes it to 0x3D. Use this once, at the start.",
+        "nl": "Zoek de OLED op een Qwiic-connector. Bijna elke module is 0x3C; de brug aan de achterkant maakt er 0x3D van. Gebruik dit een keer, aan het begin."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ADDR",
+          "options": "$addresses"
+        }
+      ],
+      "shape": "statement",
+      "configuresInstance": true,
+      "code": ""
+    },
+    {
+      "type": "xrp_oled_clear",
+      "text": {
+        "en": "clear the OLED screen",
+        "nl": "wis het OLED-scherm"
+      },
+      "tooltip": {
+        "en": "Wipe the screen and start printing from the top line again.",
+        "nl": "Wis het scherm en begin weer bovenaan met printen."
+      },
+      "shape": "statement",
+      "code": "oled.clear()\n"
+    },
+    {
+      "type": "xrp_oled_print",
+      "text": {
+        "en": "OLED print %1",
+        "nl": "OLED print %1"
+      },
+      "tooltip": {
+        "en": "Print a line at the bottom, like the console. After eight lines the screen scrolls up.",
+        "nl": "Print een regel onderaan, zoals de console. Na acht regels schuift het scherm omhoog."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.println({MESSAGE})\n"
+    },
+    {
+      "type": "xrp_oled_line",
+      "text": {
+        "en": "show %1 on OLED line %2",
+        "nl": "toon %1 op OLED-regel %2"
+      },
+      "tooltip": {
+        "en": "Put text on one of the eight lines, replacing whatever was there. Sixteen characters fit on a line.",
+        "nl": "Zet tekst op een van de acht regels en vervang wat er stond. Er passen zestien tekens op een regel."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.write_line({MESSAGE}, {LINE})\n"
+    },
+    {
+      "type": "xrp_oled_value",
+      "text": {
+        "en": "show %1 = %2 on OLED line %3",
+        "nl": "toon %1 = %2 op OLED-regel %3"
+      },
+      "tooltip": {
+        "en": "Show a named reading, like \"distance: 24\". Whole numbers lose their decimal point and long decimals are rounded to two places.",
+        "nl": "Toon een meting met naam, zoals \"afstand: 24\". Hele getallen verliezen de komma en lange decimalen worden op twee cijfers afgerond."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "LABEL",
+          "default": "''"
+        },
+        {
+          "type": "value",
+          "name": "VALUE",
+          "default": "0"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.write_value({LABEL}, {VALUE}, {LINE})\n"
+    },
+    {
+      "type": "xrp_oled_at",
+      "text": {
+        "en": "write %1 on OLED at x %2 y %3",
+        "nl": "schrijf %1 op OLED bij x %2 y %3"
+      },
+      "tooltip": {
+        "en": "Put text anywhere by pixel. x runs 0 to 127 across, y runs 0 to 63 down. Nothing already on the screen is cleared.",
+        "nl": "Zet tekst ergens neer per pixel. x loopt van 0 tot 127, y van 0 tot 63. Wat er al staat blijft staan."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "number",
+          "name": "X",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "Y",
+          "default": 0
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.write_at({MESSAGE}, {X}, {Y})\n"
+    },
+    {
+      "type": "xrp_oled_show",
+      "text": {
+        "en": "update the OLED now",
+        "nl": "werk de OLED nu bij"
+      },
+      "tooltip": {
+        "en": "Send the picture to the screen. Only needed when updating is set to \"only when I say update\".",
+        "nl": "Stuur de afbeelding naar het scherm. Alleen nodig bij \"alleen als ik bijwerk zeg\"."
+      },
+      "shape": "statement",
+      "code": "oled.show()\n"
+    },
+    {
+      "type": "xrp_oled_auto_show",
+      "text": {
+        "en": "update OLED %1",
+        "nl": "werk OLED bij %1"
+      },
+      "tooltip": {
+        "en": "Choose whether every change appears at once, or waits for the update block. Waiting is much faster when you write several lines in a row.",
+        "nl": "Kies of elke wijziging meteen verschijnt of wacht op het bijwerk-blok. Wachten is veel sneller als je meerdere regels achter elkaar schrijft."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "MODE",
+          "options": [
+            {
+              "label": {
+                "en": "straight away",
+                "nl": "meteen"
+              },
+              "value": "True"
+            },
+            {
+              "label": {
+                "en": "only when I say update",
+                "nl": "alleen als ik bijwerk zeg"
+              },
+              "value": "False"
+            }
+          ]
+        }
+      ],
+      "shape": "statement",
+      "code": "oled.set_auto_show({MODE})\n"
+    },
+    {
+      "type": "xrp_oled_brightness",
+      "text": {
+        "en": "set OLED brightness to %1 %%",
+        "nl": "stel OLED-helderheid in op %1 %%"
+      },
+      "tooltip": {
+        "en": "Brightness from 0 to 100 percent. The screen is easy to read well below 50, and a dim screen lasts longer.",
+        "nl": "Helderheid van 0 tot 100 procent. Het scherm is ruim onder de 50 goed leesbaar, en een gedimd scherm gaat langer mee."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "PERCENT",
+          "default": 50
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.set_brightness({PERCENT})\n"
+    },
+    {
+      "type": "xrp_oled_invert",
+      "text": {
+        "en": "OLED colours %1",
+        "nl": "OLED-kleuren %1"
+      },
+      "tooltip": {
+        "en": "Swap lit and unlit pixels. What you have written stays where it is.",
+        "nl": "Wissel brandende en donkere pixels om. Wat je hebt geschreven blijft staan."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "MODE",
+          "options": [
+            {
+              "label": {
+                "en": "normal",
+                "nl": "normaal"
+              },
+              "value": "NORMAL",
+              "code": "False"
+            },
+            {
+              "label": {
+                "en": "inverted",
+                "nl": "omgekeerd"
+              },
+              "value": "INVERTED",
+              "code": "True"
+            }
+          ]
+        }
+      ],
+      "shape": "statement",
+      "code": "oled.invert({MODE})\n"
+    },
+    {
+      "type": "xrp_oled_power",
+      "text": {
+        "en": "switch the OLED screen %1",
+        "nl": "zet het OLED-scherm %1"
+      },
+      "tooltip": {
+        "en": "Switch the panel off to save current. The picture is kept and comes back when you switch it on.",
+        "nl": "Zet het scherm uit om stroom te sparen. De afbeelding blijft bewaard en komt terug als je het aanzet."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": [
+            {
+              "label": {
+                "en": "on",
+                "nl": "aan"
+              },
+              "value": "ON",
+              "code": "True"
+            },
+            {
+              "label": {
+                "en": "off",
+                "nl": "uit"
+              },
+              "value": "OFF",
+              "code": "False"
+            }
+          ]
+        }
+      ],
+      "shape": "statement",
+      "code": "oled.power({STATE})\n"
+    },
+    {
+      "type": "xrp_oled_arrow",
+      "text": {
+        "en": "show arrow on OLED pointing %1 degrees",
+        "nl": "toon pijl op OLED die %1 graden wijst"
+      },
+      "tooltip": {
+        "en": "0 is up, 90 is right, 180 is down, 270 is left. Plug the gyro heading block in and the arrow swings like a compass needle as the robot turns.",
+        "nl": "0 is omhoog, 90 is rechts, 180 is omlaag, 270 is links. Sluit het gyro-kompasblok aan en de pijl draait mee als de robot draait."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "ANGLE",
+          "default": 0
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.arrow({ANGLE})\n"
+    },
+    {
+      "type": "xrp_oled_big",
+      "text": {
+        "en": "show %1 big on OLED, size %2",
+        "nl": "toon %1 groot op OLED, grootte %2"
+      },
+      "tooltip": {
+        "en": "The normal font blown up and centred. A \"^\" becomes a chunky arrow, and a countdown digit can be read from across the room.",
+        "nl": "Het gewone lettertype vergroot en gecentreerd. Een \"^\" wordt een dikke pijl, en een aftelcijfer is van ver te lezen."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "dropdown",
+          "name": "SCALE",
+          "options": "$sizes"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.big({MESSAGE}, {SCALE})\n"
+    },
+    {
+      "type": "xrp_oled_picture",
+      "text": {
+        "en": "show custom picture data %1 on OLED at x %2 y %3",
+        "nl": "toon plaatje %1 op OLED bij x %2 y %3"
+      },
+      "tooltip": {
+        "en": "Draw a picture you sketched with the mouse. Open tools/oled-designer.html, draw, press Copy for XRP Blocks, and paste it into the text block here.",
+        "nl": "Teken een plaatje dat je met de muis hebt gemaakt. Open tools/oled-designer.html, teken, druk op Copy for XRP Blocks en plak het in het tekstblok hier."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "DATA",
+          "default": "''"
+        },
+        {
+          "type": "number",
+          "name": "X",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "Y",
+          "default": 0
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.draw_picture({DATA}, {X}, {Y})\n",
+      "helpUrl": "tools/oled-designer.html"
+    },
+    {
+      "type": "xrp_oled_pixel",
+      "text": {
+        "en": "set OLED pixel x %1 y %2 %3",
+        "nl": "zet OLED-pixel x %1 y %2 %3"
+      },
+      "tooltip": {
+        "en": "One dot. x runs 0 to 127 across, y runs 0 to 63 down.",
+        "nl": "Een stip. x loopt van 0 tot 127, y van 0 tot 63."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "X",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "Y",
+          "default": 0
+        },
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": "$onoff"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.set_pixel({X}, {Y}, {STATE})\n"
+    },
+    {
+      "type": "xrp_oled_draw_line",
+      "text": {
+        "en": "OLED draw line from x %1 y %2 to x %3 y %4",
+        "nl": "OLED teken lijn van x %1 y %2 naar x %3 y %4"
+      },
+      "tooltip": {
+        "en": "A straight line between two points.",
+        "nl": "Een rechte lijn tussen twee punten."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "X1",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "Y1",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "X2",
+          "default": 127
+        },
+        {
+          "type": "number",
+          "name": "Y2",
+          "default": 63
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.line({X1}, {Y1}, {X2}, {Y2})\n"
+    },
+    {
+      "type": "xrp_oled_rect",
+      "text": {
+        "en": "OLED draw %1 rectangle at x %2 y %3 width %4 height %5",
+        "nl": "OLED teken %1 rechthoek bij x %2 y %3 breedte %4 hoogte %5"
+      },
+      "tooltip": {
+        "en": "A rectangle, either just the outline or solid.",
+        "nl": "Een rechthoek, alleen de omtrek of gevuld."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "FILL",
+          "options": "$fills"
+        },
+        {
+          "type": "number",
+          "name": "X",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "Y",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "W",
+          "default": 40
+        },
+        {
+          "type": "number",
+          "name": "H",
+          "default": 20
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.rect({X}, {Y}, {W}, {H}, {FILL})\n"
+    },
+    {
+      "type": "xrp_oled_circle",
+      "text": {
+        "en": "OLED draw %1 circle at x %2 y %3 radius %4",
+        "nl": "OLED teken %1 cirkel bij x %2 y %3 straal %4"
+      },
+      "tooltip": {
+        "en": "A circle, either just the outline or solid. x and y are the middle.",
+        "nl": "Een cirkel, alleen de omtrek of gevuld. x en y zijn het midden."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "FILL",
+          "options": "$fills"
+        },
+        {
+          "type": "number",
+          "name": "X",
+          "default": 64
+        },
+        {
+          "type": "number",
+          "name": "Y",
+          "default": 32
+        },
+        {
+          "type": "number",
+          "name": "R",
+          "default": 20
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.circle({X}, {Y}, {R}, {FILL})\n"
+    },
+    {
+      "type": "xrp_oled_bar",
+      "text": {
+        "en": "OLED bar on line %1 showing %2 from %3 to %4",
+        "nl": "OLED balk op regel %1 toont %2 van %3 tot %4"
+      },
+      "tooltip": {
+        "en": "A bar across one text row that fills up as the reading rises. Good for a distance sensor or a battery level.",
+        "nl": "Een balk over een tekstregel die voller wordt als de meting stijgt. Handig voor een afstandssensor of een accuniveau."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        },
+        {
+          "type": "value",
+          "name": "VALUE",
+          "default": "0"
+        },
+        {
+          "type": "number",
+          "name": "MIN",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "MAX",
+          "default": 100
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.bar({VALUE}, {MIN}, {MAX}, {LINE})\n"
+    },
+    {
+      "type": "xrp_oled_connected",
+      "text": {
+        "en": "OLED is connected",
+        "nl": "OLED is aangesloten"
+      },
+      "tooltip": {
+        "en": "True if the screen answers right now. A program keeps running with the screen unplugged, so this is how it can tell.",
+        "nl": "Waar als het scherm nu antwoordt. Een programma loopt door zonder scherm, dus zo kan het dat merken."
+      },
+      "shape": "value",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL",
+      "code": "oled.is_connected()"
+    },
+    {
+      "type": "xrp_oled_width",
+      "text": {
+        "en": "OLED screen width",
+        "nl": "OLED-schermbreedte"
+      },
+      "tooltip": {
+        "en": "How many pixels across the screen is: 128.",
+        "nl": "Hoeveel pixels het scherm breed is: 128."
+      },
+      "shape": "value",
+      "returns": "Number",
+      "order": "MEMBER",
+      "code": "oled.width"
+    },
+    {
+      "type": "xrp_oled_height",
+      "text": {
+        "en": "OLED screen height",
+        "nl": "OLED-schermhoogte"
+      },
+      "tooltip": {
+        "en": "How many pixels down the screen is: 64.",
+        "nl": "Hoeveel pixels het scherm hoog is: 64."
+      },
+      "shape": "value",
+      "returns": "Number",
+      "order": "MEMBER",
+      "code": "oled.height"
+    },
+    {
+      "type": "xrp_oled_scroll_text",
+      "text": {
+        "en": "OLED scroll %1 on line %2 speed (pixels/sec) %3",
+        "nl": "OLED schuif %1 op regel %2 snelheid (pixels/sec) %3"
+      },
+      "tooltip": {
+        "en": "Put inside a forever loop with a short wait. Long text scrolls left and repeats; short text stays still. Speed 1–120 pixels/sec. Does not pause your program. In manual update mode, also use OLED update.",
+        "nl": "Plaats in een herhaallus met een korte wachttijd. Lange tekst schuift en herhaalt; korte tekst blijft staan. Snelheid 1–120 pixels/sec. Gebruik bij handmatig bijwerken ook OLED update."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": 30
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.scroll_text({MESSAGE}, {LINE}, {SPEED})\n"
+    },
+    {
+      "type": "xrp_oled_icon",
+      "text": {
+        "en": "show OLED icon %1 size %2 at x %3 y %4",
+        "nl": "toon OLED-pictogram %1 grootte %2 bij x %3 y %4"
+      },
+      "tooltip": {
+        "en": "Built-in monochrome icons. Sizes are 16, 24 or 32 pixels square on a 128×64 screen. Preview them in tools/oled-designer.html. The icon replaces its square area."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ICON",
+          "options": [
+            {
+              "label": "Board",
+              "value": "board",
+              "code": "(\"XRPI1:16:16:AAAAsPgM7CgsLCjsDPiwAAAAAA0fMDcUNDQUNzAfDQAA\", \"XRPI1:24:24:AAAAwMDw8Dw8uLCwvLywsLg8PPDwwMAAAAAAGJn//wD//4GBgYGBgf//AP//mRgAAAAAAwMPDzw8HQ0NPT0NDR08PA8PAwMAAA==\", \"XRPI1:32:32:AAAAAAAAwODgePx8YGBgcHx8cGBgYHz8eODgwAAAAAAAAACGh8f//wIAAPz8DAwMDAwMDAz8/AAAAv//x4eGAAAAAGHh4///QAAAPz8wMDAwMDAwMD8/AABA///j4WEAAAAAAAAAAwcHHj8+BgYGDj4+DgYGBj4/HgcHAwAAAAAA\")"
+            },
+            {
+              "label": "Drive",
+              "value": "drive",
+              "code": "(\"XRPI1:16:16:AAAAAOA4DATMzAQMOOAAAAAAAD8jICAgPDwgICAjPwAA\", \"XRPI1:24:24:AAAAAAAA4Pg4GBgYODgYGBg4+OAAAAAAAAAAAPD+HwEAAAAAHx8AAAAAAR/+8AAAAAAADx8YGBgYGBgYHx8YGBgYGBgYHw8AAA==\", \"XRPI1:32:32:AAAAAAAAAADA8PA4ODg4OPj4ODg4ODjw8MAAAAAAAAAAAAAAAADw/n8PAAAAAAAA+fkAAAAAAAAPf/7wAAAAAAAAAID4/z8HAAAAAAAAAADh4QAAAAAAAAAABz//+IAAAAAAAwcPDBwcHBwcHBwcHB8fHBwcHBwcHBwcDA8HAwAA\")"
+            },
+            {
+              "label": "Events",
+              "value": "events",
+              "code": "(\"XRPI1:16:16:AAAAAPj8DAgYEDBgQMCAAAAAAAAfPzAQGAgMBgIDAQAA\", \"XRPI1:24:24:AAAAAAAA8PgYGDAwYODAwIAAAAAAAAAAAAAAAAAA//8AAAAAAAAAgYHD52Z+PAAAAAAAAAAADx8YGAwMBgcDAwEAAAAAAAAAAA==\", \"XRPI1:32:32:AAAAAAAAAODw8DgwcPDgwMCAgAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAABAQMHBw8OHBw4eHDg4AAAAAAAAAAAAAD///8AAAAAAICAwODg8HA4OBweDgcHAAAAAAAAAAAAAAcPDxwcDg8HAwMBAQAAAAAAAAAAAAAAAAAA\")"
+            },
+            {
+              "label": "Expander",
+              "value": "expander",
+              "code": "(\"XRPI1:16:16:AAAAwPDwEBQQEBQQ8PDAAAAAAAMPDwgoCAgoCA8PAwAA\", \"XRPI1:24:24:AAAAAAAA4OBgeHhgeHhgeHhg4OAAAAAAAAAAANvb//8AAAAAAAAAAAAA///b2wAAAAAAAAAABwcGHh4GHh4GHh4GBwcAAAAAAA==\", \"XRPI1:32:32:AAAAAAAAAICAgICAuLiAgLi4gIC4uICAgICAAAAAAAAAAAAAmJiY////AwEBAQEBAQEBAQEBAQP///+YmJgAAAAAAAAZGRn////AgICAgICAgICAgICAwP///xkZGQAAAAAAAAAAAAEBAQEBHR0BAR0dAQEdHQEBAQEBAAAAAAAA\")"
+            },
+            {
+              "label": "Functions",
+              "value": "functions",
+              "code": "(\"XRPI1:16:16:AADA8BAQEPDgfP7Gxsb+fAAAHz9jY2N/f2NjYz4AAAAA\", \"XRPI1:24:24:AAAAwMDg4ODg4ODAAAD8/AwMDAwM/PwAAAAA//9gYGBgYP//YGBnZ2bm5oYGBwcAAAAAHz8wMDAwMD8/MDAwMDA/HwcAAAAAAA==\", \"XRPI1:32:32:AAAAAACAgICAgICAgIAAAAAA+Pz8HBwcHBwcHPz8+AAAAAD+//8DAwMDAwMD////AAA/f39wcHBwcHBwf38/AAAAAP///w4ODg4ODg7///8ODg4ODg4O/vz8AAAAAAAAAAAADx8/ODg4ODg4OD8/Pzg4ODg4ODg/Hw8AAAAAAAAA\")"
+            },
+            {
+              "label": "Logic",
+              "value": "logic",
+              "code": "(\"XRPI1:16:16:AAAAAAD8wGAwEDh8RGw4AAAAABw2JzYcAAAAAAAAAAAA\", \"XRPI1:24:24:AAAAAAAA8PjwAICAwMDA8PgYGBj48AAAAAAAAIDA////x4MBAAAAAQMDAwMDAQAAAAAAAA8fGBgYHw8AAAAAAAAAAAAAAAAAAA==\", \"XRPI1:32:32:AAAAAAAAAADw+PAAAAAAAAAAgIDg8HA4ODhw8OCAAAAAAAAAAAAAAP////h8Hg4PBwMDAw8fHDg4OBwfDwMAAAAAAADA8Pg4Hx8fOPjwwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEHDw4cHBwODwcBAAAAAAAAAAAAAAAAAAAAAAAA\")"
+            },
+            {
+              "label": "Loops",
+              "value": "loops",
+              "code": "(\"XRPI1:16:16:AAAA4HAQEBAQEBBUfDgQAAAAAAgcPioICAgICAgOBwAA\", \"XRPI1:24:24:AAAAAACAwMDg4ODg4ODg4ODs/Pjw4AAAAAAAAA+PwOBgAAAAAAAAAAAGBwPx8AAAAAAAAAcPHz83BwcHBwcHBwcHAwMBAAAAAA==\", \"XRPI1:32:32:AAAAAAAAAAAAgICAgICAgICAgICAgJy8+PDgwIAAAAAAAAAAYPz+DwMDAwMDAwMDAwMDAwMDc3s/Hw8HAwEAAAAAAACAwODw+PzezsDAwMDAwMDAwMDAwMDg8H8/BgAAAAAAAAABAwcPHz05AQEBAQEBAQEBAQEBAQAAAAAAAAAA\")"
+            },
+            {
+              "label": "Math",
+              "value": "math",
+              "code": "(\"XRPI1:16:16:AAAAAPwG1hZWVhbWBvwAAAAAAAA/YGtgampgb2A/AAAA\", \"XRPI1:24:24:AAAAAAD4/AxM7Ozs7Ozs7OxMDPz4AAAAAAAAAAD//wAkZgAAZmYAAObkAP//AAAAAAAAAAAfPzAyNzAwMjIwMDczMD8fAAAAAA==\", \"XRPI1:32:32:AAAAAAAA8PgcHBycnJycnJycnJycnJwcHBz48AAAAAAAAAAAAAD//wAAAHNzAwMDc3MDAwNzcwAAAP//AAAAAAAAAAAAAP//AAAAzs4AAADOzgAAAP7+AAAA//8AAAAAAAAAAAAADx84ODg5OTg4ODk5ODg4OTk4ODgfDwAAAAAA\")"
+            },
+            {
+              "label": "Motors",
+              "value": "motors",
+              "code": "(\"XRPI1:16:16:AAAAPDA4KAyEhAwIGPDAAAAAAAMPGBAwISEwFBwMPAAA\", \"XRPI1:24:24:AAAAAPj44OCwuBgYGBgYGDgwYOCAAAAAAAAAAPn5gQEBAQAYPDwYAICAgIGfngAAAAAAAAABBwYMHBgYGBgYGB0NBwcfHwAAAA==\", \"XRPI1:32:32:AAAAAPD48ICAwODgcHBwMDg4MHBwcODgwIAAAAAAAAAAAAAAD4+PDw8NDAwMAIDA4ODAgAAAAAEDBz/++MAAAAAAAAABH3/84MCAAAAAAQMHBwMBADAwMLDw8PHx8AAAAAAAAAAAAAABAwcHDg4ODBwcDA4ODgcHAwMBDx8PAAAA\")"
+            },
+            {
+              "label": "Neopixel",
+              "value": "neopixel",
+              "code": "(\"XRPI1:16:16:AACAwMDAwMDY2MDAwMDAgAAAAQMDAwMDGxsDAwMDAwEA\", \"XRPI1:24:24:AAAAAAAAAAAAAAAA8PAAAAAAAAAAAAAAAAAYPDw8JDw8JDw8JCQ8PCQ8PCQ8PDwYAAAAAAAAAAAAAAAADw8AAAAAAAAAAAAAAA==\", \"XRPI1:32:32:AAAAAAAAAAAAAAAAAAAAAODgAAAAAAAAAAAAAAAAAAAAAADg4ODgYGDg4GBg4ODgZ2fg4OBgYODgYGDg4ODgAAAAAAcHBwcGBgcHBgYHBwfGxgcHBwYGBwcGBgcHBwcAAAAAAAAAAAAAAAAAAAAAAAcHAAAAAAAAAAAAAAAAAAAA\")"
+            },
+            {
+              "label": "Sensors",
+              "value": "sensors",
+              "code": "(\"XRPI1:16:16:AAAA4DjAYIDAwIBgwDjgAAAAAAccAwYBAwMBBgMcBwAA\", \"XRPI1:24:24:AAAAAIDgcACAgAAAAAAAAICAAHDggAAAAAAA//+BAH7/gRg8ZmY8GIH/fgCB//8AAAAAAAEHDgABAQAAAAAAAAEBAA4HAQAAAA==\", \"XRPI1:32:32:AAAAAAAAgMDAAAAAAAAAAAAAAAAAAAAAAMDAgAAAAAAAAADg/P8PA+Hw/B4MwODwcHDw4MAMHvzw4QMP//zgAAAAAAc///DAgw8/fDADBw8ODg8HAzB8Pw+DwPD/PwcAAAAAAAAAAQMDAAAAAAAAAAAAAAAAAAAAAAMDAQAAAAAA\")"
+            },
+            {
+              "label": "Servo",
+              "value": "servo",
+              "code": "(\"XRPI1:16:16:AAAA4IDAQGAgYGBgwIAAAAAAAAEBAQEBDAwAAAAHBgAA\", \"XRPI1:24:24:AAAAAMCAAAAAAACAgICAAAAAAAAAAAAAAAAAAD8/PD43MzODgYGDAwMGDjz44AAAAAAAAAAAAAAAAAADAwMDAAAAAAABAQAAAA==\", \"XRPI1:32:32:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/v/+wODwcDg8HBwcDg4cHBw8OHDw4MCAAAAAAAAAAAADBwcHBwcHBwcHQvDw8PBAAAAAAAABD3/+QAAAAAAAAAAAAAAAAAAAAAAAAAEBAAAAAAAAAAAAAAAAAAAA\")"
+            },
+            {
+              "label": "Text",
+              "value": "text",
+              "code": "(\"XRPI1:16:16:AAAAAOBw8MAAAIDAQEDAwAAAAAcBAQEDBwADBgQGBwcA\", \"XRPI1:24:24:AAAAAAAAgMDAgAAAAAAAAAAAAAAAAAAAAAAAwPg+PzMzP37wwAAAfP7Hg4PG//8AAAAAAQAAAAAAAAAAAAAAAAAAAQEAAAEAAA==\", \"XRPI1:32:32:AAAAAAAAAAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDg/H8PDz/88IAAAAAAAODwcDg4ODh4+Pj4AAAAADA+Pw8HBwcHBwcHHz44AAADDx88ODAwODw/Pz8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\")"
+            },
+            {
+              "label": "Variables",
+              "value": "variables",
+              "code": "(\"XRPI1:16:16:AAAAAPA4DECAgEAMOPAAAAAAAAAHGDACAQECMBwHAAAA\", \"XRPI1:24:24:AAAAAACA4PA4GAAAAAAAABg48OCAAAAAAAAAAAD//wAAQud+PDx+50IAAP//AAAAAAAAAAABBw8cGAAAAAAAABgcDwcBAAAAAA==\", \"XRPI1:32:32:AAAAAAAAAACA4PBwMAAAAAAAAAAAMHDw4IAAAAAAAAAAAAAAAAD4/n8HAQAYOHDgwMDgcDgYAAEHf/74AAAAAAAAAAAAAB9//uCAABgcDgcDAwcOHBgAgOD+fx8AAAAAAAAAAAAAAAABBw8ODAAAAAAAAAAAHA4PBwEAAAAAAAAA\")"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "SIZE",
+          "options": [
+            {
+              "label": "24 px",
+              "value": "1"
+            },
+            {
+              "label": "16 px",
+              "value": "0"
+            },
+            {
+              "label": "32 px",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "number",
+          "name": "X",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "Y",
+          "default": 0
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "oled.draw_picture({ICON}[{SIZE}], {X}, {Y})\n",
+      "helpUrl": "tools/oled-designer.html"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_oled_setup"
+    },
+    {
+      "block": "xrp_oled_clear"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_oled_print",
+      "shadows": {
+        "MESSAGE": "Hello XRP!"
+      }
+    },
+    {
+      "block": "xrp_oled_line",
+      "shadows": {
+        "MESSAGE": "Hello XRP!"
+      }
+    },
+    {
+      "block": "xrp_oled_scroll_text",
+      "shadows": {
+        "MESSAGE": "This message scrolls across the OLED",
+        "SPEED": 30
+      }
+    },
+    {
+      "block": "xrp_oled_value",
+      "shadows": {
+        "LABEL": "distance",
+        "VALUE": 0
+      }
+    },
+    {
+      "block": "xrp_oled_at",
+      "shadows": {
+        "MESSAGE": "XRP",
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_oled_arrow",
+      "shadows": {
+        "ANGLE": 0
+      }
+    },
+    {
+      "block": "xrp_oled_big",
+      "shadows": {
+        "MESSAGE": "^"
+      }
+    },
+    {
+      "block": "xrp_oled_icon",
+      "shadows": {
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "block": "xrp_oled_picture",
+      "shadows": {
+        "DATA": "",
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_oled_pixel",
+      "shadows": {
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "block": "xrp_oled_draw_line",
+      "shadows": {
+        "X1": 0,
+        "Y1": 0,
+        "X2": 127,
+        "Y2": 63
+      }
+    },
+    {
+      "block": "xrp_oled_rect",
+      "shadows": {
+        "X": 0,
+        "Y": 0,
+        "W": 40,
+        "H": 20
+      }
+    },
+    {
+      "block": "xrp_oled_circle",
+      "shadows": {
+        "X": 64,
+        "Y": 32,
+        "R": 20
+      }
+    },
+    {
+      "block": "xrp_oled_bar",
+      "shadows": {
+        "VALUE": 0,
+        "MIN": 0,
+        "MAX": 100
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_oled_show"
+    },
+    {
+      "block": "xrp_oled_auto_show"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_oled_brightness",
+      "shadows": {
+        "PERCENT": 50
+      }
+    },
+    {
+      "block": "xrp_oled_invert"
+    },
+    {
+      "block": "xrp_oled_power"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_oled_connected"
+    },
+    {
+      "block": "xrp_oled_width"
+    },
+    {
+      "block": "xrp_oled_height"
+    }
+  ]
+}

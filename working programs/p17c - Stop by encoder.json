@@ -1,0 +1,100 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1374",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 17 (manual v3.1). Drives until the left wheel has gone 50 cm.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_drive_reset_encoders",
+            "id": "tp1365",
+            "next": {
+              "block": {
+                "type": "xrp_drive_set_effort",
+                "id": "tp1366",
+                "inputs": {
+                  "LEFT": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1367",
+                      "fields": {
+                        "NUM": 40
+                      }
+                    }
+                  },
+                  "RIGHT": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1368",
+                      "fields": {
+                        "NUM": 40
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_whileUntil",
+                    "id": "tp1372",
+                    "fields": {
+                      "MODE": "UNTIL"
+                    },
+                    "inputs": {
+                      "BOOL": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "tp1370",
+                          "fields": {
+                            "OP": "GT"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "xrp_drive_encoder",
+                                "id": "tp1369",
+                                "fields": {
+                                  "SIDE": "left"
+                                }
+                              }
+                            },
+                            "B": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "tp1371",
+                                "fields": {
+                                  "NUM": 50
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_drive_stop",
+                        "id": "tp1373"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

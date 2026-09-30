@@ -1,0 +1,134 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1598",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 51 (manual v3.1), section 11.3. Join Wi-Fi XRP-Remote, password xrpremote.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_remote_start",
+            "id": "tp1587",
+            "fields": {
+              "MODE": "AP"
+            },
+            "inputs": {
+              "SSID": {
+                "block": {
+                  "type": "text",
+                  "id": "tp1585",
+                  "fields": {
+                    "TEXT": "XRP-Remote"
+                  }
+                }
+              },
+              "PASSWORD": {
+                "block": {
+                  "type": "text",
+                  "id": "tp1586",
+                  "fields": {
+                    "TEXT": "xrpremote"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_forever",
+                "id": "tp1597",
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "xrp_remote_update",
+                      "id": "tp1588",
+                      "next": {
+                        "block": {
+                          "type": "controls_if",
+                          "id": "tp1594",
+                          "extraState": {
+                            "hasElse": true
+                          },
+                          "inputs": {
+                            "IF0": {
+                              "block": {
+                                "type": "xrp_remote_pressed",
+                                "id": "tp1589",
+                                "fields": {
+                                  "BUTTON": "1"
+                                }
+                              }
+                            },
+                            "DO0": {
+                              "block": {
+                                "type": "xrp_drive_set_effort",
+                                "id": "tp1590",
+                                "inputs": {
+                                  "LEFT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1591",
+                                      "fields": {
+                                        "NUM": 40
+                                      }
+                                    }
+                                  },
+                                  "RIGHT": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "tp1592",
+                                      "fields": {
+                                        "NUM": 40
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ELSE": {
+                              "block": {
+                                "type": "xrp_drive_stop",
+                                "id": "tp1593"
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp1595",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1596",
+                                    "fields": {
+                                      "NUM": 0.02
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

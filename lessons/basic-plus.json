@@ -1,0 +1,27 @@
+{
+  "title": "Basis+",
+  "steps": [""],
+  "toolbox": {
+    "Drive": [],
+    "Motors": [],
+    "Servo": [],
+    "Sensors": [],
+    "Board": ["xrp_wait_seconds"],
+    "Logic": [],
+    "Math": [],
+    "Loops": []
+  },
+  "template": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "xrp_start",
+          "id": "les1_start",
+          "x": 60,
+          "y": 60
+        }
+      ]
+    }
+  }
+}

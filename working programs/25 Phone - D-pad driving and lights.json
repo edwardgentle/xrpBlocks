@@ -1,0 +1,506 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w25_055",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Bluetooth D-pad driving. On the phone choose Game D-pad. Up forward 50%, Down back 40%, Left and Right spin at 40%. B switches the board LED on and off, A flashes the RGB yellow and prints \"Horn!\" (tick Show robot messages to see it). Lock the phone: the robot must stop within about a second. Left should spin left; if not, see working program 08.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_ble_title",
+            "id": "w25_046",
+            "inputs": {
+              "TITLE": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w25_045",
+                  "fields": {
+                    "TEXT": "XRP D-pad"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_ble_label",
+                "id": "w25_048",
+                "fields": {
+                  "BUTTON": "5"
+                },
+                "inputs": {
+                  "LABEL": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "w25_047",
+                      "fields": {
+                        "TEXT": "Horn"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_ble_label",
+                    "id": "w25_050",
+                    "fields": {
+                      "BUTTON": "6"
+                    },
+                    "inputs": {
+                      "LABEL": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w25_049",
+                          "fields": {
+                            "TEXT": "Lights"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "variables_set",
+                        "id": "w25_052",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_lights"
+                          }
+                        },
+                        "inputs": {
+                          "VALUE": {
+                            "block": {
+                              "type": "logic_boolean",
+                              "id": "w25_051",
+                              "fields": {
+                                "BOOL": "FALSE"
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_ble_start",
+                            "id": "w25_053",
+                            "next": {
+                              "block": {
+                                "type": "xrp_forever",
+                                "id": "w25_054",
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "controls_if",
+                                      "id": "w25_042",
+                                      "extraState": {
+                                        "hasElse": true
+                                      },
+                                      "inputs": {
+                                        "IF0": {
+                                          "block": {
+                                            "type": "xrp_ble_connected",
+                                            "id": "w25_001"
+                                          }
+                                        },
+                                        "DO0": {
+                                          "block": {
+                                            "type": "controls_if",
+                                            "id": "w25_019",
+                                            "extraState": {
+                                              "elseIfCount": 3,
+                                              "hasElse": true
+                                            },
+                                            "inputs": {
+                                              "IF0": {
+                                                "block": {
+                                                  "type": "xrp_ble_pressed",
+                                                  "id": "w25_002",
+                                                  "fields": {
+                                                    "BUTTON": "1"
+                                                  }
+                                                }
+                                              },
+                                              "DO0": {
+                                                "block": {
+                                                  "type": "xrp_drive_arcade",
+                                                  "id": "w25_005",
+                                                  "inputs": {
+                                                    "SPEED": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_003",
+                                                        "fields": {
+                                                          "NUM": 50
+                                                        }
+                                                      }
+                                                    },
+                                                    "TURN": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_004",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "IF1": {
+                                                "block": {
+                                                  "type": "xrp_ble_pressed",
+                                                  "id": "w25_007",
+                                                  "fields": {
+                                                    "BUTTON": "4"
+                                                  }
+                                                }
+                                              },
+                                              "DO1": {
+                                                "block": {
+                                                  "type": "xrp_drive_arcade",
+                                                  "id": "w25_010",
+                                                  "inputs": {
+                                                    "SPEED": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_008",
+                                                        "fields": {
+                                                          "NUM": -40
+                                                        }
+                                                      }
+                                                    },
+                                                    "TURN": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_009",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "IF2": {
+                                                "block": {
+                                                  "type": "xrp_ble_pressed",
+                                                  "id": "w25_011",
+                                                  "fields": {
+                                                    "BUTTON": "2"
+                                                  }
+                                                }
+                                              },
+                                              "DO2": {
+                                                "block": {
+                                                  "type": "xrp_drive_arcade",
+                                                  "id": "w25_014",
+                                                  "inputs": {
+                                                    "SPEED": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_012",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      }
+                                                    },
+                                                    "TURN": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_013",
+                                                        "fields": {
+                                                          "NUM": 40
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "IF3": {
+                                                "block": {
+                                                  "type": "xrp_ble_pressed",
+                                                  "id": "w25_015",
+                                                  "fields": {
+                                                    "BUTTON": "3"
+                                                  }
+                                                }
+                                              },
+                                              "DO3": {
+                                                "block": {
+                                                  "type": "xrp_drive_arcade",
+                                                  "id": "w25_018",
+                                                  "inputs": {
+                                                    "SPEED": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_016",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      }
+                                                    },
+                                                    "TURN": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w25_017",
+                                                        "fields": {
+                                                          "NUM": -40
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "ELSE": {
+                                                "block": {
+                                                  "type": "xrp_drive_stop",
+                                                  "id": "w25_006"
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "controls_if",
+                                                "id": "w25_024",
+                                                "inputs": {
+                                                  "IF0": {
+                                                    "block": {
+                                                      "type": "xrp_ble_clicked",
+                                                      "id": "w25_020",
+                                                      "fields": {
+                                                        "BUTTON": "6"
+                                                      }
+                                                    }
+                                                  },
+                                                  "DO0": {
+                                                    "block": {
+                                                      "type": "variables_set",
+                                                      "id": "w25_023",
+                                                      "fields": {
+                                                        "VAR": {
+                                                          "id": "v_lights"
+                                                        }
+                                                      },
+                                                      "inputs": {
+                                                        "VALUE": {
+                                                          "block": {
+                                                            "type": "logic_negate",
+                                                            "id": "w25_022",
+                                                            "inputs": {
+                                                              "BOOL": {
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "w25_021",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_lights"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "controls_if",
+                                                    "id": "w25_028",
+                                                    "extraState": {
+                                                      "hasElse": true
+                                                    },
+                                                    "inputs": {
+                                                      "IF0": {
+                                                        "block": {
+                                                          "type": "variables_get",
+                                                          "id": "w25_025",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_lights"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "DO0": {
+                                                        "block": {
+                                                          "type": "xrp_led_on",
+                                                          "id": "w25_026"
+                                                        }
+                                                      },
+                                                      "ELSE": {
+                                                        "block": {
+                                                          "type": "xrp_led_off",
+                                                          "id": "w25_027"
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "controls_if",
+                                                        "id": "w25_039",
+                                                        "inputs": {
+                                                          "IF0": {
+                                                            "block": {
+                                                              "type": "xrp_ble_clicked",
+                                                              "id": "w25_029",
+                                                              "fields": {
+                                                                "BUTTON": "5"
+                                                              }
+                                                            }
+                                                          },
+                                                          "DO0": {
+                                                            "block": {
+                                                              "type": "xrp_ble_print",
+                                                              "id": "w25_032",
+                                                              "inputs": {
+                                                                "TEXT": {
+                                                                  "shadow": {
+                                                                    "type": "text",
+                                                                    "id": "w25_031",
+                                                                    "fields": {
+                                                                      "TEXT": ""
+                                                                    }
+                                                                  },
+                                                                  "block": {
+                                                                    "type": "text",
+                                                                    "id": "w25_030",
+                                                                    "fields": {
+                                                                      "TEXT": "Horn!"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "xrp_rgb_colour",
+                                                                  "id": "w25_034",
+                                                                  "fields": {
+                                                                    "COLOUR": "yellow"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "BRIGHTNESS": {
+                                                                      "shadow": {
+                                                                        "type": "math_number",
+                                                                        "id": "w25_033",
+                                                                        "fields": {
+                                                                          "NUM": 40
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "xrp_wait_seconds",
+                                                                      "id": "w25_036",
+                                                                      "inputs": {
+                                                                        "SECONDS": {
+                                                                          "shadow": {
+                                                                            "type": "math_number",
+                                                                            "id": "w25_035",
+                                                                            "fields": {
+                                                                              "NUM": 0.2
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "xrp_rgb_colour",
+                                                                          "id": "w25_038",
+                                                                          "fields": {
+                                                                            "COLOUR": "off"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "BRIGHTNESS": {
+                                                                              "shadow": {
+                                                                                "type": "math_number",
+                                                                                "id": "w25_037",
+                                                                                "fields": {
+                                                                                  "NUM": 0
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "ELSE": {
+                                          "block": {
+                                            "type": "xrp_drive_stop",
+                                            "id": "w25_040",
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_led_off",
+                                                "id": "w25_041"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_wait_seconds",
+                                          "id": "w25_044",
+                                          "inputs": {
+                                            "SECONDS": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w25_043",
+                                                "fields": {
+                                                  "NUM": 0.02
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "lights",
+      "id": "v_lights"
+    }
+  ]
+}

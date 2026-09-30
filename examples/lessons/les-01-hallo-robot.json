@@ -1,0 +1,33 @@
+{
+  "title": "Les 1: Hallo Robot!",
+  "steps": [
+    "👋 Welkom! In deze les schrijf je je <b>eerste programma</b> voor de XRP robot. Je leert hoe je de robot rechtuit laat rijden en netjes laat stoppen.",
+    "Je ziet het <b>Start</b>-blok op het canvas. Alles wat je daarin zet, wordt uitgevoerd als je op <b>Start</b> drukt. Klik nu op de categorie <b>Aandrijving</b> in de toolbox aan de linkerkant.",
+    "Sleep het blok <b>rij rechtdoor</b> uit de toolbox en zet het <i>in</i> het Start-blok. Je hoort een klik als het goed vastzit! De standaard afstand is 20 cm.",
+    "Verander de afstand naar <code>30</code> cm. Klik op het getal en typ het nieuwe getal in. Je kunt elke afstand kiezen die jij wilt!",
+    "Sleep nu een <b>stop met rijden</b>-blok eronder het rijblok. Dit zorgt dat de robot na 30 cm netjes tot stilstand komt.",
+    "🎉 Geweldig! Je eerste programma is klaar. Verbind de robot en druk op <b>Start</b> om te zien hoe hij rijdt. Wat gebeurt er als je de afstand verandert naar 50 cm?"
+  ],
+  "toolbox": {
+    "Drive": [
+      "xrp_drive_straight",
+      "xrp_drive_stop"
+    ],
+    "Board": [
+      "xrp_wait_seconds"
+    ]
+  },
+  "template": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "xrp_start",
+          "id": "les1_start",
+          "x": 60,
+          "y": 60
+        }
+      ]
+    }
+  }
+}

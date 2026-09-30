@@ -1,0 +1,367 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0774",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Drives at 35% with RGB green, stops and goes red at 15 cm, turns around.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0737",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0738",
+                  "fields": {
+                    "TEXT": "Test 12: drives forward until something is closer than 15 cm"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_print",
+                "id": "tp0739",
+                "inputs": {
+                  "TEXT": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "tp0740",
+                      "fields": {
+                        "TEXT": "Press the board button to start"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_for_button",
+                    "id": "tp0741",
+                    "next": {
+                      "block": {
+                        "type": "xrp_wait_seconds",
+                        "id": "tp0742",
+                        "inputs": {
+                          "SECONDS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0743",
+                              "fields": {
+                                "NUM": 0.5
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_arcade",
+                            "id": "tp0744",
+                            "inputs": {
+                              "SPEED": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0745",
+                                  "fields": {
+                                    "NUM": 35
+                                  }
+                                }
+                              },
+                              "TURN": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0746",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": "tp0748",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_distance"
+                                  }
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "block": {
+                                      "type": "xrp_distance_sensor",
+                                      "id": "tp0747"
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "controls_whileUntil",
+                                    "id": "tp0758",
+                                    "fields": {
+                                      "MODE": "WHILE"
+                                    },
+                                    "inputs": {
+                                      "BOOL": {
+                                        "block": {
+                                          "type": "logic_compare",
+                                          "id": "tp0750",
+                                          "fields": {
+                                            "OP": "GT"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "tp0749",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_distance"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "tp0751",
+                                                "fields": {
+                                                  "NUM": 15
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "DO": {
+                                        "block": {
+                                          "type": "variables_set",
+                                          "id": "tp0753",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_distance"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "VALUE": {
+                                              "block": {
+                                                "type": "xrp_distance_sensor",
+                                                "id": "tp0752"
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_rgb_colour",
+                                              "id": "tp0754",
+                                              "fields": {
+                                                "COLOUR": "green"
+                                              },
+                                              "inputs": {
+                                                "BRIGHTNESS": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "tp0755",
+                                                    "fields": {
+                                                      "NUM": 30
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "xrp_wait_seconds",
+                                                  "id": "tp0756",
+                                                  "inputs": {
+                                                    "SECONDS": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "tp0757",
+                                                        "fields": {
+                                                          "NUM": 0.05
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_drive_stop",
+                                        "id": "tp0759",
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_rgb_colour",
+                                            "id": "tp0760",
+                                            "fields": {
+                                              "COLOUR": "red"
+                                            },
+                                            "inputs": {
+                                              "BRIGHTNESS": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "tp0761",
+                                                  "fields": {
+                                                    "NUM": 30
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "tp0767",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "block": {
+                                                      "type": "text_join",
+                                                      "id": "tp0766",
+                                                      "extraState": {
+                                                        "itemCount": 3
+                                                      },
+                                                      "inputs": {
+                                                        "ADD0": {
+                                                          "block": {
+                                                            "type": "text",
+                                                            "id": "tp0762",
+                                                            "fields": {
+                                                              "TEXT": "Stopped at "
+                                                            }
+                                                          }
+                                                        },
+                                                        "ADD1": {
+                                                          "block": {
+                                                            "type": "math_round",
+                                                            "id": "tp0764",
+                                                            "fields": {
+                                                              "OP": "ROUND"
+                                                            },
+                                                            "inputs": {
+                                                              "NUM": {
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "tp0763",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_distance"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "ADD2": {
+                                                          "block": {
+                                                            "type": "text",
+                                                            "id": "tp0765",
+                                                            "fields": {
+                                                              "TEXT": " cm"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_drive_turn",
+                                                    "id": "tp0768",
+                                                    "inputs": {
+                                                      "ANGLE": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "tp0769",
+                                                          "fields": {
+                                                            "NUM": 180
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_rgb_colour",
+                                                        "id": "tp0770",
+                                                        "fields": {
+                                                          "COLOUR": "off"
+                                                        },
+                                                        "inputs": {
+                                                          "BRIGHTNESS": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "tp0771",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_print",
+                                                            "id": "tp0772",
+                                                            "inputs": {
+                                                              "TEXT": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "tp0773",
+                                                                  "fields": {
+                                                                    "TEXT": "Test 12 done"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "distance",
+      "id": "v_distance"
+    }
+  ]
+}

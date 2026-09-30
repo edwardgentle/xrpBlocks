@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Remote control</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10151e;color:#edf4ff}*{box-sizing:border-box}body{margin:0;padding:24px}main{max-width:620px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:28px;margin:8px 0}p{color:#a9b7cd;line-height:1.5}#status{font-size:13px;color:#9daec5}#status.live{color:#79e2b1}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:24px 0}button,input{font:inherit}button{border:1px solid #354459;color:inherit;background:#202d40;border-radius:16px;padding:20px;cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #83b7ff;outline-offset:3px}.pad{min-height:110px;touch-action:none;user-select:none;font-size:20px;overflow-wrap:anywhere}.pad small{display:block;color:#a9b7cd;font-size:12px;margin-top:10px}.pad.held{background:#2d6596;border-color:#9dcfff}.pad:disabled{opacity:.45}#release{width:100%;background:#542633;border-color:#a74660}details{margin-top:26px;color:#a9b7cd}label{display:block;margin:14px 0}input{display:block;width:100%;padding:12px;border:1px solid #354459;border-radius:8px;background:#182231;color:#fff}summary{cursor:pointer}footer{font-size:12px;color:#8293ac;margin-top:28px}#retry{padding:8px 14px;font-size:13px} @media(max-width:380px){body{padding:14px}h1{font-size:23px}.pad{font-size:17px}}
+.layout{display:flex;align-items:center;gap:12px}.layout select{font:inherit;padding:10px;background:#202d40;color:#edf4ff;border:1px solid #354459;border-radius:10px}.arrow{display:none}.grid.dpad{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.dpad .pad{padding:12px 6px;font-size:15px;min-height:104px}.dpad .arrow{display:block;font-size:25px;margin-bottom:6px}.dpad .pad:nth-child(1){grid-area:1/2}.dpad .pad:nth-child(2){grid-area:2/1}.dpad .pad:nth-child(3){grid-area:2/3}.dpad .pad:nth-child(4){grid-area:3/2}.dpad .pad:nth-child(5){grid-area:4/1;background:#284736}.dpad .pad:nth-child(6){grid-area:4/3;background:#443156}.dpad .pad.held{background:#2d6596}.dpad .pad small{font-size:10px}.dpad .pad:nth-child(n+5){margin-top:8px}
+</style>
+<main><header><h1 id="title">Remote control</h1><button id="retry">Connect</button></header>
+<div id="status" role="status" aria-live="polite">Connecting…</div>
+<p>Hold a button to send its signal. Your program decides what it does.</p>
+<label class="layout" for="layout">Layout <select id="layout"><option value="grid">Button grid</option><option value="dpad">Game D-pad</option></select></label>
+<div class="grid" id="buttons"></div><button id="release">Release all buttons</button>
+<details><summary>Customize button names</summary><p>Names here are saved on this browser. Button numbers stay the same.</p><div id="names"></div><button id="reset">Use program labels</button></details>
+<footer>Keep this page visible. Lost connection releases button states; your program must handle stopping devices.</footer></main>
+<script>
+const $=id=>document.getElementById(id), session=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+let labels=Array.from({length:6},(_,i)=>'Button '+(i+1)), names=[], seq=0, ready=false, busy=false, active=true;
+const held=new Map(), keys=new Set(), pads=[], inputs=[];
+try{const stored=JSON.parse(localStorage.getItem('remote-labels')||'[]');if(Array.isArray(stored))names=stored;}catch{}
+function save(){try{localStorage.setItem('remote-labels',JSON.stringify(names));}catch{}}
+function paint(){pads.forEach((p,i)=>{p.firstChild.textContent=names[i]||labels[i];p.classList.toggle('held',[...held.values()].includes(i)||keys.has(i));p.setAttribute('aria-pressed',String(p.classList.contains('held')));p.disabled=!ready;});}
+function clear(){held.clear();keys.clear();paint();}
+function status(text,live){$('status').textContent=text;$('status').classList.toggle('live',live);}
+function release(){clear();send();}
+for(let i=0;i<6;i++){
+ const b=document.createElement('button');b.className='pad';b.append(document.createTextNode(labels[i]));const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent=['▲','◀','▶','▼','A','B'][i];arrow.setAttribute('aria-hidden','true');b.append(arrow);const hint=document.createElement('small');hint.textContent='BUTTON '+(i+1);b.append(hint);b.setAttribute('aria-pressed','false');$('buttons').append(b);pads.push(b);
+ b.onpointerdown=e=>{if(!ready)return;e.preventDefault();b.setPointerCapture(e.pointerId);held.set(e.pointerId,i);paint();send();};
+ const up=e=>{held.delete(e.pointerId);paint();send();};b.onpointerup=up;b.onpointercancel=up;b.onlostpointercapture=up;
+ b.onkeydown=e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat&&ready){e.preventDefault();keys.add(i);paint();send();}};
+ b.onkeyup=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();keys.delete(i);paint();send();}};b.onblur=()=>{keys.delete(i);paint();};
+ const label=document.createElement('label');label.textContent='Button '+(i+1);const input=document.createElement('input');input.maxLength=32;input.value=names[i]||'';input.placeholder=labels[i];input.oninput=()=>{names[i]=input.value;save();paint();};label.append(input);$('names').append(label);inputs.push(input);
+}
+function setLayout(value){
+ const dpad=value==='dpad';$('layout').value=dpad?'dpad':'grid';$('buttons').classList.toggle('dpad',dpad);
+ pads.forEach((b,i)=>{b.title=dpad?['Up · button 1','Left · button 2','Right · button 3','Down · button 4','A · button 5','B · button 6'][i]:'Button '+(i+1);});
+}
+try{setLayout(localStorage.getItem('remote-layout'));}catch{setLayout('grid');}
+$('layout').onchange=()=>{release();setLayout($('layout').value);try{localStorage.setItem('remote-layout',$('layout').value);}catch{}};
+async function send(){
+ if(busy||!active||document.hidden)return;
+ busy=true;const abort=new AbortController(), timer=setTimeout(()=>abort.abort(),800);
+ try{
+  const mask=ready?[...new Set([...held.values(),...keys])].reduce((n,i)=>n|(1<<i),0):0;
+  const r=await fetch('/state',{method:'POST',headers:{'Content-Type':'application/json','X-Remote-Control':'1'},body:JSON.stringify({session,seq:++seq,mask}),signal:abort.signal});
+  if(!r.ok)throw Error(r.status===409?'Another controller is active':'Connection unavailable');
+  ready=true;status('Connected · buttons ready',true);
+ }catch(e){ready=false;clear();status(e.message==='Another controller is active'?e.message:'Disconnected · reconnecting…',false);}
+ finally{clearTimeout(timer);busy=false;paint();}
+}
+$('release').onclick=release;$('retry').onclick=()=>{active=true;clear();send();};
+$('reset').onclick=()=>{names=[];save();inputs.forEach(i=>i.value='');paint();};
+window.addEventListener('blur',()=>{clear();send();});
+document.addEventListener('visibilitychange',()=>{clear();ready=false;if(!document.hidden)send();});
+window.addEventListener('pagehide',()=>{clear();active=false;fetch('/state',{method:'POST',headers:{'Content-Type':'application/json','X-Remote-Control':'1'},body:JSON.stringify({session,seq:++seq,mask:0}),keepalive:true}).catch(()=>{});});
+fetch('/config').then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{$('title').textContent=c.title;document.title=c.title;labels=c.labels;inputs.forEach((input,i)=>input.placeholder=labels[i]);paint();}).catch(()=>{});
+paint();send();setInterval(send,150);
+</script></html>

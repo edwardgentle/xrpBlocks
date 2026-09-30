@@ -1,0 +1,324 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0118",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Expect: each press prints its number and blinks that many times. Then the LED mirrors the button for 10 s.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0085",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0086",
+                  "fields": {
+                    "TEXT": "Test 02: press the board button 5 times"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "variables_set",
+                "id": "tp0087",
+                "fields": {
+                  "VAR": {
+                    "id": "v_presses"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp0088",
+                      "fields": {
+                        "NUM": 0
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_whileUntil",
+                    "id": "tp0104",
+                    "fields": {
+                      "MODE": "WHILE"
+                    },
+                    "inputs": {
+                      "BOOL": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "tp0090",
+                          "fields": {
+                            "OP": "LT"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "tp0089",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_presses"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "tp0091",
+                                "fields": {
+                                  "NUM": 5
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "xrp_wait_for_button",
+                          "id": "tp0092",
+                          "next": {
+                            "block": {
+                              "type": "math_change",
+                              "id": "tp0093",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_presses"
+                                }
+                              },
+                              "inputs": {
+                                "DELTA": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp0094",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "xrp_print",
+                                  "id": "tp0098",
+                                  "inputs": {
+                                    "TEXT": {
+                                      "block": {
+                                        "type": "text_join",
+                                        "id": "tp0097",
+                                        "extraState": {
+                                          "itemCount": 2
+                                        },
+                                        "inputs": {
+                                          "ADD0": {
+                                            "block": {
+                                              "type": "text",
+                                              "id": "tp0095",
+                                              "fields": {
+                                                "TEXT": "Press number "
+                                              }
+                                            }
+                                          },
+                                          "ADD1": {
+                                            "block": {
+                                              "type": "variables_get",
+                                              "id": "tp0096",
+                                              "fields": {
+                                                "VAR": {
+                                                  "id": "v_presses"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_led_blink",
+                                      "id": "tp0100",
+                                      "inputs": {
+                                        "COUNT": {
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "tp0099",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_presses"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "DELAY": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "tp0101",
+                                            "fields": {
+                                              "NUM": 0.15
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "xrp_wait_seconds",
+                                          "id": "tp0102",
+                                          "inputs": {
+                                            "SECONDS": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "tp0103",
+                                                "fields": {
+                                                  "NUM": 0.3
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_print",
+                        "id": "tp0105",
+                        "inputs": {
+                          "TEXT": {
+                            "shadow": {
+                              "type": "text",
+                              "id": "tp0106",
+                              "fields": {
+                                "TEXT": "Now hold the button: LED follows it for 10 seconds"
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "controls_repeat_ext",
+                            "id": "tp0113",
+                            "inputs": {
+                              "TIMES": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0114",
+                                  "fields": {
+                                    "NUM": 100
+                                  }
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "controls_if",
+                                  "id": "tp0110",
+                                  "extraState": {
+                                    "hasElse": true
+                                  },
+                                  "inputs": {
+                                    "IF0": {
+                                      "block": {
+                                        "type": "xrp_button_is_pressed",
+                                        "id": "tp0107"
+                                      }
+                                    },
+                                    "DO0": {
+                                      "block": {
+                                        "type": "xrp_led_on",
+                                        "id": "tp0108"
+                                      }
+                                    },
+                                    "ELSE": {
+                                      "block": {
+                                        "type": "xrp_led_off",
+                                        "id": "tp0109"
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "xrp_wait_seconds",
+                                      "id": "tp0111",
+                                      "inputs": {
+                                        "SECONDS": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "tp0112",
+                                            "fields": {
+                                              "NUM": 0.1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_led_off",
+                                "id": "tp0115",
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_print",
+                                    "id": "tp0116",
+                                    "inputs": {
+                                      "TEXT": {
+                                        "shadow": {
+                                          "type": "text",
+                                          "id": "tp0117",
+                                          "fields": {
+                                            "TEXT": "Test 02 done"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "presses",
+      "id": "v_presses"
+    }
+  ]
+}

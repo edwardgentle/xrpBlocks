@@ -1,0 +1,127 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1528",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 39 (manual v3.1). The function is the separate green stack.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "procedures_callnoreturn",
+            "id": "tp1517",
+            "extraState": {
+              "name": "drive a square"
+            },
+            "next": {
+              "block": {
+                "type": "xrp_wait_seconds",
+                "id": "tp1518",
+                "inputs": {
+                  "SECONDS": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1519",
+                      "fields": {
+                        "NUM": 1
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "procedures_callnoreturn",
+                    "id": "tp1520",
+                    "extraState": {
+                      "name": "drive a square"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "tp1527",
+        "x": 351,
+        "y": 40,
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "drive a square"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "controls_repeat_ext",
+              "id": "tp1525",
+              "inputs": {
+                "TIMES": {
+                  "shadow": {
+                    "type": "math_number",
+                    "id": "tp1526",
+                    "fields": {
+                      "NUM": 4
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "xrp_drive_straight",
+                    "id": "tp1521",
+                    "inputs": {
+                      "DISTANCE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "tp1522",
+                          "fields": {
+                            "NUM": 20
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_drive_turn",
+                        "id": "tp1523",
+                        "inputs": {
+                          "ANGLE": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp1524",
+                              "fields": {
+                                "NUM": 90
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

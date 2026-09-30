@@ -1,0 +1,504 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w37_050",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Dance routine with two functions: \"wiggle\" takes how many times, \"safe speed\" returns a speed kept between -60 and 60%. Press the board button. Expect: wiggle 2, forward 1 s at 60% (asked for 90), wiggle 3, back 1 s at 40%, spin, lights. The Console shows each speed asked for.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_wait_for_button",
+            "id": "w37_022",
+            "next": {
+              "block": {
+                "type": "procedures_callnoreturn",
+                "id": "w37_024",
+                "extraState": {
+                  "name": "wiggle",
+                  "params": [
+                    "times"
+                  ]
+                },
+                "inputs": {
+                  "ARG0": {
+                    "block": {
+                      "type": "math_number",
+                      "id": "w37_023",
+                      "fields": {
+                        "NUM": 2
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_drive_arcade",
+                    "id": "w37_029",
+                    "inputs": {
+                      "SPEED": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w37_027",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        },
+                        "block": {
+                          "type": "procedures_callreturn",
+                          "id": "w37_026",
+                          "extraState": {
+                            "name": "safe speed",
+                            "params": [
+                              "percent"
+                            ]
+                          },
+                          "inputs": {
+                            "ARG0": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "w37_025",
+                                "fields": {
+                                  "NUM": 90
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "TURN": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w37_028",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_wait_seconds",
+                        "id": "w37_031",
+                        "inputs": {
+                          "SECONDS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w37_030",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_stop",
+                            "id": "w37_032",
+                            "next": {
+                              "block": {
+                                "type": "procedures_callnoreturn",
+                                "id": "w37_034",
+                                "extraState": {
+                                  "name": "wiggle",
+                                  "params": [
+                                    "times"
+                                  ]
+                                },
+                                "inputs": {
+                                  "ARG0": {
+                                    "block": {
+                                      "type": "math_number",
+                                      "id": "w37_033",
+                                      "fields": {
+                                        "NUM": 3
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_drive_arcade",
+                                    "id": "w37_039",
+                                    "inputs": {
+                                      "SPEED": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w37_037",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "procedures_callreturn",
+                                          "id": "w37_036",
+                                          "extraState": {
+                                            "name": "safe speed",
+                                            "params": [
+                                              "percent"
+                                            ]
+                                          },
+                                          "inputs": {
+                                            "ARG0": {
+                                              "block": {
+                                                "type": "math_number",
+                                                "id": "w37_035",
+                                                "fields": {
+                                                  "NUM": -40
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "TURN": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w37_038",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_wait_seconds",
+                                        "id": "w37_041",
+                                        "inputs": {
+                                          "SECONDS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w37_040",
+                                              "fields": {
+                                                "NUM": 1
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_drive_stop",
+                                            "id": "w37_042",
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_drive_turn",
+                                                "id": "w37_044",
+                                                "inputs": {
+                                                  "ANGLE": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w37_043",
+                                                      "fields": {
+                                                        "NUM": 360
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_led_blink",
+                                                    "id": "w37_047",
+                                                    "inputs": {
+                                                      "COUNT": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w37_045",
+                                                          "fields": {
+                                                            "NUM": 5
+                                                          }
+                                                        }
+                                                      },
+                                                      "DELAY": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w37_046",
+                                                          "fields": {
+                                                            "NUM": 0.2
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_print",
+                                                        "id": "w37_049",
+                                                        "inputs": {
+                                                          "TEXT": {
+                                                            "shadow": {
+                                                              "type": "text",
+                                                              "id": "w37_048",
+                                                              "fields": {
+                                                                "TEXT": "Dance finished"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "w37_008",
+        "x": 620,
+        "y": 40,
+        "extraState": {
+          "params": [
+            {
+              "name": "times",
+              "id": "v_times"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "wiggle"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "controls_repeat_ext",
+              "id": "w37_007",
+              "inputs": {
+                "TIMES": {
+                  "shadow": {
+                    "type": "math_number",
+                    "id": "w37_002",
+                    "fields": {
+                      "NUM": 3
+                    }
+                  },
+                  "block": {
+                    "type": "variables_get",
+                    "id": "w37_001",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_times"
+                      }
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "xrp_drive_turn",
+                    "id": "w37_004",
+                    "inputs": {
+                      "ANGLE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w37_003",
+                          "fields": {
+                            "NUM": 25
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_drive_turn",
+                        "id": "w37_006",
+                        "inputs": {
+                          "ANGLE": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w37_005",
+                              "fields": {
+                                "NUM": -25
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defreturn",
+        "id": "w37_021",
+        "x": 620,
+        "y": 260,
+        "extraState": {
+          "params": [
+            {
+              "name": "percent",
+              "id": "v_percent"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Describe this function...",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "safe speed"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "xrp_print",
+              "id": "w37_015",
+              "inputs": {
+                "TEXT": {
+                  "shadow": {
+                    "type": "text",
+                    "id": "w37_014",
+                    "fields": {
+                      "TEXT": ""
+                    }
+                  },
+                  "block": {
+                    "type": "text_join",
+                    "id": "w37_013",
+                    "extraState": {
+                      "itemCount": 3
+                    },
+                    "inputs": {
+                      "ADD0": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w37_010",
+                          "fields": {
+                            "TEXT": "asked for "
+                          }
+                        }
+                      },
+                      "ADD1": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w37_011",
+                          "fields": {
+                            "TEXT": ""
+                          }
+                        },
+                        "block": {
+                          "type": "variables_get",
+                          "id": "w37_009",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_percent"
+                            }
+                          }
+                        }
+                      },
+                      "ADD2": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w37_012",
+                          "fields": {
+                            "TEXT": "%"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "RETURN": {
+            "block": {
+              "type": "math_constrain",
+              "id": "w37_020",
+              "inputs": {
+                "VALUE": {
+                  "shadow": {
+                    "type": "math_number",
+                    "id": "w37_017",
+                    "fields": {
+                      "NUM": 0
+                    }
+                  },
+                  "block": {
+                    "type": "variables_get",
+                    "id": "w37_016",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_percent"
+                      }
+                    }
+                  }
+                },
+                "LOW": {
+                  "shadow": {
+                    "type": "math_number",
+                    "id": "w37_018",
+                    "fields": {
+                      "NUM": -60
+                    }
+                  }
+                },
+                "HIGH": {
+                  "shadow": {
+                    "type": "math_number",
+                    "id": "w37_019",
+                    "fields": {
+                      "NUM": 60
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "times",
+      "id": "v_times"
+    },
+    {
+      "name": "percent",
+      "id": "v_percent"
+    }
+  ]
+}

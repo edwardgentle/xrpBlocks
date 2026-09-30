@@ -1,0 +1,227 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0467",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Procedure from change 38. If the robot overshoots by 10 degrees in total (1450), set calibration to 100 x 1440 / 1450 = 99.3 %.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0443",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0444",
+                  "fields": {
+                    "TEXT": "Test 07: turns 360 degrees four times (1440). Mark the start heading."
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_print",
+                "id": "tp0445",
+                "inputs": {
+                  "TEXT": {
+                    "shadow": {
+                      "type": "text",
+                      "id": "tp0446",
+                      "fields": {
+                        "TEXT": "Press the board button to start"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_for_button",
+                    "id": "tp0447",
+                    "next": {
+                      "block": {
+                        "type": "xrp_wait_seconds",
+                        "id": "tp0448",
+                        "inputs": {
+                          "SECONDS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "tp0449",
+                              "fields": {
+                                "NUM": 0.5
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_drive_turn_calibrate",
+                            "id": "tp0450",
+                            "inputs": {
+                              "PERCENT": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "tp0451",
+                                  "fields": {
+                                    "NUM": 100
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_imu_reset_yaw",
+                                "id": "tp0452",
+                                "fields": {
+                                  "AXIS": "yaw"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "controls_repeat_ext",
+                                    "id": "tp0457",
+                                    "inputs": {
+                                      "TIMES": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "tp0458",
+                                          "fields": {
+                                            "NUM": 4
+                                          }
+                                        }
+                                      },
+                                      "DO": {
+                                        "block": {
+                                          "type": "xrp_drive_turn",
+                                          "id": "tp0453",
+                                          "inputs": {
+                                            "ANGLE": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "tp0454",
+                                                "fields": {
+                                                  "NUM": 360
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "xrp_wait_seconds",
+                                              "id": "tp0455",
+                                              "inputs": {
+                                                "SECONDS": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "tp0456",
+                                                    "fields": {
+                                                      "NUM": 0.5
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_print",
+                                        "id": "tp0462",
+                                        "inputs": {
+                                          "TEXT": {
+                                            "block": {
+                                              "type": "text_join",
+                                              "id": "tp0461",
+                                              "extraState": {
+                                                "itemCount": 2
+                                              },
+                                              "inputs": {
+                                                "ADD0": {
+                                                  "block": {
+                                                    "type": "text",
+                                                    "id": "tp0459",
+                                                    "fields": {
+                                                      "TEXT": "Gyro yaw after 1440: "
+                                                    }
+                                                  }
+                                                },
+                                                "ADD1": {
+                                                  "block": {
+                                                    "type": "xrp_imu_angle",
+                                                    "id": "tp0460",
+                                                    "fields": {
+                                                      "READING": "get_yaw"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_print",
+                                            "id": "tp0463",
+                                            "inputs": {
+                                              "TEXT": {
+                                                "shadow": {
+                                                  "type": "text",
+                                                  "id": "tp0464",
+                                                  "fields": {
+                                                    "TEXT": "Measure the real total angle. Calibration percent = 100 x 1440 / real angle."
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "tp0465",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "tp0466",
+                                                      "fields": {
+                                                        "TEXT": "Put that number in the 'set turn calibration' block, then rerun."
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

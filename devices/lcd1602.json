@@ -1,0 +1,524 @@
+{
+  "manifestVersion": 1,
+  "id": "lcd1602",
+  "name": {
+    "en": "Character LCD 16x2 (I2C)",
+    "nl": "Tekst-LCD 16x2 (I2C)"
+  },
+  "description": {
+    "en": "16x2 character LCD with a PCF8574 I2C backpack, such as the blue BDD 16X2 I2C LCD. Two lines of text, readings, scrolling and a bar. Needs 5 V power.",
+    "nl": "16x2 tekst-LCD met een PCF8574 I2C-module. Twee regels tekst, metingen, schuiven en een balk. Heeft 5 V nodig."
+  },
+  "version": "1.1.0",
+  "author": "XRP Blocks (Limpopo DoE fork)",
+  "licence": "MIT",
+  "homepage": "https://www.communica.co.za/products/bdd-16x2-i2c-lcd-blue",
+  "category": {
+    "key": "LCD",
+    "label": {
+      "en": "LCD 16x2",
+      "nl": "LCD 16x2"
+    },
+    "colour": "#7F9C3A",
+    "colourDark": "#55691F",
+    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M2 5h20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm.8 1.8v10.4h18.4V6.8z\"/><path d=\"M4.5 8.5h2v2.6h-2zm3 0h2v2.6h-2zm3 0h2v2.6h-2zm3 0h2v2.6h-2zm-9 4.4h2v2.6h-2zm3 0h2v2.6h-2z\"/></svg>"
+  },
+  "driver": {
+    "filename": "LCD1602.py",
+    "marker": "LCD1602",
+    "source": "\"\"\"LCD1602 - character LCDs with a PCF8574 I2C backpack, for MicroPython on the XRP.\n\nTwo classes, one protocol:\n    LCD1602  16 characters x 2 lines, e.g. Communica \"BDD 16X2 I2C LCD BLUE\"\n    LCD2004  20 characters x 4 lines, e.g. Communica \"BMT 20X4 I2C SERIAL LCD\"\nBoth panels use an HD44780-compatible controller; the backpack is a PCF8574\n(or PCF8574A) I/O expander that drives it in 4-bit mode. The file keeps its\noriginal name so programs written for the 16x2 library keep working.\n\nLINE ADDRESSES\n--------------\nThe controller's memory is laid out for two long lines, so on a 20x4 panel\nline 3 continues line 1 and line 4 continues line 2 (start addresses 0x00,\n0x40, 0x14, 0x54). This driver clips every write at the end of its line, so\ntext never spills from line 1 into line 3.\n\nBACKPACK PIN MAP\n----------------\nThe usual backpack wiring, also used by Dave Hylands' python_lcd driver\n(github.com/dhylands/python_lcd, MIT):\n    P0 = RS, P1 = RW, P2 = E, P3 = backlight, P4..P7 = D4..D7\nA backpack wired differently will show nothing or rubbish. This driver was\nwritten from the HD44780 4-bit protocol, not copied from python_lcd.\n\nPOWER - READ BEFORE WIRING\n--------------------------\nMost of these modules are 5 V parts. At 3.3 V (the Qwiic supply) the\nbacklight comes on but the characters are very faint or missing. Power VCC\nfrom a 5 V source, with its GND joined to the XRP's GND.\n\nThe backpack usually has pull-up resistors on SDA and SCL to its own VCC, so\nat 5 V the I2C lines are pulled to 5 V. Check the RP2350 datasheet for GPIO\n5 V tolerance before relying on that, or put an I2C level shifter in between.\n\nADDRESS\n-------\nPCF8574T backpacks are usually 0x27; PCF8574AT backpacks are usually 0x3F.\nThe A0-A2 solder pads on the back change it (0x20-0x27 or 0x38-0x3F).\nLeft on automatic, this driver looks for 0x27 and then 0x3F only, so it will\nnever mistake a PCF8575 expander (0x20 by default) for the display.\n\nBUS SPEED\n---------\nThe PCF8574 datasheet rates it for 100 kHz, so this driver opens the bus at\n100 kHz. On a shared Qwiic bus the most recently opened device sets the speed\nfor everyone, so an OLED on the same bus will redraw more slowly after the\nLCD is set up.\n\nCONTRAST\n--------\nIf the backlight is on but you see nothing, or a row of solid blocks, turn\nthe blue trimmer on the backpack slowly until the characters appear.\n\nCHARACTERS\n----------\nThe panel has its own built-in character set (ROM A00 on most modules):\nordinary letters, digits and punctuation work, \"°\" is translated to the\npanel's degree sign, and anything the panel cannot show becomes \"?\".\nTwo quirks of that ROM: a backslash shows as a yen sign, and \"~\" shows as a\nright arrow.\n\nMISSING DISPLAY\n---------------\nIf nothing answers, this driver says so on the console and then quietly does\nnothing, rather than stopping the program. `is_connected()` tells a program\nwhich it is.\n\"\"\"\n\nimport time\nfrom machine import I2C, Pin\n\n# (bus id, named sda, named scl, fallback sda gpio, fallback scl gpio)\n# Qwiic 1 shares the bus the IMU uses; Qwiic 0 is normally free.\n_BUS_CANDIDATES = (\n    (1, \"I2C_SDA_1\", \"I2C_SCL_1\", 38, 39),\n    (0, \"I2C_SDA_0\", \"I2C_SCL_0\", 4, 5),\n)\n\n_AUTO_ADDRESSES = (0x27, 0x3F)\n\n# Backpack bits\n_RS = 0x01\n_EN = 0x04\n_BACKLIGHT = 0x08\n\n# HD44780 commands\n_CLEAR = 0x01\n_ENTRY_MODE = 0x04 | 0x02          # increment, no display shift\n_DISPLAY_CTRL = 0x08\n_DISPLAY_ON = 0x04\n_CURSOR_ON = 0x02\n_BLINK_ON = 0x01\n_FUNCTION_SET = 0x20 | 0x08        # 4-bit, 2 lines, 5x8 dots\n_SET_DDRAM = 0x80\n\n_ROW_OFFSETS = (0x00, 0x40, 0x14, 0x54)   # 16x2 uses the first two\n\n_DEGREE = 0xDF\n_FULL_BLOCK = 0xFF\n\n\ndef _open_bus(bus_id, sda_name, scl_name, sda_gpio, scl_gpio, freq):\n    \"\"\"Open an I2C bus by board pin name, falling back to raw GPIO numbers.\"\"\"\n    try:\n        return I2C(bus_id, sda=Pin(sda_name), scl=Pin(scl_name), freq=freq)\n    except Exception:\n        return I2C(bus_id, sda=Pin(sda_gpio), scl=Pin(scl_gpio), freq=freq)\n\n\ndef scan(freq=100000):\n    \"\"\"Return a list of (bus_id, address) for every PCF8574/PCF8574A address answering.\"\"\"\n    found = []\n    for spec in _BUS_CANDIDATES:\n        try:\n            bus = _open_bus(spec[0], spec[1], spec[2], spec[3], spec[4], freq)\n            for addr in bus.scan():\n                if 0x20 <= addr <= 0x27 or 0x38 <= addr <= 0x3F:\n                    found.append((spec[0], addr))\n        except Exception:\n            pass\n    return found\n\n\ndef _format(value):\n    \"\"\"Print a number the way a learner expects: 3 not 3.0, 1.25 not 1.2500001.\"\"\"\n    if isinstance(value, bool):\n        return \"yes\" if value else \"no\"\n    if isinstance(value, float):\n        if value != value:               # NaN\n            return \"?\"\n        rounded = round(value, 2)\n        if rounded == int(rounded):\n            return str(int(rounded))\n        return str(rounded)\n    return str(value)\n\n\ndef _encode(text):\n    \"\"\"Turn text into the panel's own character codes.\"\"\"\n    out = bytearray()\n    for ch in str(text):\n        if ch == \"°\":\n            out.append(_DEGREE)\n        else:\n            code = ord(ch)\n            out.append(code if 32 <= code <= 127 else 63)   # 63 is \"?\"\n    return out\n\n\nclass LCD1602:\n    \"\"\"An HD44780 character LCD behind a PCF8574 I2C backpack (16x2 by default).\"\"\"\n\n    def __init__(self, address=None, columns=16, rows=2,\n                 i2c=None, freq=100000):\n        self.columns = int(columns)\n        self.rows = int(rows)\n        if not 1 <= self.rows <= len(_ROW_OFFSETS):\n            raise ValueError(\"an HD44780 LCD has 1 to 4 lines\")\n        self._backlight = _BACKLIGHT\n        self._display_ctrl = _DISPLAY_CTRL | _DISPLAY_ON\n        self._shadow = [bytearray(b\" \" * self.columns) for _ in range(self.rows)]\n        self._print_row = 0\n        self._scrolling = {}\n        self._warned = False\n\n        if i2c is not None:\n            self.i2c = i2c\n            self.address = address if address is not None else _AUTO_ADDRESSES[0]\n        else:\n            self.i2c, self.address = self._find_bus(address, freq)\n        self.present = self.i2c is not None\n\n        if self.present:\n            try:\n                self._init_display()\n            except Exception as err:\n                self.present = False\n                print(\"LCD at 0x%02X stopped answering: %s\" % (self.address, err))\n        else:\n            wanted = (\"0x%02X\" % address) if address is not None else \"0x27 or 0x3F\"\n            print(\n                \"No LCD answering at %s. Check the wiring, that the LCD has \"\n                \"5 V power, and the address. The program will carry on \"\n                \"without the screen.\" % wanted\n            )\n\n    # -- setup ------------------------------------------------------------\n\n    @staticmethod\n    def _find_bus(address, freq):\n        wanted = (address,) if address is not None else _AUTO_ADDRESSES\n        for spec in _BUS_CANDIDATES:\n            try:\n                bus = _open_bus(spec[0], spec[1], spec[2], spec[3], spec[4], freq)\n                present = bus.scan()\n                for addr in wanted:\n                    if addr in present:\n                        return bus, addr\n            except Exception:\n                pass\n        return None, (address if address is not None else _AUTO_ADDRESSES[0])\n\n    def _nibble_bytes(self, nibble, rs, buf):\n        \"\"\"Three backpack writes: data settles, E rises, E falls (latches).\"\"\"\n        b = ((nibble & 0x0F) << 4) | self._backlight | (_RS if rs else 0)\n        buf.append(b)\n        buf.append(b | _EN)\n        buf.append(b)\n\n    def _send(self, values, rs):\n        \"\"\"Send whole bytes (commands or characters) in one I2C write.\"\"\"\n        buf = bytearray()\n        for v in values:\n            self._nibble_bytes(v >> 4, rs, buf)\n            self._nibble_bytes(v, rs, buf)\n        self.i2c.writeto(self.address, buf)\n\n    def _command(self, cmd):\n        self._send((cmd,), False)\n        if cmd == _CLEAR:\n            time.sleep_ms(2)            # clear needs 1.52 ms\n\n    def _init_display(self):\n        time.sleep_ms(50)               # the panel needs >40 ms after power-up\n        self.i2c.writeto(self.address, bytes([self._backlight]))\n        # Datasheet \"initialising by instruction\" for 4-bit mode.\n        for wait in (5, 1, 1):\n            buf = bytearray()\n            self._nibble_bytes(0x03, False, buf)\n            self.i2c.writeto(self.address, buf)\n            time.sleep_ms(wait)\n        buf = bytearray()\n        self._nibble_bytes(0x02, False, buf)   # now in 4-bit mode\n        self.i2c.writeto(self.address, buf)\n        time.sleep_ms(1)\n        self._command(_FUNCTION_SET)\n        self._command(_DISPLAY_CTRL)            # display off while we set up\n        self._command(_CLEAR)\n        self._command(_ENTRY_MODE)\n        self._command(self._display_ctrl)\n\n    def _safe(self, action):\n        \"\"\"Run a bus action; if the LCD has gone, say so once and carry on.\"\"\"\n        if not self.present:\n            return\n        try:\n            action()\n        except Exception as err:\n            self.present = False\n            if not self._warned:\n                self._warned = True\n                print(\"Lost the LCD at 0x%02X: %s\" % (self.address, err))\n\n    # -- text -------------------------------------------------------------\n\n    def _row(self, line):\n        \"\"\"Line 1 is the top row. Out-of-range lines are pulled back in.\"\"\"\n        line = int(line)\n        if line < 1:\n            line = 1\n        if line > self.rows:\n            line = self.rows\n        return line - 1\n\n    def _col(self, column):\n        column = int(column)\n        if column < 1:\n            column = 1\n        if column > self.columns:\n            column = self.columns\n        return column - 1\n\n    def _put(self, row, col, data):\n        \"\"\"Write bytes at (row, col), clipped to the line, and keep the shadow copy.\"\"\"\n        data = data[:self.columns - col]\n        if not data:\n            return\n        self._shadow[row][col:col + len(data)] = data\n\n        def action():\n            self._command(_SET_DDRAM | (_ROW_OFFSETS[row] + col))\n            self._send(data, True)\n        self._safe(action)\n\n    def _put_line(self, row, data):\n        padded = bytearray(data[:self.columns])\n        while len(padded) < self.columns:\n            padded.append(32)\n        self._put(row, 0, padded)\n\n    def clear(self):\n        \"\"\"Wipe the screen and start printing from the top again.\"\"\"\n        for row in self._shadow:\n            row[:] = b\" \" * self.columns\n        self._print_row = 0\n        self._scrolling.clear()\n        self._safe(lambda: self._command(_CLEAR))\n\n    def write_line(self, message, line):\n        \"\"\"Put text on one line, replacing what was there. Extra characters are cut off.\"\"\"\n        row = self._row(line)\n        self._scrolling.pop(row, None)\n        self._put_line(row, _encode(message))\n\n    def write_value(self, label, value, line):\n        \"\"\"Put \"label: value\" on one line. The everyday sensor-reading block.\"\"\"\n        self.write_line(\"%s: %s\" % (label, _format(value)), line)\n\n    def write_at(self, message, column, line):\n        \"\"\"Put text starting at a column (1 = left edge) on a line. The rest of the line is kept.\"\"\"\n        row = self._row(line)\n        self._scrolling.pop(row, None)\n        self._put(row, self._col(column), _encode(message))\n\n    def println(self, message):\n        \"\"\"Print like a console: fill the lines top to bottom, then everything moves up.\"\"\"\n        data = _encode(message)\n        if self._print_row < self.rows:\n            row = self._print_row\n            self._print_row += 1\n        else:\n            for r in range(self.rows - 1):\n                self._scrolling.pop(r, None)\n                self._put_line(r, bytearray(self._shadow[r + 1]))\n            row = self.rows - 1\n        self._scrolling.pop(row, None)\n        self._put_line(row, data)\n\n    def scroll_text(self, message, line=1, speed=3):\n        \"\"\"Call repeatedly. Scroll long text left, pausing at each end.\n\n        Speed is characters per second (1..10). No sleeps, so other robot\n        work carries on. Short text stays still. Only sends to the panel when\n        the picture actually moves.\n        \"\"\"\n        row = self._row(line)\n        data = _encode(message)\n        try:\n            speed = float(speed)\n        except Exception:\n            speed = 3.0\n        if speed < 1:\n            speed = 1.0\n        if speed > 10:\n            speed = 10.0\n        now = time.ticks_ms()\n\n        state = self._scrolling.get(row)\n        if state is None or state[\"data\"] != data:\n            state = {\"data\": data, \"offset\": 0, \"last\": now, \"pause\": 1000, \"drawn\": -1}\n            self._scrolling[row] = state\n\n        longest = len(data) - self.columns\n        if longest > 0:\n            elapsed = time.ticks_diff(now, state[\"last\"])\n            if state[\"pause\"] > 0:\n                if elapsed >= state[\"pause\"]:\n                    state[\"pause\"] = 0\n                    state[\"last\"] = now\n                    if state[\"offset\"] >= longest:\n                        state[\"offset\"] = 0\n                        state[\"pause\"] = 1000\n            else:\n                step_ms = int(1000 / speed)\n                steps = elapsed // step_ms\n                if steps > 0:\n                    state[\"offset\"] = min(longest, state[\"offset\"] + steps)\n                    state[\"last\"] = time.ticks_add(state[\"last\"], steps * step_ms)\n                    if state[\"offset\"] >= longest:\n                        state[\"pause\"] = 1000\n                        state[\"last\"] = now\n        else:\n            state[\"offset\"] = 0\n\n        if state[\"drawn\"] != state[\"offset\"]:\n            state[\"drawn\"] = state[\"offset\"]\n            start = state[\"offset\"]\n            self._put_line(row, data[start:start + self.columns])\n\n    def bar(self, value, minimum=0, maximum=100, line=2):\n        \"\"\"Fill a line with solid blocks in proportion to value, like a progress bar.\"\"\"\n        try:\n            value = float(value)\n            minimum = float(minimum)\n            maximum = float(maximum)\n        except Exception:\n            return\n        if maximum == minimum:\n            fraction = 0.0\n        else:\n            fraction = (value - minimum) / (maximum - minimum)\n        if fraction < 0:\n            fraction = 0.0\n        if fraction > 1:\n            fraction = 1.0\n        cells = int(round(fraction * self.columns))\n        row = self._row(line)\n        self._scrolling.pop(row, None)\n        self._put_line(row, bytearray([_FULL_BLOCK] * cells))\n\n    # -- the panel itself -------------------------------------------------\n\n    def backlight(self, on=True):\n        \"\"\"Switch the backlight on or off. The text stays on the panel.\"\"\"\n        self._backlight = _BACKLIGHT if on else 0\n        self._safe(lambda: self.i2c.writeto(self.address, bytes([self._backlight])))\n\n    def power(self, on=True):\n        \"\"\"Blank the characters (on=False) or show them again. The text is kept.\"\"\"\n        if on:\n            self._display_ctrl |= _DISPLAY_ON\n        else:\n            self._display_ctrl &= ~_DISPLAY_ON\n        self._safe(lambda: self._command(self._display_ctrl))\n\n    def cursor(self, mode=\"off\"):\n        \"\"\"Cursor style: \"off\", \"line\" (underline) or \"blink\" (flashing block).\"\"\"\n        self._display_ctrl &= ~(_CURSOR_ON | _BLINK_ON)\n        if mode == \"line\":\n            self._display_ctrl |= _CURSOR_ON\n        elif mode == \"blink\":\n            self._display_ctrl |= _BLINK_ON\n        self._safe(lambda: self._command(self._display_ctrl))\n\n    # -- questions a program can ask --------------------------------------\n\n    def is_connected(self):\n        \"\"\"True if the backpack answers right now.\"\"\"\n        if self.i2c is None:\n            return False\n        try:\n            self.i2c.writeto(self.address, bytes([self._backlight]))\n            if not self.present:\n                self.present = True\n                self._warned = False\n                self._init_display()\n                self._redraw()\n        except Exception:\n            self.present = False\n        return self.present\n\n    def _redraw(self):\n        for r in range(self.rows):\n            self._put(r, 0, bytearray(self._shadow[r]))\n\n\nclass LCD2004(LCD1602):\n    \"\"\"A 20x4 HD44780 character LCD behind a PCF8574 I2C backpack.\"\"\"\n\n    def __init__(self, address=None, i2c=None, freq=100000):\n        super().__init__(address=address, columns=20, rows=4, i2c=i2c, freq=freq)\n"
+  },
+  "instance": {
+    "name": "lcd",
+    "import": "from LCD1602 import LCD1602",
+    "create": "LCD1602()",
+    "createConfigured": "LCD1602(address={ADDR})"
+  },
+  "lists": {
+    "addresses": [
+      {
+        "label": {
+          "en": "automatic (0x27 or 0x3F)",
+          "nl": "automatisch (0x27 of 0x3F)"
+        },
+        "value": "AUTO",
+        "code": "None"
+      },
+      {
+        "label": "0x27",
+        "value": "0x27"
+      },
+      {
+        "label": "0x3F",
+        "value": "0x3f"
+      },
+      {
+        "label": "0x20",
+        "value": "0x20"
+      },
+      {
+        "label": "0x21",
+        "value": "0x21"
+      },
+      {
+        "label": "0x22",
+        "value": "0x22"
+      },
+      {
+        "label": "0x23",
+        "value": "0x23"
+      },
+      {
+        "label": "0x24",
+        "value": "0x24"
+      },
+      {
+        "label": "0x25",
+        "value": "0x25"
+      },
+      {
+        "label": "0x26",
+        "value": "0x26"
+      },
+      {
+        "label": "0x38",
+        "value": "0x38"
+      },
+      {
+        "label": "0x39",
+        "value": "0x39"
+      },
+      {
+        "label": "0x3A",
+        "value": "0x3a"
+      },
+      {
+        "label": "0x3B",
+        "value": "0x3b"
+      },
+      {
+        "label": "0x3C",
+        "value": "0x3c"
+      },
+      {
+        "label": "0x3D",
+        "value": "0x3d"
+      },
+      {
+        "label": "0x3E",
+        "value": "0x3e"
+      }
+    ],
+    "lines": [
+      {
+        "label": "1",
+        "value": "1"
+      },
+      {
+        "label": "2",
+        "value": "2"
+      }
+    ],
+    "onoff": [
+      {
+        "label": {
+          "en": "on",
+          "nl": "aan"
+        },
+        "value": "ON",
+        "code": "True"
+      },
+      {
+        "label": {
+          "en": "off",
+          "nl": "uit"
+        },
+        "value": "OFF",
+        "code": "False"
+      }
+    ],
+    "cursors": [
+      {
+        "label": {
+          "en": "hidden",
+          "nl": "verborgen"
+        },
+        "value": "OFF",
+        "code": "'off'"
+      },
+      {
+        "label": {
+          "en": "underline",
+          "nl": "onderstreept"
+        },
+        "value": "LINE",
+        "code": "'line'"
+      },
+      {
+        "label": {
+          "en": "blinking block",
+          "nl": "knipperend blok"
+        },
+        "value": "BLINK",
+        "code": "'blink'"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "type": "xrp_lcd_setup",
+      "text": {
+        "en": "set up LCD at address %1",
+        "nl": "stel LCD in op adres %1"
+      },
+      "tooltip": {
+        "en": "Find the 16x2 LCD's I2C backpack. Automatic tries 0x27 then 0x3F, which covers almost every module. The LCD needs 5 V power. Use this once, at the start.",
+        "nl": "Zoek de I2C-module van het 16x2 LCD. Automatisch probeert 0x27 en dan 0x3F. Het LCD heeft 5 V nodig. Gebruik dit een keer, aan het begin."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ADDR",
+          "options": "$addresses"
+        }
+      ],
+      "shape": "statement",
+      "configuresInstance": true,
+      "code": ""
+    },
+    {
+      "type": "xrp_lcd_clear",
+      "text": {
+        "en": "clear the LCD",
+        "nl": "wis het LCD"
+      },
+      "tooltip": {
+        "en": "Wipe both lines and start printing from the top line again.",
+        "nl": "Wis beide regels en begin weer bovenaan met printen."
+      },
+      "shape": "statement",
+      "code": "lcd.clear()\n"
+    },
+    {
+      "type": "xrp_lcd_print",
+      "text": {
+        "en": "LCD print %1",
+        "nl": "LCD print %1"
+      },
+      "tooltip": {
+        "en": "Print like the console: line 1, then line 2, then the text moves up a line each time.",
+        "nl": "Print zoals de console: regel 1, dan regel 2, daarna schuift de tekst telkens een regel omhoog."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "lcd.println({MESSAGE})\n"
+    },
+    {
+      "type": "xrp_lcd_line",
+      "text": {
+        "en": "show %1 on LCD line %2",
+        "nl": "toon %1 op LCD-regel %2"
+      },
+      "tooltip": {
+        "en": "Put text on line 1 or 2, replacing whatever was there. Sixteen characters fit; the rest is cut off.",
+        "nl": "Zet tekst op regel 1 of 2 en vervang wat er stond. Er passen zestien tekens op een regel."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "lcd.write_line({MESSAGE}, {LINE})\n"
+    },
+    {
+      "type": "xrp_lcd_value",
+      "text": {
+        "en": "show %1 = %2 on LCD line %3",
+        "nl": "toon %1 = %2 op LCD-regel %3"
+      },
+      "tooltip": {
+        "en": "Show a named reading, like \"distance: 24\". Whole numbers lose their decimal point and long decimals are rounded to two places.",
+        "nl": "Toon een meting met naam, zoals \"afstand: 24\". Hele getallen verliezen de komma en lange decimalen worden op twee cijfers afgerond."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "LABEL",
+          "default": "''"
+        },
+        {
+          "type": "value",
+          "name": "VALUE",
+          "default": "0"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "lcd.write_value({LABEL}, {VALUE}, {LINE})\n"
+    },
+    {
+      "type": "xrp_lcd_at",
+      "text": {
+        "en": "LCD write %1 at column %2 line %3",
+        "nl": "LCD schrijf %1 op kolom %2 regel %3"
+      },
+      "tooltip": {
+        "en": "Write text starting at a column (1 to 16). The rest of the line is left as it was.",
+        "nl": "Schrijf tekst vanaf een kolom (1 tot 16). De rest van de regel blijft staan."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "number",
+          "name": "COLUMN",
+          "default": "1"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "lcd.write_at({MESSAGE}, {COLUMN}, {LINE})\n"
+    },
+    {
+      "type": "xrp_lcd_scroll_text",
+      "text": {
+        "en": "LCD scroll %1 on line %2 speed (characters/sec) %3",
+        "nl": "LCD schuif %1 op regel %2 snelheid (tekens/sec) %3"
+      },
+      "tooltip": {
+        "en": "Put inside a forever loop with a short wait. Long text scrolls left, pauses and repeats; text of 16 characters or fewer stays still. Speed 1 to 10 characters/sec. Does not pause your program.",
+        "nl": "Plaats in een herhaallus met een korte wachttijd. Lange tekst schuift, pauzeert en herhaalt; korte tekst blijft staan. Snelheid 1 tot 10 tekens/sec."
+      },
+      "args": [
+        {
+          "type": "value",
+          "name": "MESSAGE",
+          "default": "''"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": "3"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "lcd.scroll_text({MESSAGE}, {LINE}, {SPEED})\n"
+    },
+    {
+      "type": "xrp_lcd_bar",
+      "text": {
+        "en": "LCD bar %1 from %2 to %3 on line %4",
+        "nl": "LCD-balk %1 van %2 tot %3 op regel %4"
+      },
+      "tooltip": {
+        "en": "Fill a line with solid blocks in proportion to the value, like a progress bar. Sixteen blocks is the maximum.",
+        "nl": "Vul een regel met blokjes naar verhouding van de waarde, zoals een voortgangsbalk."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "VALUE",
+          "default": "0"
+        },
+        {
+          "type": "number",
+          "name": "MIN",
+          "default": "0"
+        },
+        {
+          "type": "number",
+          "name": "MAX",
+          "default": "100"
+        },
+        {
+          "type": "dropdown",
+          "name": "LINE",
+          "options": "$lines"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "lcd.bar({VALUE}, {MIN}, {MAX}, {LINE})\n"
+    },
+    {
+      "type": "xrp_lcd_backlight",
+      "text": {
+        "en": "switch the LCD backlight %1",
+        "nl": "zet de LCD-achtergrondverlichting %1"
+      },
+      "tooltip": {
+        "en": "Switch the backlight on or off. The text stays on the panel, but is hard to read without it.",
+        "nl": "Zet de achtergrondverlichting aan of uit. De tekst blijft staan."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": "$onoff"
+        }
+      ],
+      "shape": "statement",
+      "code": "lcd.backlight({STATE})\n"
+    },
+    {
+      "type": "xrp_lcd_power",
+      "text": {
+        "en": "switch the LCD text %1",
+        "nl": "zet de LCD-tekst %1"
+      },
+      "tooltip": {
+        "en": "Hide the characters without losing them. Switch back on and the same text returns.",
+        "nl": "Verberg de tekens zonder ze kwijt te raken. Zet weer aan en dezelfde tekst komt terug."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": "$onoff"
+        }
+      ],
+      "shape": "statement",
+      "code": "lcd.power({STATE})\n"
+    },
+    {
+      "type": "xrp_lcd_cursor",
+      "text": {
+        "en": "LCD cursor %1",
+        "nl": "LCD-cursor %1"
+      },
+      "tooltip": {
+        "en": "Show where the next character would go: hidden, an underline, or a blinking block.",
+        "nl": "Toon waar het volgende teken zou komen: verborgen, onderstreept of een knipperend blok."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "MODE",
+          "options": "$cursors"
+        }
+      ],
+      "shape": "statement",
+      "code": "lcd.cursor({MODE})\n"
+    },
+    {
+      "type": "xrp_lcd_connected",
+      "text": {
+        "en": "LCD is connected",
+        "nl": "LCD is aangesloten"
+      },
+      "tooltip": {
+        "en": "True if the LCD answers right now. A program keeps running with the LCD unplugged, so this is how it can tell. Plugging it back in sets it up again.",
+        "nl": "Waar als het LCD nu antwoordt. Een programma loopt door zonder LCD, dus zo kan het dat merken."
+      },
+      "shape": "value",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL",
+      "code": "lcd.is_connected()"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_lcd_setup"
+    },
+    {
+      "block": "xrp_lcd_clear"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_lcd_print",
+      "shadows": {
+        "MESSAGE": "Hello XRP!"
+      }
+    },
+    {
+      "block": "xrp_lcd_line",
+      "shadows": {
+        "MESSAGE": "Hello XRP!"
+      }
+    },
+    {
+      "block": "xrp_lcd_value",
+      "shadows": {
+        "LABEL": "distance",
+        "VALUE": 0
+      }
+    },
+    {
+      "block": "xrp_lcd_at",
+      "shadows": {
+        "MESSAGE": "XRP",
+        "COLUMN": 1
+      }
+    },
+    {
+      "block": "xrp_lcd_scroll_text",
+      "shadows": {
+        "MESSAGE": "This message scrolls across the LCD",
+        "SPEED": 3
+      }
+    },
+    {
+      "block": "xrp_lcd_bar",
+      "shadows": {
+        "VALUE": 50,
+        "MIN": 0,
+        "MAX": 100
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_lcd_backlight"
+    },
+    {
+      "block": "xrp_lcd_power"
+    },
+    {
+      "block": "xrp_lcd_cursor"
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_lcd_connected"
+    }
+  ]
+}

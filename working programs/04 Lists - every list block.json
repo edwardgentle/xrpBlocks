@@ -1,0 +1,1249 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp0285",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Prints each list operation with the value you should see in brackets. Note: split gives TEXT items, so searching for the text 30 finds it but searching for the number 30 does not (Python treats them differently).",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "tp0162",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "tp0163",
+                  "fields": {
+                    "TEXT": "Test 04: every list block, compare each line with its expected value"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_list_set",
+                "id": "tp0167",
+                "fields": {
+                  "VAR": {
+                    "id": "v_items"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "block": {
+                      "type": "xrp_list_from_text",
+                      "id": "tp0164",
+                      "inputs": {
+                        "TEXT": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "tp0165",
+                            "fields": {
+                              "TEXT": "10,20,30"
+                            }
+                          }
+                        },
+                        "DELIM": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "tp0166",
+                            "fields": {
+                              "TEXT": ","
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_print",
+                    "id": "tp0173",
+                    "inputs": {
+                      "TEXT": {
+                        "block": {
+                          "type": "text_join",
+                          "id": "tp0172",
+                          "extraState": {
+                            "itemCount": 3
+                          },
+                          "inputs": {
+                            "ADD0": {
+                              "block": {
+                                "type": "text",
+                                "id": "tp0170",
+                                "fields": {
+                                  "TEXT": "start = "
+                                }
+                              }
+                            },
+                            "ADD1": {
+                              "block": {
+                                "type": "xrp_list_to_text",
+                                "id": "tp0168",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_items"
+                                  }
+                                },
+                                "inputs": {
+                                  "DELIM": {
+                                    "shadow": {
+                                      "type": "text",
+                                      "id": "tp0169",
+                                      "fields": {
+                                        "TEXT": " "
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ADD2": {
+                              "block": {
+                                "type": "text",
+                                "id": "tp0171",
+                                "fields": {
+                                  "TEXT": "   (expect 10 20 30)"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_list_add_item",
+                        "id": "tp0175",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_items"
+                          }
+                        },
+                        "inputs": {
+                          "ITEM": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "tp0174",
+                              "fields": {
+                                "NUM": 40
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_list_insert_item",
+                            "id": "tp0178",
+                            "fields": {
+                              "VAR": {
+                                "id": "v_items"
+                              }
+                            },
+                            "inputs": {
+                              "ITEM": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "tp0176",
+                                  "fields": {
+                                    "NUM": 5
+                                  }
+                                }
+                              },
+                              "INDEX": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "tp0177",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_print",
+                                "id": "tp0184",
+                                "inputs": {
+                                  "TEXT": {
+                                    "block": {
+                                      "type": "text_join",
+                                      "id": "tp0183",
+                                      "extraState": {
+                                        "itemCount": 3
+                                      },
+                                      "inputs": {
+                                        "ADD0": {
+                                          "block": {
+                                            "type": "text",
+                                            "id": "tp0181",
+                                            "fields": {
+                                              "TEXT": "after add 40, insert 5 at 1 = "
+                                            }
+                                          }
+                                        },
+                                        "ADD1": {
+                                          "block": {
+                                            "type": "xrp_list_to_text",
+                                            "id": "tp0179",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_items"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "DELIM": {
+                                                "shadow": {
+                                                  "type": "text",
+                                                  "id": "tp0180",
+                                                  "fields": {
+                                                    "TEXT": " "
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "ADD2": {
+                                          "block": {
+                                            "type": "text",
+                                            "id": "tp0182",
+                                            "fields": {
+                                              "TEXT": "   (expect 5 10 20 30 40)"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_list_replace_item",
+                                    "id": "tp0187",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_items"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "INDEX": {
+                                        "block": {
+                                          "type": "xrp_list_length",
+                                          "id": "tp0185",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_items"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "ITEM": {
+                                        "block": {
+                                          "type": "math_number",
+                                          "id": "tp0186",
+                                          "fields": {
+                                            "NUM": 99
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_print",
+                                        "id": "tp0193",
+                                        "inputs": {
+                                          "TEXT": {
+                                            "block": {
+                                              "type": "text_join",
+                                              "id": "tp0192",
+                                              "extraState": {
+                                                "itemCount": 3
+                                              },
+                                              "inputs": {
+                                                "ADD0": {
+                                                  "block": {
+                                                    "type": "text",
+                                                    "id": "tp0190",
+                                                    "fields": {
+                                                      "TEXT": "replace last with 99 = "
+                                                    }
+                                                  }
+                                                },
+                                                "ADD1": {
+                                                  "block": {
+                                                    "type": "xrp_list_to_text",
+                                                    "id": "tp0188",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_items"
+                                                      }
+                                                    },
+                                                    "inputs": {
+                                                      "DELIM": {
+                                                        "shadow": {
+                                                          "type": "text",
+                                                          "id": "tp0189",
+                                                          "fields": {
+                                                            "TEXT": " "
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "ADD2": {
+                                                  "block": {
+                                                    "type": "text",
+                                                    "id": "tp0191",
+                                                    "fields": {
+                                                      "TEXT": "   (expect 5 10 20 30 99)"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_list_delete_item",
+                                            "id": "tp0195",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_items"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "INDEX": {
+                                                "block": {
+                                                  "type": "math_number",
+                                                  "id": "tp0194",
+                                                  "fields": {
+                                                    "NUM": 1
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "tp0201",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "block": {
+                                                      "type": "text_join",
+                                                      "id": "tp0200",
+                                                      "extraState": {
+                                                        "itemCount": 3
+                                                      },
+                                                      "inputs": {
+                                                        "ADD0": {
+                                                          "block": {
+                                                            "type": "text",
+                                                            "id": "tp0198",
+                                                            "fields": {
+                                                              "TEXT": "delete item 1 = "
+                                                            }
+                                                          }
+                                                        },
+                                                        "ADD1": {
+                                                          "block": {
+                                                            "type": "xrp_list_to_text",
+                                                            "id": "tp0196",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_items"
+                                                              }
+                                                            },
+                                                            "inputs": {
+                                                              "DELIM": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "tp0197",
+                                                                  "fields": {
+                                                                    "TEXT": " "
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "ADD2": {
+                                                          "block": {
+                                                            "type": "text",
+                                                            "id": "tp0199",
+                                                            "fields": {
+                                                              "TEXT": "   (expect 10 20 30 99)"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_print",
+                                                    "id": "tp0207",
+                                                    "inputs": {
+                                                      "TEXT": {
+                                                        "block": {
+                                                          "type": "text_join",
+                                                          "id": "tp0206",
+                                                          "extraState": {
+                                                            "itemCount": 3
+                                                          },
+                                                          "inputs": {
+                                                            "ADD0": {
+                                                              "block": {
+                                                                "type": "text",
+                                                                "id": "tp0204",
+                                                                "fields": {
+                                                                  "TEXT": "item 2 = "
+                                                                }
+                                                              }
+                                                            },
+                                                            "ADD1": {
+                                                              "block": {
+                                                                "type": "xrp_list_item",
+                                                                "id": "tp0203",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_items"
+                                                                  }
+                                                                },
+                                                                "inputs": {
+                                                                  "INDEX": {
+                                                                    "block": {
+                                                                      "type": "math_number",
+                                                                      "id": "tp0202",
+                                                                      "fields": {
+                                                                        "NUM": 2
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "ADD2": {
+                                                              "block": {
+                                                                "type": "text",
+                                                                "id": "tp0205",
+                                                                "fields": {
+                                                                  "TEXT": "   (expect 20)"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_print",
+                                                        "id": "tp0212",
+                                                        "inputs": {
+                                                          "TEXT": {
+                                                            "block": {
+                                                              "type": "text_join",
+                                                              "id": "tp0211",
+                                                              "extraState": {
+                                                                "itemCount": 3
+                                                              },
+                                                              "inputs": {
+                                                                "ADD0": {
+                                                                  "block": {
+                                                                    "type": "text",
+                                                                    "id": "tp0209",
+                                                                    "fields": {
+                                                                      "TEXT": "last item = "
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "ADD1": {
+                                                                  "block": {
+                                                                    "type": "xrp_list_last_item",
+                                                                    "id": "tp0208",
+                                                                    "fields": {
+                                                                      "VAR": {
+                                                                        "id": "v_items"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "ADD2": {
+                                                                  "block": {
+                                                                    "type": "text",
+                                                                    "id": "tp0210",
+                                                                    "fields": {
+                                                                      "TEXT": "   (expect 99)"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_print",
+                                                            "id": "tp0217",
+                                                            "inputs": {
+                                                              "TEXT": {
+                                                                "block": {
+                                                                  "type": "text_join",
+                                                                  "id": "tp0216",
+                                                                  "extraState": {
+                                                                    "itemCount": 3
+                                                                  },
+                                                                  "inputs": {
+                                                                    "ADD0": {
+                                                                      "block": {
+                                                                        "type": "text",
+                                                                        "id": "tp0214",
+                                                                        "fields": {
+                                                                          "TEXT": "length = "
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "ADD1": {
+                                                                      "block": {
+                                                                        "type": "xrp_list_length",
+                                                                        "id": "tp0213",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_items"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "ADD2": {
+                                                                      "block": {
+                                                                        "type": "text",
+                                                                        "id": "tp0215",
+                                                                        "fields": {
+                                                                          "TEXT": "   (expect 4)"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_print",
+                                                                "id": "tp0223",
+                                                                "inputs": {
+                                                                  "TEXT": {
+                                                                    "block": {
+                                                                      "type": "text_join",
+                                                                      "id": "tp0222",
+                                                                      "extraState": {
+                                                                        "itemCount": 3
+                                                                      },
+                                                                      "inputs": {
+                                                                        "ADD0": {
+                                                                          "block": {
+                                                                            "type": "text",
+                                                                            "id": "tp0220",
+                                                                            "fields": {
+                                                                              "TEXT": "item # of 30 = "
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "ADD1": {
+                                                                          "block": {
+                                                                            "type": "xrp_list_item_num",
+                                                                            "id": "tp0219",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_items"
+                                                                              }
+                                                                            },
+                                                                            "inputs": {
+                                                                              "ITEM": {
+                                                                                "block": {
+                                                                                  "type": "text",
+                                                                                  "id": "tp0218",
+                                                                                  "fields": {
+                                                                                    "TEXT": "30"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "ADD2": {
+                                                                          "block": {
+                                                                            "type": "text",
+                                                                            "id": "tp0221",
+                                                                            "fields": {
+                                                                              "TEXT": "   (expect 3)"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_print",
+                                                                    "id": "tp0229",
+                                                                    "inputs": {
+                                                                      "TEXT": {
+                                                                        "block": {
+                                                                          "type": "text_join",
+                                                                          "id": "tp0228",
+                                                                          "extraState": {
+                                                                            "itemCount": 3
+                                                                          },
+                                                                          "inputs": {
+                                                                            "ADD0": {
+                                                                              "block": {
+                                                                                "type": "text",
+                                                                                "id": "tp0226",
+                                                                                "fields": {
+                                                                                  "TEXT": "item # of 7 (missing) = "
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "ADD1": {
+                                                                              "block": {
+                                                                                "type": "xrp_list_item_num",
+                                                                                "id": "tp0225",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_items"
+                                                                                  }
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "ITEM": {
+                                                                                    "block": {
+                                                                                      "type": "math_number",
+                                                                                      "id": "tp0224",
+                                                                                      "fields": {
+                                                                                        "NUM": 7
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "ADD2": {
+                                                                              "block": {
+                                                                                "type": "text",
+                                                                                "id": "tp0227",
+                                                                                "fields": {
+                                                                                  "TEXT": "   (expect 0)"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_print",
+                                                                        "id": "tp0235",
+                                                                        "inputs": {
+                                                                          "TEXT": {
+                                                                            "block": {
+                                                                              "type": "text_join",
+                                                                              "id": "tp0234",
+                                                                              "extraState": {
+                                                                                "itemCount": 3
+                                                                              },
+                                                                              "inputs": {
+                                                                                "ADD0": {
+                                                                                  "block": {
+                                                                                    "type": "text",
+                                                                                    "id": "tp0232",
+                                                                                    "fields": {
+                                                                                      "TEXT": "contains 20 = "
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD1": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_list_contains",
+                                                                                    "id": "tp0231",
+                                                                                    "fields": {
+                                                                                      "VAR": {
+                                                                                        "id": "v_items"
+                                                                                      }
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "ITEM": {
+                                                                                        "block": {
+                                                                                          "type": "text",
+                                                                                          "id": "tp0230",
+                                                                                          "fields": {
+                                                                                            "TEXT": "20"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "ADD2": {
+                                                                                  "block": {
+                                                                                    "type": "text",
+                                                                                    "id": "tp0233",
+                                                                                    "fields": {
+                                                                                      "TEXT": "   (expect True)"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_print",
+                                                                            "id": "tp0241",
+                                                                            "inputs": {
+                                                                              "TEXT": {
+                                                                                "block": {
+                                                                                  "type": "text_join",
+                                                                                  "id": "tp0240",
+                                                                                  "extraState": {
+                                                                                    "itemCount": 3
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "ADD0": {
+                                                                                      "block": {
+                                                                                        "type": "text",
+                                                                                        "id": "tp0238",
+                                                                                        "fields": {
+                                                                                          "TEXT": "contains 21 = "
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "ADD1": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_list_contains",
+                                                                                        "id": "tp0237",
+                                                                                        "fields": {
+                                                                                          "VAR": {
+                                                                                            "id": "v_items"
+                                                                                          }
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "ITEM": {
+                                                                                            "block": {
+                                                                                              "type": "text",
+                                                                                              "id": "tp0236",
+                                                                                              "fields": {
+                                                                                                "TEXT": "21"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "ADD2": {
+                                                                                      "block": {
+                                                                                        "type": "text",
+                                                                                        "id": "tp0239",
+                                                                                        "fields": {
+                                                                                          "TEXT": "   (expect False)"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_print",
+                                                                                "id": "tp0246",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "block": {
+                                                                                      "type": "text_join",
+                                                                                      "id": "tp0245",
+                                                                                      "extraState": {
+                                                                                        "itemCount": 3
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "ADD0": {
+                                                                                          "block": {
+                                                                                            "type": "text",
+                                                                                            "id": "tp0243",
+                                                                                            "fields": {
+                                                                                              "TEXT": "random item = "
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "ADD1": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_list_random_item",
+                                                                                            "id": "tp0242",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_items"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "ADD2": {
+                                                                                          "block": {
+                                                                                            "type": "text",
+                                                                                            "id": "tp0244",
+                                                                                            "fields": {
+                                                                                              "TEXT": "   (expect one of 10 20 30 99)"
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_print",
+                                                                                    "id": "tp0251",
+                                                                                    "inputs": {
+                                                                                      "TEXT": {
+                                                                                        "block": {
+                                                                                          "type": "text_join",
+                                                                                          "id": "tp0250",
+                                                                                          "extraState": {
+                                                                                            "itemCount": 3
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "ADD0": {
+                                                                                              "block": {
+                                                                                                "type": "text",
+                                                                                                "id": "tp0248",
+                                                                                                "fields": {
+                                                                                                  "TEXT": "whole list = "
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "ADD1": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_list_get",
+                                                                                                "id": "tp0247",
+                                                                                                "fields": {
+                                                                                                  "VAR": {
+                                                                                                    "id": "v_items"
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "ADD2": {
+                                                                                              "block": {
+                                                                                                "type": "text",
+                                                                                                "id": "tp0249",
+                                                                                                "fields": {
+                                                                                                  "TEXT": "   (expect ['10', '20', '30', 99])"
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_print",
+                                                                                        "id": "tp0257",
+                                                                                        "inputs": {
+                                                                                          "TEXT": {
+                                                                                            "block": {
+                                                                                              "type": "text_join",
+                                                                                              "id": "tp0256",
+                                                                                              "extraState": {
+                                                                                                "itemCount": 3
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "ADD0": {
+                                                                                                  "block": {
+                                                                                                    "type": "text",
+                                                                                                    "id": "tp0254",
+                                                                                                    "fields": {
+                                                                                                      "TEXT": "item # of number 30 (text vs number trap) = "
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "ADD1": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_list_item_num",
+                                                                                                    "id": "tp0253",
+                                                                                                    "fields": {
+                                                                                                      "VAR": {
+                                                                                                        "id": "v_items"
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "ITEM": {
+                                                                                                        "block": {
+                                                                                                          "type": "math_number",
+                                                                                                          "id": "tp0252",
+                                                                                                          "fields": {
+                                                                                                            "NUM": 30
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "ADD2": {
+                                                                                                  "block": {
+                                                                                                    "type": "text",
+                                                                                                    "id": "tp0255",
+                                                                                                    "fields": {
+                                                                                                      "TEXT": "   (expect 0, because split gives text '30')"
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_list_delete_all",
+                                                                                            "id": "tp0258",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_items"
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_print",
+                                                                                                "id": "tp0263",
+                                                                                                "inputs": {
+                                                                                                  "TEXT": {
+                                                                                                    "block": {
+                                                                                                      "type": "text_join",
+                                                                                                      "id": "tp0262",
+                                                                                                      "extraState": {
+                                                                                                        "itemCount": 3
+                                                                                                      },
+                                                                                                      "inputs": {
+                                                                                                        "ADD0": {
+                                                                                                          "block": {
+                                                                                                            "type": "text",
+                                                                                                            "id": "tp0260",
+                                                                                                            "fields": {
+                                                                                                              "TEXT": "empty after delete all = "
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "ADD1": {
+                                                                                                          "block": {
+                                                                                                            "type": "xrp_list_is_empty",
+                                                                                                            "id": "tp0259",
+                                                                                                            "fields": {
+                                                                                                              "VAR": {
+                                                                                                                "id": "v_items"
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "ADD2": {
+                                                                                                          "block": {
+                                                                                                            "type": "text",
+                                                                                                            "id": "tp0261",
+                                                                                                            "fields": {
+                                                                                                              "TEXT": "   (expect True)"
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_list_add_item",
+                                                                                                    "id": "tp0265",
+                                                                                                    "fields": {
+                                                                                                      "VAR": {
+                                                                                                        "id": "v_items"
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "ITEM": {
+                                                                                                        "block": {
+                                                                                                          "type": "text",
+                                                                                                          "id": "tp0264",
+                                                                                                          "fields": {
+                                                                                                            "TEXT": "solo"
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "block": {
+                                                                                                        "type": "xrp_print",
+                                                                                                        "id": "tp0270",
+                                                                                                        "inputs": {
+                                                                                                          "TEXT": {
+                                                                                                            "block": {
+                                                                                                              "type": "text_join",
+                                                                                                              "id": "tp0269",
+                                                                                                              "extraState": {
+                                                                                                                "itemCount": 3
+                                                                                                              },
+                                                                                                              "inputs": {
+                                                                                                                "ADD0": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "text",
+                                                                                                                    "id": "tp0267",
+                                                                                                                    "fields": {
+                                                                                                                      "TEXT": "random item of one-item list = "
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "ADD1": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "xrp_list_random_item",
+                                                                                                                    "id": "tp0266",
+                                                                                                                    "fields": {
+                                                                                                                      "VAR": {
+                                                                                                                        "id": "v_items"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "ADD2": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "text",
+                                                                                                                    "id": "tp0268",
+                                                                                                                    "fields": {
+                                                                                                                      "TEXT": "   (expect solo)"
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "next": {
+                                                                                                          "block": {
+                                                                                                            "type": "xrp_print",
+                                                                                                            "id": "tp0271",
+                                                                                                            "inputs": {
+                                                                                                              "TEXT": {
+                                                                                                                "shadow": {
+                                                                                                                  "type": "text",
+                                                                                                                  "id": "tp0272",
+                                                                                                                  "fields": {
+                                                                                                                    "TEXT": "Split words and loop with for each"
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "next": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_list_set",
+                                                                                                                "id": "tp0276",
+                                                                                                                "fields": {
+                                                                                                                  "VAR": {
+                                                                                                                    "id": "v_words"
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "VALUE": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "xrp_list_from_text",
+                                                                                                                      "id": "tp0273",
+                                                                                                                      "inputs": {
+                                                                                                                        "TEXT": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "text",
+                                                                                                                            "id": "tp0274",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": "left;right;up;down"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "DELIM": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "text",
+                                                                                                                            "id": "tp0275",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": ";"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "next": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "controls_forEach",
+                                                                                                                    "id": "tp0282",
+                                                                                                                    "fields": {
+                                                                                                                      "VAR": {
+                                                                                                                        "id": "v_thing"
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                    "inputs": {
+                                                                                                                      "LIST": {
+                                                                                                                        "block": {
+                                                                                                                          "type": "xrp_list_get",
+                                                                                                                          "id": "tp0277",
+                                                                                                                          "fields": {
+                                                                                                                            "VAR": {
+                                                                                                                              "id": "v_words"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "DO": {
+                                                                                                                        "block": {
+                                                                                                                          "type": "xrp_print",
+                                                                                                                          "id": "tp0281",
+                                                                                                                          "inputs": {
+                                                                                                                            "TEXT": {
+                                                                                                                              "block": {
+                                                                                                                                "type": "text_join",
+                                                                                                                                "id": "tp0280",
+                                                                                                                                "extraState": {
+                                                                                                                                  "itemCount": 2
+                                                                                                                                },
+                                                                                                                                "inputs": {
+                                                                                                                                  "ADD0": {
+                                                                                                                                    "block": {
+                                                                                                                                      "type": "text",
+                                                                                                                                      "id": "tp0278",
+                                                                                                                                      "fields": {
+                                                                                                                                        "TEXT": "word: "
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  },
+                                                                                                                                  "ADD1": {
+                                                                                                                                    "block": {
+                                                                                                                                      "type": "variables_get",
+                                                                                                                                      "id": "tp0279",
+                                                                                                                                      "fields": {
+                                                                                                                                        "VAR": {
+                                                                                                                                          "id": "v_thing"
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                    "next": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "xrp_print",
+                                                                                                                        "id": "tp0283",
+                                                                                                                        "inputs": {
+                                                                                                                          "TEXT": {
+                                                                                                                            "shadow": {
+                                                                                                                              "type": "text",
+                                                                                                                              "id": "tp0284",
+                                                                                                                              "fields": {
+                                                                                                                                "TEXT": "Test 04 done"
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "items",
+      "id": "v_items",
+      "type": "List"
+    },
+    {
+      "name": "words",
+      "id": "v_words",
+      "type": "List"
+    },
+    {
+      "name": "thing",
+      "id": "v_thing"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "tp1499",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Manual page 34 (manual v3.1), section 7.1 Variables. Try 7.2: right-click count and choose Watch this value.",
+            "pinned": false,
+            "height": 220,
+            "width": 420
+          }
+        },
+        "next": {
+          "block": {
+            "type": "variables_set",
+            "id": "tp1489",
+            "fields": {
+              "VAR": {
+                "id": "v_count"
+              }
+            },
+            "inputs": {
+              "VALUE": {
+                "shadow": {
+                  "type": "math_number",
+                  "id": "tp1490",
+                  "fields": {
+                    "NUM": 0
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "controls_repeat_ext",
+                "id": "tp1497",
+                "inputs": {
+                  "TIMES": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "tp1498",
+                      "fields": {
+                        "NUM": 5
+                      }
+                    }
+                  },
+                  "DO": {
+                    "block": {
+                      "type": "math_change",
+                      "id": "tp1491",
+                      "fields": {
+                        "VAR": {
+                          "id": "v_count"
+                        }
+                      },
+                      "inputs": {
+                        "DELTA": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "tp1492",
+                            "fields": {
+                              "NUM": 1
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "xrp_print",
+                          "id": "tp1494",
+                          "inputs": {
+                            "TEXT": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "tp1493",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_count"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "xrp_wait_seconds",
+                              "id": "tp1495",
+                              "inputs": {
+                                "SECONDS": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tp1496",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "count",
+      "id": "v_count"
+    }
+  ]
+}

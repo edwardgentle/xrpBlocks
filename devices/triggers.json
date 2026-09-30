@@ -1,0 +1,1310 @@
+{
+  "manifestVersion": 1,
+  "id": "triggers",
+  "name": {
+    "en": "Triggers (lights and servos)",
+    "nl": "Triggers (lampen en servo's)"
+  },
+  "description": {
+    "en": "When this happens, do that: brake lights, indicators and servo moves that run in the background while the robot drives. Optional emergency stop.",
+    "nl": "Als dit gebeurt, doe dat: remlichten, richtingaanwijzers en servobewegingen die op de achtergrond werken terwijl de robot rijdt. Optionele noodstop."
+  },
+  "version": "1.0.0",
+  "author": "XRP Blocks (Limpopo DoE fork)",
+  "licence": "MIT",
+  "homepage": "",
+  "category": {
+    "key": "Triggers",
+    "label": {
+      "en": "Triggers",
+      "nl": "Triggers"
+    },
+    "colour": "#C9822B",
+    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M13 2 4 14h6l-1 8 9-12h-6l1-8z\"/></svg>"
+  },
+  "driver": {
+    "filename": "XRPTriggers.py",
+    "marker": "XRPTriggers",
+    "source": "\"\"\"XRPTriggers - \"when this happens, do that\" for the XRP.\n\nA small rule engine that runs in the background while your program drives,\nwaits or does anything else. Rules look like:\n\n    while braking            show red solid on the brake light\n    while turning left       show orange blink on the left indicator\n    while trigger A          move servo 1 to 150 degrees, then back to 90\n    emergency stop when      pin 12 is pressed\n\nHOW IT RUNS\n-----------\nOne virtual machine.Timer (id -1) calls the engine about 20 times a second.\nOn the XRP's port that callback is a *soft* callback: MicroPython runs it on\nthe main thread between two bytecodes of your program. So it borrows a little\ntime from your program rather than running in parallel. XRPLib already works\nthis way (every encoded motor updates its speed on a 20 ms virtual timer, and\nthe IMU reads itself on one too), so this adds one more of the same.\n\nTo keep that borrowed time small, the engine:\n  * only reads things that are quick: the wheel encoders (PIO counters),\n    digital pins, the ADC (line sensors, battery), the clock, and values your\n    program posts with set_value();\n  * never talks I2C (the gyro, colour sensor, OLED, LCD): read those in your\n    own program and post the result with set_value();\n  * writes a light or a servo only when it has to change;\n  * times itself, and checks less often if a tick takes too long.\n\nWHAT IT WILL NOT DO\n-------------------\nDrive the wheels. A rule that set motor efforts would fight drive straight and\nturn and ruin their distances and angles, and a stuck rule would be a safety\nproblem. The one exception is the opt-in emergency stop, which only ever\nswitches motors OFF: it brakes every motor and makes motor commands do nothing\nuntil clear_estop() is called.\n\nSTOPPING\n--------\nOnly one engine runs at a time: making a new one stops the old one. The\nXRP Blocks Stop button calls stop() as well. A program that simply ends leaves\nthe engine running (lights keep working) until Stop, a new Run or a reset.\n\"\"\"\n\nimport time\nfrom machine import Pin, Timer\n\nVERSION = '1.0.0'\n\n# Named colours at full value; brightness is applied when a light is written.\n# Same names and values as the Board RGB block and the NeoPixel library.\nCOLOURS = {\n    'off': (0, 0, 0),\n    'red': (255, 0, 0),\n    'orange': (255, 80, 0),\n    'yellow': (255, 200, 0),\n    'green': (0, 255, 0),\n    'cyan': (0, 255, 255),\n    'blue': (0, 0, 255),\n    'purple': (128, 0, 255),\n    'magenta': (255, 0, 255),\n    'pink': (255, 80, 120),\n    'white': (255, 255, 255),\n}\n\n# Light roles, highest priority first. When two roles share one light, the\n# one earlier in this list wins, so a brake light always beats an indicator.\nROLES = ('brake', 'reverse', 'left', 'right', 'head', 'status')\n\n# Events a rule can react to.\nMOTION_EVENTS = ('moving', 'forward', 'reverse', 'left', 'right', 'braking', 'stopped')\nEVENTS = ('always',) + MOTION_EVENTS + ('button', 'estop', 'A', 'B', 'C', 'D')\nSLOTS = ('A', 'B', 'C', 'D')\n\n# Things a custom trigger can measure.\nMOTION_MEASURES = ('speed', 'turn', 'distance')\nMEASURES = MOTION_MEASURES + ('battery', 'line_left', 'line_right', 'time')\n\n# Braking = the robot's speed falling faster than this many cm/s per second.\nBRAKE_LEVELS = {'low': 30.0, 'medium': 15.0, 'high': 8.0}\n\n# Thresholds for the movement events (cm/s and degrees/s).\nSTILL_CM_S = 0.5        # both wheels slower than this: not moving\nMOVE_CM_S = 2.0         # forward / reverse above this\nTURN_DEG_S = 20.0       # turning left / right above this\nSTOPPED_AFTER_MS = 200  # \"stopped\" once still for this long\n\n# Caps (safety limits).\nRATE_MIN, RATE_MAX = 2, 50          # ticks per second\nBUDGET_US = 1500                    # one tick should take less than this\nSTRIP_MAX = 30                      # pixels: a long strip write takes time\nSERVO_LOW, SERVO_HIGH = 5, 175      # degrees, same as the Servo blocks\n\nBLINK_MS = 300          # blink: 300 ms on, 300 ms off\nPULSE_MS = 1200         # pulse: one fade up and down\n\n\ndef _num(value, name='value'):\n    try:\n        return float(value)\n    except (TypeError, ValueError):\n        raise ValueError('%s must be a number, not %r' % (name, value))\n\n\ndef _pick(value, allowed, name):\n    value = str(value)\n    if value not in allowed:\n        raise ValueError('Unknown %s %r; choose one of %s' % (name, value, ', '.join(allowed)))\n    return value\n\n\ndef _colour(value):\n    if isinstance(value, str):\n        key = value.lower()\n        if key not in COLOURS:\n            raise ValueError('Unknown colour %r' % value)\n        return COLOURS[key]\n    r, g, b = value\n    return (max(0, min(255, int(r))), max(0, min(255, int(g))), max(0, min(255, int(b))))\n\n\ndef _compare(a, op, b):\n    if a is None:\n        return False\n    if op == '>':\n        return a > b\n    if op == '<':\n        return a < b\n    if op == '=':\n        return a == b\n    if op == '!=':\n        return a != b\n    return False\n\n\ndef _as_number_or_text(value):\n    if isinstance(value, (int, float)):\n        return float(value)\n    try:\n        return float(value)\n    except (TypeError, ValueError):\n        return str(value)\n\n\ndef _no_effort(effort):\n    # Put in place of a motor's set_effort while the emergency stop is on.\n    pass\n\n\nclass XRPTriggers:\n    def __init__(self, rate=20):\n        rate = max(RATE_MIN, min(RATE_MAX, _num(rate, 'rate')))\n        self._board = None\n        try:\n            from XRPLib.board import Board\n            self._board = Board.get_default_board()\n        except Exception:\n            pass\n\n        # Only one engine at a time. The running one is remembered on the\n        # XRPLib Board object, which outlives a re-upload of this driver.\n        old = _find_running(self._board)\n        if old is not None and old is not self:\n            try:\n                old.stop()\n            except Exception:\n                pass\n\n        self.enabled = True\n        self.brightness = 30\n        self.hold_ms = 300\n        self.brake_threshold = BRAKE_LEVELS['medium']\n\n        self._light_rules = []      # (event, rgb, pattern, role)\n        self._servo_rules = {}      # servo number -> list of rule dicts\n        self._servo_state = {}      # servo number -> [servo, current, target, engaged, back, speed]\n        self._estop_events = []\n        self._em = None\n        self._estop = False\n        self._estop_reason = ''\n        self._patched = []\n        self._manual = {}           # role -> (rgb, pattern)\n        self._bindings = {}         # role -> list of unit keys\n        self._units = {}            # unit key -> [kind, object, last value]\n        self._unit_roles = {}       # unit key -> roles, priority order\n        self._strip = None\n        self._strip_pin = None\n        self._custom = {}           # slot -> definition list\n        self._values = {}\n        self._raw = {}\n        self._last_true = {}\n        self._needs_button = False\n\n        # Movement, from the two drive wheels' encoders.\n        self._motion = False\n        self._ml = self._mr = None\n        self._circ = 3.14159265 * 6.0\n        self._track = 15.5\n        self._pl = self._pr = 0.0\n        self._mt = 0\n        self._vl = self._vr = 0.0\n        self._hist_s = [0.0] * 5\n        self._hist_t = [0] * 5\n        self._hist_i = 0\n        self._odo = 0.0\n        self._still_since = None\n        self._battery = None\n        self._reflectance = None\n\n        self._t0 = time.ticks_ms()\n        self._every_due = {}\n        self._skip = 1\n        self._count = 0\n        self._slow = 0\n        self._warned = False\n        self._failed = None\n        self._running = False\n\n        self._timer = Timer(-1)\n        self._period = int(1000 / rate)\n        self._start_timer()\n        if self._board is not None:\n            try:\n                self._board._xrp_triggers = self\n            except Exception:\n                pass\n        global _RUNNING\n        _RUNNING = self\n        print('Triggers %s: checking %d times a second' % (VERSION, int(rate)))\n\n    # -- set-up from the program (main thread) ---------------------------------\n\n    def _start_timer(self):\n        self._timer.init(period=self._period, mode=Timer.PERIODIC, callback=self._tick)\n        self._running = True\n\n    def _use_event(self, event):\n        event = _pick(event, EVENTS, 'event')\n        if event in MOTION_EVENTS:\n            self._need_motion()\n        if event == 'button':\n            self._needs_button = True\n        return event\n\n    def _need_motion(self):\n        if self._motion:\n            return\n        from XRPLib.encoded_motor import EncodedMotor\n        self._ml = EncodedMotor.get_default_encoded_motor(1)\n        self._mr = EncodedMotor.get_default_encoded_motor(2)\n        try:\n            from XRPLib.board import Board\n            if Board.get_type() == Board.NANO:\n                self._circ = 3.14159265 * 3.46\n                self._track = 7.8\n        except Exception:\n            pass\n        self._pl = self._ml.get_position() * self._circ\n        self._pr = self._mr.get_position() * self._circ\n        self._mt = time.ticks_ms()\n        self._motion = True\n\n    def light_rule(self, event, colour, pattern, role):\n        \"\"\"While event is happening, show colour (solid/blink/pulse) on a light role.\"\"\"\n        event = self._use_event(event)\n        rule = (event, _colour(colour), _pick(pattern, ('solid', 'blink', 'pulse'), 'pattern'),\n                _pick(role, ROLES, 'light'))\n        self._light_rules = self._light_rules + [rule]\n        self._rebuild()\n\n    def set_light(self, role, colour, pattern='solid'):\n        \"\"\"Set a light by hand. Any rule for the same light takes priority.\"\"\"\n        role = _pick(role, ROLES, 'light')\n        rgb = _colour(colour)\n        manual = dict(self._manual)\n        if rgb == (0, 0, 0):\n            manual.pop(role, None)\n        else:\n            manual[role] = (rgb, _pick(pattern, ('solid', 'blink', 'pulse'), 'pattern'))\n        self._manual = manual\n        self._rebuild()\n\n    def all_off(self):\n        \"\"\"Clear every light set by hand. Rules keep working.\"\"\"\n        self._manual = {}\n\n    def use_rgb(self, role):\n        self._bind(role, ['rgb'])\n\n    def use_board_led(self, role):\n        self._bind(role, ['led'])\n\n    def use_pin(self, role, pin):\n        pin = int(pin)\n        key = 'pin%d' % pin\n        if key not in self._units:\n            self._units[key] = ['pin', Pin(pin, Pin.OUT), None]\n            self._units[key][1].value(0)\n        self._bind(role, [key])\n\n    def strip(self, pin, count):\n        \"\"\"A NeoPixel strip used only by the trigger lights.\"\"\"\n        import neopixel\n        count = int(count)\n        if count < 1 or count > STRIP_MAX:\n            raise ValueError('Trigger strip: 1 to %d pixels' % STRIP_MAX)\n        self._strip = neopixel.NeoPixel(Pin(int(pin), Pin.OUT), count)\n        self._strip_pin = int(pin)\n        for i in range(count):\n            self._strip[i] = (0, 0, 0)\n        self._strip.write()\n\n    def use_pixels(self, role, first, last):\n        if self._strip is None:\n            self.strip(6, 10)\n            print('Triggers: no strip set up; using 10 pixels on Servo 1 (GPIO 6)')\n        n = len(self._strip)\n        first, last = int(first), int(last)\n        if first > last:\n            first, last = last, first\n        if first < 0 or last >= n:\n            raise ValueError('Strip pixels are 0 to %d' % (n - 1))\n        keys = []\n        for i in range(first, last + 1):\n            key = 'px%d' % i\n            if key not in self._units:\n                self._units[key] = ['px', i, None]\n            keys.append(key)\n        self._bind(role, keys)\n\n    def _bind(self, role, keys):\n        role = _pick(role, ROLES, 'light')\n        bindings = dict(self._bindings)\n        bindings[role] = list(bindings.get(role, [])) + [k for k in keys if k not in bindings.get(role, [])]\n        self._bindings = bindings\n        self._rebuild()\n\n    def _rebuild(self):\n        # Work out which physical lights each role drives. A role nobody has\n        # bound uses the onboard RGB light. Built whole, then swapped in, so a\n        # tick in between always sees a complete table.\n        used = set(r[3] for r in self._light_rules) | set(self._manual)\n        unit_roles = {}\n        for role in ROLES:\n            keys = self._bindings.get(role)\n            if not keys:\n                keys = ['rgb'] if role in used else []\n            for key in keys:\n                unit_roles.setdefault(key, []).append(role)\n        # A light the engine has driven stays its own (with no roles, so it\n        # is switched off) rather than being left lit.\n        for key in self._unit_roles:\n            if key not in unit_roles:\n                unit_roles[key] = []\n        for key in unit_roles:\n            if key == 'rgb' and key not in self._units:\n                self._units[key] = ['rgb', None, None]\n            elif key == 'led' and key not in self._units:\n                self._units[key] = ['led', None, None]\n        self._unit_roles = unit_roles\n\n    def servo_rule(self, event, servo, angle, speed=0, back=90):\n        \"\"\"While event is happening, move a servo to angle; then return to back.\"\"\"\n        event = self._use_event(event)\n        n = int(servo)\n        if n not in (1, 2, 3, 4):\n            raise ValueError('Servo must be 1 to 4')\n        if n not in self._servo_state:\n            from XRPLib.servo import Servo\n            self._servo_state[n] = [Servo.get_default_servo(n), None, None, False, None, 0.0]\n        rule = {'event': event, 'angle': self._servo_angle(angle),\n                'speed': max(0.0, _num(speed, 'speed')), 'back': self._servo_angle(back)}\n        rules = dict(self._servo_rules)\n        rules[n] = list(rules.get(n, [])) + [rule]\n        self._servo_rules = rules\n\n    @staticmethod\n    def _servo_angle(value):\n        return max(SERVO_LOW, min(SERVO_HIGH, _num(value, 'angle')))\n\n    def estop_rule(self, event):\n        \"\"\"Emergency stop: when event happens, brake every motor and keep them off.\"\"\"\n        event = self._use_event(event)\n        from XRPLib.encoded_motor import EncodedMotor\n        self._em = EncodedMotor\n        self._estop_events = self._estop_events + [event]\n\n    def clear_estop(self):\n        \"\"\"Let the motors run again after an emergency stop.\"\"\"\n        self._restore_motors()\n        self._estop = False\n        self._estop_reason = ''\n        self._last_true.pop('estop', None)\n        print('Triggers: emergency stop cleared')\n\n    def estop_active(self):\n        return self._estop\n\n    def define(self, slot, measure, op, value):\n        \"\"\"Custom trigger slot A-D: measure op value, e.g. speed > 20.\"\"\"\n        slot = _pick(slot, SLOTS, 'trigger')\n        measure = _pick(measure, MEASURES, 'measurement')\n        if measure in MOTION_MEASURES:\n            self._need_motion()\n        self._prepare_measure(measure)\n        self._set_custom(slot, ['measure', measure, _pick(op, ('>', '<', '=', '!='), 'comparison'),\n                                _num(value)])\n\n    def define_pin(self, slot, pin, state):\n        \"\"\"Custom trigger: a digital pin (pull-up). 'low' = switch pressed to GND.\"\"\"\n        slot = _pick(slot, SLOTS, 'trigger')\n        want = 0 if _pick(state, ('low', 'high'), 'pin state') == 'low' else 1\n        self._set_custom(slot, ['pin', Pin(int(pin), Pin.IN, Pin.PULL_UP), want])\n\n    def define_value(self, slot, name, op, value):\n        \"\"\"Custom trigger on a value the program posts with set_value().\"\"\"\n        slot = _pick(slot, SLOTS, 'trigger')\n        self._set_custom(slot, ['value', str(name), _pick(op, ('>', '<', '=', '!='), 'comparison'),\n                                _as_number_or_text(value)])\n\n    def define_every(self, slot, seconds):\n        \"\"\"Custom trigger that happens once every N seconds.\"\"\"\n        slot = _pick(slot, SLOTS, 'trigger')\n        period = int(max(0.1, _num(seconds, 'seconds')) * 1000)\n        self._set_custom(slot, ['every', period, time.ticks_add(time.ticks_ms(), period)])\n\n    def _set_custom(self, slot, definition):\n        custom = dict(self._custom)\n        custom[slot] = definition\n        self._custom = custom\n\n    def _prepare_measure(self, measure):\n        if measure in ('line_left', 'line_right') and self._reflectance is None:\n            from XRPLib.reflectance import Reflectance\n            self._reflectance = Reflectance.get_default_reflectance()\n\n    def set_value(self, name, value):\n        \"\"\"Post a value (gyro angle, distance, colour name...) for triggers to use.\"\"\"\n        self._values[str(name)] = _as_number_or_text(value)\n\n    def reset_distance(self):\n        self._odo = 0.0\n\n    def set_enabled(self, on):\n        self.enabled = bool(on)\n\n    def set_brightness(self, percent):\n        self.brightness = max(0, min(100, _num(percent, 'brightness')))\n\n    def set_hold(self, seconds):\n        self.hold_ms = int(max(0, min(10, _num(seconds, 'seconds'))) * 1000)\n\n    def set_braking(self, level):\n        self.brake_threshold = BRAKE_LEVELS[_pick(level, tuple(BRAKE_LEVELS), 'sensitivity')]\n\n    def happening(self, event):\n        \"\"\"True while event is happening (the same test the rules use).\"\"\"\n        event = self._use_event(event)\n        if not self._running:\n            return False\n        return self._active(event, time.ticks_ms())\n\n    def measure(self, name):\n        name = _pick(name, MEASURES, 'measurement')\n        if name in MOTION_MEASURES:\n            self._need_motion()\n        self._prepare_measure(name)\n        return self._measure(name, time.ticks_ms())\n\n    def stop(self):\n        \"\"\"Stop the engine, switch its lights off and let the motors run again.\"\"\"\n        self._running = False\n        try:\n            self._timer.deinit()\n        except Exception:\n            pass\n        self._restore_motors()\n        self._estop = False\n        for key in list(self._unit_roles):\n            try:\n                self._write_unit(key, (0, 0, 0), True)\n            except Exception:\n                pass\n        if self._strip is not None:\n            try:\n                self._strip.write()\n            except Exception:\n                pass\n        global _RUNNING\n        if _RUNNING is self:\n            _RUNNING = None\n\n    # -- the tick (soft timer callback) ------------------------------------------\n\n    def _tick(self, timer):\n        self._count += 1\n        if self._count < self._skip:\n            return\n        self._count = 0\n        start = time.ticks_us()\n        try:\n            self._step(time.ticks_ms())\n        except Exception as exc:\n            self._fail(exc)\n            return\n        used = time.ticks_diff(time.ticks_us(), start)\n        if used > BUDGET_US:\n            self._slow += 1\n            # Three slow ticks in a row (so one garbage collection does not\n            # count): check half as often.\n            if self._slow >= 3 and self._skip < 8:\n                self._skip *= 2\n                self._slow = 0\n                print('Triggers: a check took %d us; now checking every %d ticks' % (used, self._skip))\n        else:\n            self._slow = 0\n\n    def _fail(self, exc):\n        self._failed = exc\n        self._running = False\n        try:\n            self._timer.deinit()\n        except Exception:\n            pass\n        print('Triggers stopped after an error: %r' % (exc,))\n\n    def _step(self, now):\n        if self._motion:\n            self._update_motion(now)\n        raw = self._raw\n        if self._needs_button and self._board is not None:\n            raw['button'] = self._board.is_button_pressed()\n        raw['estop'] = self._estop\n        for slot, definition in self._custom.items():\n            raw[slot] = self._custom_state(definition, now)\n        for event, value in raw.items():\n            if value:\n                self._last_true[event] = now\n\n        if self.enabled and not self._estop:\n            for event in self._estop_events:\n                if event == 'always' or raw.get(event, False):\n                    self._latch(event)\n                    break\n\n        self._update_servos(now)\n        self._update_lights(now)\n\n    def _active(self, event, now):\n        if event == 'always':\n            return True\n        if self._raw.get(event, False):\n            return True\n        last = self._last_true.get(event)\n        return last is not None and time.ticks_diff(now, last) < self.hold_ms\n\n    # -- movement ------------------------------------------------------------------\n\n    def _update_motion(self, now):\n        dt = time.ticks_diff(now, self._mt) / 1000\n        if dt <= 0:\n            return\n        pl = self._ml.get_position() * self._circ\n        pr = self._mr.get_position() * self._circ\n        dl, dr = pl - self._pl, pr - self._pr\n        self._pl, self._pr, self._mt = pl, pr, now\n        self._odo += (abs(dl) + abs(dr)) / 2\n        # Smooth the wheel speeds a little: one encoder count is 0.03 cm.\n        self._vl += 0.5 * (dl / dt - self._vl)\n        self._vr += 0.5 * (dr / dt - self._vr)\n        vl, vr = self._vl, self._vr\n        v = (vl + vr) / 2\n        w = (vr - vl) / self._track * 57.29578   # degrees/s, left positive\n        s = abs(v)\n\n        still = abs(vl) < STILL_CM_S and abs(vr) < STILL_CM_S\n        if still:\n            if self._still_since is None:\n                self._still_since = now\n        else:\n            self._still_since = None\n\n        # Braking: speed now against speed about a quarter of a second ago.\n        i = self._hist_i\n        old_s, old_t = self._hist_s[i], self._hist_t[i]\n        self._hist_s[i], self._hist_t[i] = s, now\n        self._hist_i = (i + 1) % len(self._hist_s)\n        span = time.ticks_diff(now, old_t) / 1000 if old_t else 0\n        braking = False\n        if span > 0 and old_s > MOVE_CM_S and old_s - s > 1.5:\n            braking = (old_s - s) / span > self.brake_threshold\n\n        raw = self._raw\n        raw['moving'] = not still\n        raw['stopped'] = still and time.ticks_diff(now, self._still_since) >= STOPPED_AFTER_MS\n        raw['forward'] = v > MOVE_CM_S\n        raw['reverse'] = v < -MOVE_CM_S\n        raw['left'] = w > TURN_DEG_S\n        raw['right'] = w < -TURN_DEG_S\n        raw['braking'] = braking\n\n    def _measure(self, name, now):\n        if name == 'speed':\n            return (self._vl + self._vr) / 2\n        if name == 'turn':\n            return (self._vr - self._vl) / self._track * 57.29578\n        if name == 'distance':\n            return self._odo\n        if name == 'time':\n            return time.ticks_diff(now, self._t0) / 1000\n        if name == 'battery':\n            volts = self._read_battery()\n            if volts is None:\n                return None\n            # Smooth: the reading dips while the motors pull current.\n            if self._battery is None:\n                self._battery = volts\n            self._battery += 0.1 * (volts - self._battery)\n            return self._battery\n        if name == 'line_left':\n            return self._reflectance.get_left()\n        if name == 'line_right':\n            return self._reflectance.get_right()\n        return None\n\n    def _read_battery(self):\n        board = self._board\n        if board is None:\n            return None\n        if hasattr(board, 'get_battery_voltage'):\n            return board.get_battery_voltage()\n        # Older XRPLib: the same 14 V full-scale divider on the power switch pin.\n        if hasattr(board, 'on_switch'):\n            return board.on_switch.read_u16() / (65536 / 14)\n        return None\n\n    def _custom_state(self, d, now):\n        kind = d[0]\n        if kind == 'measure':\n            return _compare(self._measure(d[1], now), d[2], d[3])\n        if kind == 'pin':\n            return d[1].value() == d[2]\n        if kind == 'value':\n            value = self._values.get(d[1])\n            target = d[3]\n            if isinstance(value, float) != isinstance(target, float):\n                if d[2] == '!=':\n                    return value is not None\n                return False\n            return _compare(value, d[2], target)\n        if kind == 'every':\n            if time.ticks_diff(now, d[2]) >= 0:\n                due = time.ticks_add(d[2], d[1])\n                if time.ticks_diff(now, due) >= 0:     # fell behind: catch up\n                    due = time.ticks_add(now, d[1])\n                d[2] = due\n                return True\n            return False\n        return False\n\n    # -- emergency stop ------------------------------------------------------------\n\n    def _latch(self, event):\n        self._estop = True\n        self._estop_reason = event\n        self._raw['estop'] = True\n        EM = self._em\n        for name in ('_DEFAULT_LEFT_MOTOR_INSTANCE', '_DEFAULT_RIGHT_MOTOR_INSTANCE',\n                     '_DEFAULT_MOTOR_THREE_INSTANCE', '_DEFAULT_MOTOR_FOUR_INSTANCE'):\n            motor = getattr(EM, name, None)\n            if motor is None:\n                continue\n            try:\n                motor.target_speed = None\n                inner = motor._motor\n                if inner not in self._patched:\n                    inner.set_effort = _no_effort\n                    self._patched.append(inner)\n                inner.brake()\n            except Exception:\n                pass\n        print('EMERGENCY STOP (%s): motors stay off until \"clear emergency stop\"' % event)\n\n    def _restore_motors(self):\n        for inner in self._patched:\n            try:\n                del inner.set_effort\n            except Exception:\n                pass\n        self._patched = []\n\n    # -- servos --------------------------------------------------------------------\n\n    def _update_servos(self, now):\n        for n, rules in self._servo_rules.items():\n            st = self._servo_state[n]\n            target = None\n            if self.enabled:\n                for rule in rules:\n                    if self._active(rule['event'], now):\n                        target = rule['angle']\n                        st[4] = rule['back']\n                        st[5] = rule['speed']\n                        break\n            if target is not None:\n                st[3] = True\n            elif st[3]:\n                target = st[4]\n            else:\n                continue            # leave the servo to the rest of the program\n            current = st[1]\n            if current is None or st[5] <= 0:\n                current = target\n            else:\n                step = st[5] * self._period * self._skip / 1000\n                if abs(target - current) <= step:\n                    current = target\n                elif target > current:\n                    current += step\n                else:\n                    current -= step\n            if current != st[1]:\n                st[0].set_angle(current * 10 / 9)\n                st[1] = current\n            if not any(self._active(r['event'], now) for r in rules) and current == st[4]:\n                st[3] = False       # back where it rests: hand the servo back\n\n    # -- lights --------------------------------------------------------------------\n\n    def _level(self, pattern, now):\n        if pattern == 'solid':\n            return 1.0\n        if pattern == 'blink':\n            return 1.0 if (now // BLINK_MS) % 2 == 0 else 0.0\n        half = PULSE_MS // 2\n        p = now % PULSE_MS\n        x = p / half if p < half else (PULSE_MS - p) / half\n        return 0.1 + 0.9 * x\n\n    def _update_lights(self, now):\n        requests = {}\n        if self.enabled:\n            for event, rgb, pattern, role in self._light_rules:\n                if role not in requests and self._active(event, now):\n                    requests[role] = (rgb, pattern)\n        for role, setting in self._manual.items():\n            if role not in requests:\n                requests[role] = setting\n        scale = self.brightness / 100\n        strip_changed = False\n        for key, roles in self._unit_roles.items():\n            colour = (0, 0, 0)\n            for role in roles:\n                setting = requests.get(role)\n                if setting is not None:\n                    level = self._level(setting[1], now) * scale\n                    rgb = setting[0]\n                    colour = (int(rgb[0] * level), int(rgb[1] * level), int(rgb[2] * level))\n                    if key in ('led',) or key.startswith('pin'):\n                        colour = (1, 1, 1) if self._level(setting[1], now) >= 0.5 and rgb != (0, 0, 0) else (0, 0, 0)\n                    break\n            if self._write_unit(key, colour, False):\n                strip_changed = True\n        if strip_changed:\n            self._strip.write()\n\n    def _write_unit(self, key, colour, force):\n        unit = self._units.get(key)\n        if unit is None:\n            return False\n        if unit[2] == colour and not force:\n            return False\n        unit[2] = colour\n        kind = unit[0]\n        on = 1 if colour != (0, 0, 0) else 0\n        if kind == 'rgb':\n            if self._board is not None:\n                try:\n                    self._board.set_rgb_led(colour[0], colour[1], colour[2])\n                except NotImplementedError:\n                    pass\n        elif kind == 'led':\n            if self._board is not None:\n                self._board.led.value(on)\n        elif kind == 'pin':\n            unit[1].value(on)\n        elif kind == 'px':\n            if self._strip is not None:\n                self._strip[unit[1]] = colour\n                return True\n        return False\n\n\n_RUNNING = None\n\n\ndef _find_running(board):\n    found = getattr(board, '_xrp_triggers', None) if board is not None else None\n    return found if found is not None else _RUNNING\n\n\ndef stop_all():\n    \"\"\"Stop whichever engine is running. Used by the XRP Blocks Stop button.\"\"\"\n    engine = None\n    try:\n        from XRPLib.board import Board\n        engine = getattr(Board.get_default_board(), '_xrp_triggers', None)\n    except Exception:\n        pass\n    if engine is None:\n        engine = _RUNNING\n    if engine is not None:\n        engine.stop()\n"
+  },
+  "instance": {
+    "name": "triggers",
+    "import": "from XRPTriggers import XRPTriggers",
+    "create": "XRPTriggers()",
+    "createConfigured": "XRPTriggers(rate={RATE})"
+  },
+  "lists": {
+    "events": [
+      {
+        "label": {
+          "en": "always",
+          "nl": "altijd"
+        },
+        "value": "always",
+        "code": "'always'"
+      },
+      {
+        "label": {
+          "en": "moving",
+          "nl": "rijden"
+        },
+        "value": "moving",
+        "code": "'moving'"
+      },
+      {
+        "label": {
+          "en": "driving forward",
+          "nl": "vooruit rijden"
+        },
+        "value": "forward",
+        "code": "'forward'"
+      },
+      {
+        "label": {
+          "en": "reversing",
+          "nl": "achteruit rijden"
+        },
+        "value": "reverse",
+        "code": "'reverse'"
+      },
+      {
+        "label": {
+          "en": "turning left",
+          "nl": "linksaf draaien"
+        },
+        "value": "left",
+        "code": "'left'"
+      },
+      {
+        "label": {
+          "en": "turning right",
+          "nl": "rechtsaf draaien"
+        },
+        "value": "right",
+        "code": "'right'"
+      },
+      {
+        "label": {
+          "en": "braking",
+          "nl": "remmen"
+        },
+        "value": "braking",
+        "code": "'braking'"
+      },
+      {
+        "label": {
+          "en": "stopped",
+          "nl": "stilstaan"
+        },
+        "value": "stopped",
+        "code": "'stopped'"
+      },
+      {
+        "label": {
+          "en": "board button pressed",
+          "nl": "knop op het bord ingedrukt"
+        },
+        "value": "button",
+        "code": "'button'"
+      },
+      {
+        "label": {
+          "en": "emergency stop is on",
+          "nl": "noodstop is actief"
+        },
+        "value": "estop",
+        "code": "'estop'"
+      },
+      {
+        "label": {
+          "en": "trigger A",
+          "nl": "trigger A"
+        },
+        "value": "A",
+        "code": "'A'"
+      },
+      {
+        "label": {
+          "en": "trigger B",
+          "nl": "trigger B"
+        },
+        "value": "B",
+        "code": "'B'"
+      },
+      {
+        "label": {
+          "en": "trigger C",
+          "nl": "trigger C"
+        },
+        "value": "C",
+        "code": "'C'"
+      },
+      {
+        "label": {
+          "en": "trigger D",
+          "nl": "trigger D"
+        },
+        "value": "D",
+        "code": "'D'"
+      }
+    ],
+    "slots": [
+      {
+        "label": {
+          "en": "A",
+          "nl": "A"
+        },
+        "value": "A",
+        "code": "'A'"
+      },
+      {
+        "label": {
+          "en": "B",
+          "nl": "B"
+        },
+        "value": "B",
+        "code": "'B'"
+      },
+      {
+        "label": {
+          "en": "C",
+          "nl": "C"
+        },
+        "value": "C",
+        "code": "'C'"
+      },
+      {
+        "label": {
+          "en": "D",
+          "nl": "D"
+        },
+        "value": "D",
+        "code": "'D'"
+      }
+    ],
+    "colours": [
+      {
+        "label": {
+          "en": "red",
+          "nl": "rood"
+        },
+        "value": "red",
+        "code": "'red'"
+      },
+      {
+        "label": {
+          "en": "orange",
+          "nl": "oranje"
+        },
+        "value": "orange",
+        "code": "'orange'"
+      },
+      {
+        "label": {
+          "en": "yellow",
+          "nl": "geel"
+        },
+        "value": "yellow",
+        "code": "'yellow'"
+      },
+      {
+        "label": {
+          "en": "green",
+          "nl": "groen"
+        },
+        "value": "green",
+        "code": "'green'"
+      },
+      {
+        "label": {
+          "en": "cyan",
+          "nl": "cyaan"
+        },
+        "value": "cyan",
+        "code": "'cyan'"
+      },
+      {
+        "label": {
+          "en": "blue",
+          "nl": "blauw"
+        },
+        "value": "blue",
+        "code": "'blue'"
+      },
+      {
+        "label": {
+          "en": "purple",
+          "nl": "paars"
+        },
+        "value": "purple",
+        "code": "'purple'"
+      },
+      {
+        "label": {
+          "en": "magenta",
+          "nl": "magenta"
+        },
+        "value": "magenta",
+        "code": "'magenta'"
+      },
+      {
+        "label": {
+          "en": "pink",
+          "nl": "roze"
+        },
+        "value": "pink",
+        "code": "'pink'"
+      },
+      {
+        "label": {
+          "en": "white",
+          "nl": "wit"
+        },
+        "value": "white",
+        "code": "'white'"
+      },
+      {
+        "label": {
+          "en": "off",
+          "nl": "uit"
+        },
+        "value": "off",
+        "code": "'off'"
+      }
+    ],
+    "patterns": [
+      {
+        "label": {
+          "en": "solid",
+          "nl": "continu"
+        },
+        "value": "solid",
+        "code": "'solid'"
+      },
+      {
+        "label": {
+          "en": "blinking",
+          "nl": "knipperend"
+        },
+        "value": "blink",
+        "code": "'blink'"
+      },
+      {
+        "label": {
+          "en": "pulsing",
+          "nl": "pulserend"
+        },
+        "value": "pulse",
+        "code": "'pulse'"
+      }
+    ],
+    "roles": [
+      {
+        "label": {
+          "en": "brake light",
+          "nl": "remlicht"
+        },
+        "value": "brake",
+        "code": "'brake'"
+      },
+      {
+        "label": {
+          "en": "reversing light",
+          "nl": "achteruitrijlicht"
+        },
+        "value": "reverse",
+        "code": "'reverse'"
+      },
+      {
+        "label": {
+          "en": "left indicator",
+          "nl": "richtingaanwijzer links"
+        },
+        "value": "left",
+        "code": "'left'"
+      },
+      {
+        "label": {
+          "en": "right indicator",
+          "nl": "richtingaanwijzer rechts"
+        },
+        "value": "right",
+        "code": "'right'"
+      },
+      {
+        "label": {
+          "en": "headlight",
+          "nl": "koplamp"
+        },
+        "value": "head",
+        "code": "'head'"
+      },
+      {
+        "label": {
+          "en": "status light",
+          "nl": "statuslamp"
+        },
+        "value": "status",
+        "code": "'status'"
+      }
+    ],
+    "servos": [
+      {
+        "label": "1",
+        "value": "1"
+      },
+      {
+        "label": "2",
+        "value": "2"
+      },
+      {
+        "label": "3",
+        "value": "3"
+      },
+      {
+        "label": "4",
+        "value": "4"
+      }
+    ],
+    "pins": [
+      {
+        "label": "Servo 1 (GPIO 6)",
+        "value": "6"
+      },
+      {
+        "label": "Servo 2 (GPIO 9)",
+        "value": "9"
+      },
+      {
+        "label": "Servo 3 (GPIO 7)",
+        "value": "7"
+      },
+      {
+        "label": "Servo 4 (GPIO 8)",
+        "value": "8"
+      },
+      {
+        "label": "GPIO 12",
+        "value": "12"
+      },
+      {
+        "label": "GPIO 13",
+        "value": "13"
+      },
+      {
+        "label": "GPIO 14",
+        "value": "14"
+      },
+      {
+        "label": "GPIO 15",
+        "value": "15"
+      },
+      {
+        "label": "GPIO 16",
+        "value": "16"
+      },
+      {
+        "label": "GPIO 17",
+        "value": "17"
+      },
+      {
+        "label": "GPIO 18",
+        "value": "18"
+      },
+      {
+        "label": "GPIO 19",
+        "value": "19"
+      }
+    ],
+    "measures": [
+      {
+        "label": {
+          "en": "speed (cm/s)",
+          "nl": "snelheid (cm/s)"
+        },
+        "value": "speed",
+        "code": "'speed'"
+      },
+      {
+        "label": {
+          "en": "turning speed (degrees/s, left +)",
+          "nl": "draaisnelheid (graden/s, links +)"
+        },
+        "value": "turn",
+        "code": "'turn'"
+      },
+      {
+        "label": {
+          "en": "distance travelled (cm)",
+          "nl": "afgelegde afstand (cm)"
+        },
+        "value": "distance",
+        "code": "'distance'"
+      },
+      {
+        "label": {
+          "en": "battery (V)",
+          "nl": "batterij (V)"
+        },
+        "value": "battery",
+        "code": "'battery'"
+      },
+      {
+        "label": {
+          "en": "line sensor left (0-1)",
+          "nl": "lijnsensor links (0-1)"
+        },
+        "value": "line_left",
+        "code": "'line_left'"
+      },
+      {
+        "label": {
+          "en": "line sensor right (0-1)",
+          "nl": "lijnsensor rechts (0-1)"
+        },
+        "value": "line_right",
+        "code": "'line_right'"
+      },
+      {
+        "label": {
+          "en": "seconds since start",
+          "nl": "seconden sinds start"
+        },
+        "value": "time",
+        "code": "'time'"
+      }
+    ],
+    "ops": [
+      {
+        "label": ">",
+        "value": "GT",
+        "code": "'>'"
+      },
+      {
+        "label": "<",
+        "value": "LT",
+        "code": "'<'"
+      },
+      {
+        "label": "=",
+        "value": "EQ",
+        "code": "'='"
+      },
+      {
+        "label": "≠",
+        "value": "NE",
+        "code": "'!='"
+      }
+    ],
+    "pinstates": [
+      {
+        "label": {
+          "en": "pressed (connected to GND)",
+          "nl": "ingedrukt (verbonden met GND)"
+        },
+        "value": "low",
+        "code": "'low'"
+      },
+      {
+        "label": {
+          "en": "high",
+          "nl": "hoog"
+        },
+        "value": "high",
+        "code": "'high'"
+      }
+    ],
+    "levels": [
+      {
+        "label": {
+          "en": "low",
+          "nl": "laag"
+        },
+        "value": "low",
+        "code": "'low'"
+      },
+      {
+        "label": {
+          "en": "medium",
+          "nl": "gemiddeld"
+        },
+        "value": "medium",
+        "code": "'medium'"
+      },
+      {
+        "label": {
+          "en": "high",
+          "nl": "hoog"
+        },
+        "value": "high",
+        "code": "'high'"
+      }
+    ],
+    "onoff": [
+      {
+        "label": {
+          "en": "on",
+          "nl": "aan"
+        },
+        "value": "ON",
+        "code": "True"
+      },
+      {
+        "label": {
+          "en": "off",
+          "nl": "uit"
+        },
+        "value": "OFF",
+        "code": "False"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "type": "xrp_trig_setup",
+      "text": {
+        "en": "set up triggers, check %1 times a second",
+        "nl": "stel triggers in, controleer %1 keer per seconde"
+      },
+      "tooltip": {
+        "en": "Optional. Starts the trigger engine. 20 checks a second is plenty for lights; 2 to 50 allowed. Without this block the first trigger block starts it at 20.",
+        "nl": "Optioneel. Start de triggers. 20 keer per seconde is genoeg voor lampjes; 2 tot 50 mag. Zonder dit blok start het eerste triggerblok ze op 20."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "RATE",
+          "default": 20
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "configuresInstance": true,
+      "code": ""
+    },
+    {
+      "type": "xrp_trig_light_rule",
+      "text": {
+        "en": "while %1 show %2 %3 on the %4",
+        "nl": "zolang %1 toon %2 %3 op de %4"
+      },
+      "tooltip": {
+        "en": "A light rule. Runs in the background from now on. Movement is read from the two drive wheels, so it works with every Drive block. When two rules share a light: brake, then reversing, indicators, headlight, status. A light nobody has assigned uses the onboard RGB light.",
+        "nl": "Een lichtregel. Werkt vanaf nu op de achtergrond. Beweging wordt van de twee aandrijfwielen gelezen, dus het werkt met elk rijblok. Delen twee regels een lamp: rem, dan achteruit, richtingaanwijzers, koplamp, status. Een lamp die niet is toegewezen gebruikt de RGB-led op het bord."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "EVENT",
+          "options": "$events"
+        },
+        {
+          "type": "dropdown",
+          "name": "COLOUR",
+          "options": "$colours"
+        },
+        {
+          "type": "dropdown",
+          "name": "PATTERN",
+          "options": "$patterns"
+        },
+        {
+          "type": "dropdown",
+          "name": "ROLE",
+          "options": "$roles"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.light_rule({EVENT}, {COLOUR}, {PATTERN}, {ROLE})\n"
+    },
+    {
+      "type": "xrp_trig_servo_rule",
+      "text": {
+        "en": "while %1 move servo %2 to %3 degrees at %4 degrees/s, then back to %5 degrees",
+        "nl": "zolang %1 zet servo %2 op %3 graden met %4 graden/s, daarna terug naar %5 graden"
+      },
+      "tooltip": {
+        "en": "A servo rule. Speed 0 moves at once. When the rule ends the servo returns, then is left to the rest of your program. 5 to 175 degrees. A servo moving while the wheels drive causes a current spike.",
+        "nl": "Een servoregel. Snelheid 0 beweegt meteen. Als de regel stopt gaat de servo terug en is daarna weer vrij voor de rest van je programma. 5 tot 175 graden. Een servo die beweegt terwijl de wielen rijden geeft een stroompiek."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "EVENT",
+          "options": "$events"
+        },
+        {
+          "type": "dropdown",
+          "name": "SERVO",
+          "options": "$servos"
+        },
+        {
+          "type": "number",
+          "name": "ANGLE",
+          "default": 150
+        },
+        {
+          "type": "number",
+          "name": "SPEED",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "BACK",
+          "default": 90
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.servo_rule({EVENT}, {SERVO}, {ANGLE}, {SPEED}, {BACK})\n"
+    },
+    {
+      "type": "xrp_trig_estop_rule",
+      "text": {
+        "en": "emergency stop when %1",
+        "nl": "noodstop wanneer %1"
+      },
+      "tooltip": {
+        "en": "Opt-in safety rule. When it happens, every motor brakes and motor commands are ignored until \"clear emergency stop\". Your program keeps running: a Drive block waits out its time limit with the wheels held. Check \"emergency stop is on\" to react.",
+        "nl": "Veiligheidsregel. Als het gebeurt, remmen alle motoren en worden motoropdrachten genegeerd tot \"noodstop opheffen\". Je programma loopt door: een rijblok wacht zijn tijdslimiet af met de wielen vast. Gebruik \"noodstop is actief\" om te reageren."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "EVENT",
+          "options": "$events"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.estop_rule({EVENT})\n"
+    },
+    {
+      "type": "xrp_trig_estop_clear",
+      "text": {
+        "en": "clear emergency stop",
+        "nl": "noodstop opheffen"
+      },
+      "tooltip": {
+        "en": "Lets the motors run again after an emergency stop.",
+        "nl": "Laat de motoren weer draaien na een noodstop."
+      },
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.clear_estop()\n"
+    },
+    {
+      "type": "xrp_trig_estop_active",
+      "text": {
+        "en": "emergency stop is on",
+        "nl": "noodstop is actief"
+      },
+      "tooltip": {
+        "en": "True after an emergency stop, until it is cleared.",
+        "nl": "Waar na een noodstop, tot die is opgeheven."
+      },
+      "inline": true,
+      "shape": "value",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL",
+      "code": "triggers.estop_active()"
+    },
+    {
+      "type": "xrp_trig_happening",
+      "text": {
+        "en": "%1 is happening",
+        "nl": "%1 gebeurt"
+      },
+      "tooltip": {
+        "en": "True while this is happening, exactly as the rules see it (including the hold time).",
+        "nl": "Waar zolang dit gebeurt, precies zoals de regels het zien (inclusief de vasthoudtijd)."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "EVENT",
+          "options": "$events"
+        }
+      ],
+      "inline": true,
+      "shape": "value",
+      "returns": "Boolean",
+      "order": "FUNCTION_CALL",
+      "code": "triggers.happening({EVENT})"
+    },
+    {
+      "type": "xrp_trig_define",
+      "text": {
+        "en": "define trigger %1 : %2 %3 %4",
+        "nl": "stel trigger %1 in: %2 %3 %4"
+      },
+      "tooltip": {
+        "en": "Makes trigger A, B, C or D from a measurement. Speed, turning and distance come from the drive wheels; battery and line sensors are read by the engine itself.",
+        "nl": "Maakt trigger A, B, C of D van een meting. Snelheid, draaien en afstand komen van de aandrijfwielen; batterij en lijnsensoren leest de engine zelf."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "SLOT",
+          "options": "$slots"
+        },
+        {
+          "type": "dropdown",
+          "name": "MEASURE",
+          "options": "$measures"
+        },
+        {
+          "type": "dropdown",
+          "name": "OP",
+          "options": "$ops"
+        },
+        {
+          "type": "number",
+          "name": "VALUE",
+          "default": 20
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.define({SLOT}, {MEASURE}, {OP}, {VALUE})\n"
+    },
+    {
+      "type": "xrp_trig_define_pin",
+      "text": {
+        "en": "define trigger %1 : %2 is %3",
+        "nl": "stel trigger %1 in: %2 is %3"
+      },
+      "tooltip": {
+        "en": "A switch, bumper or button on a pin. Wire it between the pin and GND; the pin is pulled up inside, so pressed reads low.",
+        "nl": "Een schakelaar, bumper of knop op een pin. Sluit hem aan tussen de pin en GND; de pin wordt intern omhoog getrokken, dus ingedrukt leest laag."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "SLOT",
+          "options": "$slots"
+        },
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": "$pinstates"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.define_pin({SLOT}, {PIN}, {STATE})\n"
+    },
+    {
+      "type": "xrp_trig_define_value",
+      "text": {
+        "en": "define trigger %1 : value %2 %3 %4",
+        "nl": "stel trigger %1 in: waarde %2 %3 %4"
+      },
+      "tooltip": {
+        "en": "A trigger on a value your program posts with \"set trigger value\". Use it for the gyro, the distance sensor, a colour sensor or the remote control: those are read by your program, not by the engine.",
+        "nl": "Een trigger op een waarde die je programma doorgeeft met \"zet triggerwaarde\". Gebruik dit voor de gyroscoop, de afstandssensor, een kleursensor of de afstandsbediening: die leest je programma, niet de engine."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "SLOT",
+          "options": "$slots"
+        },
+        {
+          "type": "text",
+          "name": "NAME",
+          "default": "'tilt'"
+        },
+        {
+          "type": "dropdown",
+          "name": "OP",
+          "options": "$ops"
+        },
+        {
+          "type": "value",
+          "name": "VALUE",
+          "default": "0"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.define_value({SLOT}, {NAME}, {OP}, {VALUE})\n"
+    },
+    {
+      "type": "xrp_trig_define_every",
+      "text": {
+        "en": "define trigger %1 : every %2 seconds",
+        "nl": "stel trigger %1 in: elke %2 seconden"
+      },
+      "tooltip": {
+        "en": "Happens once every so many seconds. The hold time keeps a light on long enough to see.",
+        "nl": "Gebeurt eens per zoveel seconden. De vasthoudtijd houdt een lamp lang genoeg aan om te zien."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "SLOT",
+          "options": "$slots"
+        },
+        {
+          "type": "number",
+          "name": "SECONDS",
+          "default": 2
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.define_every({SLOT}, {SECONDS})\n"
+    },
+    {
+      "type": "xrp_trig_set_value",
+      "text": {
+        "en": "set trigger value %1 to %2",
+        "nl": "zet triggerwaarde %1 op %2"
+      },
+      "tooltip": {
+        "en": "Posts a value for \"define trigger ... value\" to test. Put it in your loop, after reading the sensor.",
+        "nl": "Geeft een waarde door voor \"stel trigger in ... waarde\". Zet het in je lus, na het lezen van de sensor."
+      },
+      "args": [
+        {
+          "type": "text",
+          "name": "NAME",
+          "default": "'tilt'"
+        },
+        {
+          "type": "value",
+          "name": "VALUE",
+          "default": "0"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.set_value({NAME}, {VALUE})\n"
+    },
+    {
+      "type": "xrp_trig_measure",
+      "text": {
+        "en": "trigger measurement %1",
+        "nl": "triggermeting %1"
+      },
+      "tooltip": {
+        "en": "The value the engine sees right now. Print it to choose thresholds for your robot.",
+        "nl": "De waarde die de engine nu ziet. Print hem om drempels voor je robot te kiezen."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "MEASURE",
+          "options": "$measures"
+        }
+      ],
+      "inline": true,
+      "shape": "value",
+      "returns": "Number",
+      "order": "FUNCTION_CALL",
+      "code": "triggers.measure({MEASURE})"
+    },
+    {
+      "type": "xrp_trig_reset_distance",
+      "text": {
+        "en": "reset trigger distance",
+        "nl": "triggerafstand op nul"
+      },
+      "tooltip": {
+        "en": "Sets \"distance travelled\" back to 0.",
+        "nl": "Zet \"afgelegde afstand\" terug op 0."
+      },
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.reset_distance()\n"
+    },
+    {
+      "type": "xrp_trig_use_rgb",
+      "text": {
+        "en": "use the onboard RGB light as the %1",
+        "nl": "gebruik de RGB-led op het bord als %1"
+      },
+      "tooltip": {
+        "en": "Assigns a light. Without any assignment every light uses the onboard RGB light. Do not also use the Board RGB blocks: they would fight over the light.",
+        "nl": "Wijst een lamp toe. Zonder toewijzing gebruikt elke lamp de RGB-led op het bord. Gebruik dan niet ook de RGB-blokken van Bord: die vechten om dezelfde led."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ROLE",
+          "options": "$roles"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.use_rgb({ROLE})\n"
+    },
+    {
+      "type": "xrp_trig_use_board_led",
+      "text": {
+        "en": "use the board LED as the %1",
+        "nl": "gebruik de led op het bord als %1"
+      },
+      "tooltip": {
+        "en": "The small single-colour LED. Any colour lights it; pulsing shows as blinking.",
+        "nl": "De kleine eenkleurige led. Elke kleur zet hem aan; pulserend wordt knipperen."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ROLE",
+          "options": "$roles"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.use_board_led({ROLE})\n"
+    },
+    {
+      "type": "xrp_trig_use_pin",
+      "text": {
+        "en": "use the LED on %1 as the %2",
+        "nl": "gebruik de led op %1 als %2"
+      },
+      "tooltip": {
+        "en": "A plain LED with a resistor (about 220 ohm) between the pin and GND. Any colour lights it.",
+        "nl": "Een gewone led met weerstand (ongeveer 220 ohm) tussen de pin en GND. Elke kleur zet hem aan."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "dropdown",
+          "name": "ROLE",
+          "options": "$roles"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.use_pin({ROLE}, {PIN})\n"
+    },
+    {
+      "type": "xrp_trig_strip",
+      "text": {
+        "en": "trigger LED strip on %1 with %2 pixels",
+        "nl": "trigger-ledstrip op %1 met %2 pixels"
+      },
+      "tooltip": {
+        "en": "A NeoPixel strip for the trigger lights only (up to 30 pixels; longer strips take too long to write). Do not use the NeoPixel library on the same pin.",
+        "nl": "Een NeoPixel-strip alleen voor de triggerlampen (tot 30 pixels; langere strips kosten te veel tijd). Gebruik de NeoPixel-bibliotheek niet op dezelfde pin."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "PIN",
+          "options": "$pins"
+        },
+        {
+          "type": "number",
+          "name": "COUNT",
+          "default": 8
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.strip({PIN}, {COUNT})\n"
+    },
+    {
+      "type": "xrp_trig_use_pixels",
+      "text": {
+        "en": "use strip pixels %1 to %2 as the %3",
+        "nl": "gebruik strippixels %1 tot %2 als %3"
+      },
+      "tooltip": {
+        "en": "Pixels count from 0. For example 0 to 1 as the left indicator and 6 to 7 as the right one.",
+        "nl": "Pixels tellen vanaf 0. Bijvoorbeeld 0 tot 1 als richtingaanwijzer links en 6 tot 7 als rechts."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "FIRST",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "name": "LAST",
+          "default": 1
+        },
+        {
+          "type": "dropdown",
+          "name": "ROLE",
+          "options": "$roles"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.use_pixels({ROLE}, {FIRST}, {LAST})\n"
+    },
+    {
+      "type": "xrp_trig_set_light",
+      "text": {
+        "en": "set the %1 to %2 %3",
+        "nl": "zet de %1 op %2 %3"
+      },
+      "tooltip": {
+        "en": "Sets a light by hand. A rule for the same light takes priority while it is happening. Choose off to clear it.",
+        "nl": "Zet een lamp met de hand. Een regel voor dezelfde lamp gaat voor zolang die gebeurt. Kies uit om te wissen."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ROLE",
+          "options": "$roles"
+        },
+        {
+          "type": "dropdown",
+          "name": "COLOUR",
+          "options": "$colours"
+        },
+        {
+          "type": "dropdown",
+          "name": "PATTERN",
+          "options": "$patterns"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.set_light({ROLE}, {COLOUR}, {PATTERN})\n"
+    },
+    {
+      "type": "xrp_trig_all_off",
+      "text": {
+        "en": "all trigger lights off",
+        "nl": "alle triggerlampen uit"
+      },
+      "tooltip": {
+        "en": "Clears every light set by hand. Rules keep working.",
+        "nl": "Wist alle met de hand gezette lampen. Regels blijven werken."
+      },
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.all_off()\n"
+    },
+    {
+      "type": "xrp_trig_brightness",
+      "text": {
+        "en": "trigger lights brightness %1 %%",
+        "nl": "helderheid triggerlampen %1 %%"
+      },
+      "tooltip": {
+        "en": "0 to 100%. Default 30%. Keep it low with a strip: bright pixels draw a lot of current.",
+        "nl": "0 tot 100%. Standaard 30%. Houd het laag bij een strip: felle pixels gebruiken veel stroom."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "PERCENT",
+          "default": 30
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.set_brightness({PERCENT})\n"
+    },
+    {
+      "type": "xrp_trig_hold",
+      "text": {
+        "en": "keep trigger actions on for at least %1 seconds",
+        "nl": "houd triggeracties minstens %1 seconden aan"
+      },
+      "tooltip": {
+        "en": "After a trigger stops, its lights and servos stay on this long, so a short brake or a button tap is still visible. Default 0.3 seconds.",
+        "nl": "Als een trigger stopt blijven de lampen en servo's nog zo lang aan, zodat kort remmen of een tik op een knop zichtbaar is. Standaard 0,3 seconden."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "SECONDS",
+          "default": 0.3
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.set_hold({SECONDS})\n"
+    },
+    {
+      "type": "xrp_trig_braking",
+      "text": {
+        "en": "braking sensitivity %1",
+        "nl": "remgevoeligheid %1"
+      },
+      "tooltip": {
+        "en": "How quickly the robot must slow down to count as braking: low 30, medium 15, high 8 cm/s each second. Use high with the extra slow or slow acceleration settings.",
+        "nl": "Hoe snel de robot moet afremmen om als remmen te tellen: laag 30, gemiddeld 15, hoog 8 cm/s per seconde. Gebruik hoog bij de versnelling extra langzaam of langzaam."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "LEVEL",
+          "options": "$levels"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.set_braking({LEVEL})\n"
+    },
+    {
+      "type": "xrp_trig_enable",
+      "text": {
+        "en": "automatic triggers %1",
+        "nl": "automatische triggers %1"
+      },
+      "tooltip": {
+        "en": "Off pauses every rule, including the emergency stop rule. Lights set by hand stay on.",
+        "nl": "Uit pauzeert alle regels, ook de noodstopregel. Met de hand gezette lampen blijven aan."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "STATE",
+          "options": "$onoff"
+        }
+      ],
+      "inline": true,
+      "shape": "statement",
+      "code": "triggers.set_enabled({STATE})\n"
+    }
+  ],
+  "toolbox": [
+    {
+      "block": "xrp_trig_setup",
+      "shadows": {
+        "RATE": 20
+      }
+    },
+    {
+      "gap": 16
+    },
+    {
+      "block": "xrp_trig_light_rule"
+    },
+    {
+      "block": "xrp_trig_servo_rule",
+      "shadows": {
+        "ANGLE": 150,
+        "SPEED": 0,
+        "BACK": 90
+      }
+    },
+    {
+      "block": "xrp_trig_happening"
+    },
+    {
+      "gap": 24
+    },
+    {
+      "block": "xrp_trig_define",
+      "shadows": {
+        "VALUE": 20
+      }
+    },
+    {
+      "block": "xrp_trig_define_pin"
+    },
+    {
+      "block": "xrp_trig_define_value",
+      "shadows": {
+        "NAME": "tilt",
+        "VALUE": 20
+      }
+    },
+    {
+      "block": "xrp_trig_define_every",
+      "shadows": {
+        "SECONDS": 2
+      }
+    },
+    {
+      "block": "xrp_trig_set_value",
+      "shadows": {
+        "NAME": "tilt",
+        "VALUE": 0
+      }
+    },
+    {
+      "block": "xrp_trig_measure"
+    },
+    {
+      "block": "xrp_trig_reset_distance"
+    },
+    {
+      "gap": 24
+    },
+    {
+      "block": "xrp_trig_use_rgb"
+    },
+    {
+      "block": "xrp_trig_use_board_led"
+    },
+    {
+      "block": "xrp_trig_use_pin"
+    },
+    {
+      "block": "xrp_trig_strip",
+      "shadows": {
+        "COUNT": 8
+      }
+    },
+    {
+      "block": "xrp_trig_use_pixels",
+      "shadows": {
+        "FIRST": 0,
+        "LAST": 1
+      }
+    },
+    {
+      "block": "xrp_trig_set_light"
+    },
+    {
+      "block": "xrp_trig_all_off"
+    },
+    {
+      "block": "xrp_trig_brightness",
+      "shadows": {
+        "PERCENT": 30
+      }
+    },
+    {
+      "gap": 24
+    },
+    {
+      "block": "xrp_trig_hold",
+      "shadows": {
+        "SECONDS": 0.3
+      }
+    },
+    {
+      "block": "xrp_trig_braking"
+    },
+    {
+      "block": "xrp_trig_enable"
+    },
+    {
+      "gap": 24
+    },
+    {
+      "block": "xrp_trig_estop_rule"
+    },
+    {
+      "block": "xrp_trig_estop_active"
+    },
+    {
+      "block": "xrp_trig_estop_clear"
+    }
+  ]
+}
