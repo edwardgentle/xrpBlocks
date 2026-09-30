@@ -619,15 +619,17 @@ class XRPBlocksApp {
   // ── UI Components ──
 
   /**
-   * Which colour scheme to use. Light is the default and is unchanged from
-   * upstream; dark deepens every block colour so white labels are readable.
+   * Which colour scheme to use. Dark is the default on first run, and any
+   * saved preference overrides it. Light stays available as an explicit choice.
    * @returns {'light'|'dark'}
    */
   _themeMode() {
     try {
-      return localStorage.getItem('xrp_blocks_theme') === 'dark' ? 'dark' : 'light';
+      const saved = localStorage.getItem('xrp_blocks_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      return 'dark';
     } catch (err) {
-      return 'light';
+      return 'dark';
     }
   }
 
@@ -779,7 +781,7 @@ class XRPBlocksApp {
         } else {
           // Panel is open
           if (isAlreadyActive) {
-            // Clicking the active tab closes the panel (neither tab is active)
+            // Clicking an active tab closes the panel (neither tab is active)
             this._setPanelState(false);
           } else {
             // Clicking a different tab switches to that tab (keeps panel open)
@@ -963,7 +965,7 @@ class XRPBlocksApp {
 
   async _handleRun() {
     this._removeUnusedVariables();
-    // watch=true: any variable/list marked "Watch this value" gets its
+    // watch=true: any variable/list marked "Watch this value" gets the
     // debug print instrumentation for this run (see _generateCode above).
     const code = this._generateCode(true);
     if (!code.trim()) {
