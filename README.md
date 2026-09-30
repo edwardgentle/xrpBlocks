@@ -1,5 +1,9 @@
 # XRP Blocks
 
+This is Edward Gentle's modified version of [XRPBlocks by Stichting STEAMup](https://github.com/Stichting-STEAMup/XRPBlocks). Credit for the original project goes to its authors; the original MIT license and copyright notice are preserved in [LICENSE](LICENSE).
+
+The original project's [lesson documentation](https://github.com/Stichting-STEAMup/XRPBlocks/blob/main/docs/lessons.md) is available upstream. For this version's additions and changes, see [Local edition: 28 September 2026](#local-edition-28-september-2026) below.
+
 A browser-based block-programming IDE for the [XRP robot](https://experiencerobotics.org/), designed with a didactic focus for beginners.
 
 Built on [Blockly](https://developers.google.com/blockly), XRP Blocks lets students drag and drop blocks to write real MicroPython programs and run them directly on the robot over USB using the WebSerial API — no installation required.
