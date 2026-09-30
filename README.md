@@ -19,6 +19,8 @@ Built on [Blockly](https://developers.google.com/blockly), XRP Blocks lets stude
 
 ## Getting Started
 
+Open the [OLED image designer](https://edwardgentle.github.io/xrpBlocks/oled-designer/) to draw pictures for the robot's OLED screen.
+
 XRP Blocks runs entirely in the browser — no build step needed.
 
 1. Start the local server: double-click `XRP Robotics.exe` (a build of XRPServe, no Python needed; see [delphiSource/README.md](delphiSource/README.md)), or run `python serve.py`. The IDE opens at `http://localhost:8765` in Chrome or Edge. Opening `index.html` directly does not work with the app's ES modules.
