@@ -62,11 +62,14 @@ export function registerServoBlocks() {
         message0: '%{BKY_XRP_SERVO_SWEEP}',
         args0: [
           { type: 'field_dropdown', name: 'SERVO', options: SERVO_OPTIONS },
+        ],
+        message1: '%{BKY_XRP_SERVO_SWEEP_RANGE}',
+        args1: [
           { type: 'input_value', name: 'FROM', check: 'Number' },
           { type: 'input_value', name: 'TO', check: 'Number' },
         ],
-        message1: '%{BKY_XRP_SERVO_SWEEP_TIME}',
-        args1: [
+        message2: '%{BKY_XRP_SERVO_SWEEP_TIME}',
+        args2: [
           { type: 'input_value', name: 'SECONDS', check: 'Number' },
         ],
         inputsInline: true,
