@@ -1,487 +1,560 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#10151e">
-<title>XRP phone control</title>
-<!--
-  XRP phone control over Bluetooth (XRP Blocks, Phone control library 1.1.1).
-  Talks to the robot's own Bluetooth link (Nordic UART Service, the same one an
-  IDE uses) with Web Bluetooth. Needs Chrome on Android and an https:// address.
-  Protocol: see lib/BLERemote.py. Only ASCII digits, letters and spaces are ever
-  sent, never Ctrl+C or the IDE's stop string, so it cannot interrupt the robot.
--->
-<style>
-:root{color-scheme:dark;--bg:#10151e;--panel:#182231;--btn:#202d40;--line:#354459;--text:#edf4ff;--muted:#a9b7cd;--live:#79e2b1;--warn:#ffcf70;--held:#2d6596;--heldline:#9dcfff;--a:#284736;--b:#443156;--danger:#542633}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-body{padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
-main{max-width:680px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
-h1{font-size:24px;margin:4px 0;overflow-wrap:anywhere}
-button,select{font:inherit;color:inherit}
-button{border:1px solid var(--line);background:var(--btn);border-radius:14px;padding:12px 16px;cursor:pointer}
-button:focus-visible,select:focus-visible{outline:3px solid #83b7ff;outline-offset:3px}
-#connect{flex:none;background:#2d6596;border-color:var(--heldline);font-weight:600}
-#status{font-size:14px;color:var(--muted);min-height:1.4em;margin:6px 0}
-#status.live{color:var(--live)}#status.warn{color:var(--warn)}
-#message{min-height:1.4em;margin:4px 0 10px;padding:8px 12px;border-radius:10px;background:var(--panel);font-variant-numeric:tabular-nums;display:none}
-#message.show{display:block}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
-select{padding:10px;background:var(--btn);border:1px solid var(--line);border-radius:10px}
-.pad{touch-action:none;user-select:none;-webkit-user-select:none;min-height:88px;font-size:18px;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.pad small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
-.pad .sym{font-size:24px;line-height:1;margin-bottom:4px}
-.pad.held{background:var(--held);border-color:var(--heldline)}
-.pad:disabled,.stick.off{opacity:.45}
-#controls{margin:12px 0}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.dpad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.dpad .p1{grid-area:1/2}.dpad .p2{grid-area:2/1}.dpad .p3{grid-area:2/3}.dpad .p4{grid-area:3/2}.dpad .p5{grid-area:4/1;background:var(--a)}.dpad .p6{grid-area:4/3;background:var(--b)}
-.dpad .p5.held,.dpad .p6.held,.joy .p5.held,.joy .p6.held{background:var(--held)}
-.joy{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;align-items:center}
-.joy .side{display:grid;gap:12px}
-.joy .p5{background:var(--a);min-height:110px}.joy .p6{background:var(--b);min-height:110px}
-.joy .small{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;grid-column:1/-1}
-.joy .small .pad{min-height:64px;font-size:14px;padding:8px 4px;overflow-wrap:normal;word-break:keep-all}.joy .small .pad .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.joy .small .pad small{display:none}
-.stick{position:relative;width:100%;max-width:300px;aspect-ratio:1;margin:auto;border-radius:50%;background:radial-gradient(circle,#223249 0 58%,#1a2638 59%);border:2px solid var(--line);touch-action:none;user-select:none}
-.stick::before,.stick::after{content:"";position:absolute;background:#2f3e55;left:50%;top:8%;bottom:8%;width:2px;transform:translateX(-50%)}
-.stick::after{top:50%;left:8%;right:8%;bottom:auto;height:2px;width:auto;transform:translateY(-50%)}
-.knob{position:absolute;left:50%;top:50%;width:34%;height:34%;margin:-17% 0 0 -17%;border-radius:50%;background:#3d7ec0;border:2px solid var(--heldline);box-shadow:0 4px 14px #0008;z-index:1;transition:transform .08s}
-.stick.active .knob{transition:none}
-#readout{text-align:center;color:var(--muted);font-size:13px;margin-top:6px;font-variant-numeric:tabular-nums}
-#release{width:100%;background:var(--danger);border-color:#a74660;margin-top:14px}
-details{margin-top:20px;color:var(--muted)}summary{cursor:pointer;padding:6px 0}
-details p,details li{line-height:1.5}
-footer{font-size:12px;color:#8293ac;margin-top:18px;line-height:1.5}
-.hidden{display:none!important}
-@media (orientation:landscape) and (max-height:520px){body{padding:8px 16px}h1{font-size:19px}#status{margin:2px 0}#message{margin:2px 0 4px;padding:4px 10px}.row{margin:4px 0}select{padding:6px}#controls{margin:6px 0}.stick{max-width:44vh}.pad{min-height:54px}.pad small{display:none}.joy .p5,.joy .p6{min-height:64px}.joy .small .pad{min-height:48px}}
-@media (max-width:360px){.pad{font-size:15px}}
-.check{display:flex;align-items:center;gap:8px;cursor:pointer}
-.check input{width:22px;height:22px;accent-color:#3d7ec0}
-#readings{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:8px 0}
-.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;min-width:0}
-.tile .n{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tile .v{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.tile.fresh .v{color:var(--live)}
-#feedlog{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
-#feedlog header{font-size:13px;color:var(--muted)}
-#feedlog button{padding:4px 10px;font-size:13px;border-radius:8px}
-#log{list-style:none;margin:6px 0 0;padding:0;max-height:180px;overflow-y:auto;font-family:ui-monospace,Consolas,monospace;font-size:14px}
-#log li{padding:3px 0;border-top:1px solid #243248;overflow-wrap:anywhere}
-#log li:first-child{border-top:0}
-#log .t{color:var(--muted);margin-right:8px}
-.empty{color:var(--muted);font-size:13px}
-/* Messages view: readings as one large block, no controls */
-body.msgmode #release{display:none}
-body.msgmode #readings{display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin:12px 0}
-body.msgmode #readings.hidden{display:block!important}
-body.msgmode .tile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;background:none;border:0;border-top:1px solid #243248;border-radius:0;padding:12px 0}
-body.msgmode .tile:first-child{border-top:0}
-body.msgmode .tile .n{font-size:17px;color:var(--text);white-space:normal}
-body.msgmode .tile .v{font-size:30px;text-align:right}
-body.msgmode #feedlog{margin-top:0}
-#readings .waiting{color:var(--muted);padding:14px 0;font-size:15px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XRP Blocks</title>
+  <meta name="description"
+    content="A beginner-friendly block programming IDE for XRP robots. Drag and drop blocks to program your robot — no typing required!">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236C63FF'/><text x='16' y='22' text-anchor='middle' font-size='18' font-weight='bold' fill='white' font-family='sans-serif'>XB</text></svg>">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/index.css">
+
+  <!-- Blockly (Local) -->
+  <script src="js/vendor/blockly/blockly_compressed.js"></script>
+  <script src="js/vendor/blockly/blocks_compressed.js"></script>
+  <script src="js/vendor/blockly/python_compressed.js"></script>
+  <!-- App (ES module) -->
+  <script type="module" src="js/app.js"></script>
 </head>
+
 <body>
-<main>
-  <header>
-    <h1 id="title">XRP phone control</h1>
-    <button id="connect">Connect</button>
-  </header>
-  <div id="status" role="status" aria-live="polite">Not connected.</div>
-  <div id="message" aria-live="polite"></div>
+  <div id="app">
 
-  <div class="row">
-    <label for="layout">Layout</label>
-    <select id="layout">
-      <option value="joy">Joystick</option>
-      <option value="dpad">Game D-pad</option>
-      <option value="grid">Button grid</option>
-      <option value="msg">Messages</option>
-    </select>
-    <label class="check"><input type="checkbox" id="feed"> Show robot messages</label>
+    <!-- ═══════════ Toolbar ═══════════ -->
+    <header class="toolbar" role="banner">
+      <!-- Logo -->
+      <a class="toolbar__logo" href="#" aria-label="XRP Blocks Home">
+        <span class="toolbar__logo-text">XRP Blocks</span>
+      </a>
+
+      <div class="toolbar__divider"></div>
+
+      <!-- Connection status -->
+      <div class="connection-status">
+        <span class="connection-status__dot" id="connection-dot"></span>
+        <span id="connection-text" data-i18n="UI_DISCONNECTED">Disconnected</span>
+      </div>
+
+      <!-- Connect button -->
+      <button id="btn-connect" class="toolbar__btn toolbar__btn--connect" data-tooltip="Connect to your XRP robot"
+        data-i18n-tooltip="TIP_CONNECT">
+        <!-- Lucide: plug -->
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22v-5" />
+          <path d="M9 8V2" />
+          <path d="M15 8V2" />
+          <path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" />
+        </svg>
+        <span class="btn-label" data-i18n="UI_CONNECT">Connect XRP</span>
+      </button>
+
+      <!-- Run button -->
+      <button id="btn-run" class="toolbar__btn toolbar__btn--run" disabled data-tooltip="Run your program on the XRP"
+        data-i18n-tooltip="TIP_RUN">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="6,3 20,12 6,21" />
+        </svg>
+        <span class="btn-label" data-i18n="UI_RUN">Run</span>
+      </button>
+
+      <!-- Stop button (hidden by default) -->
+      <button id="btn-stop" class="toolbar__btn toolbar__btn--stop" data-tooltip="Stop the running program"
+        data-i18n-tooltip="TIP_STOP">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+        </svg>
+        <span class="btn-label" data-i18n="UI_STOP">Stop</span>
+      </button>
+
+      <!-- Deploy button -->
+      <button id="btn-deploy" class="toolbar__btn toolbar__btn--deploy" disabled
+        data-tooltip="Save to board — runs automatically on power-up"
+        data-i18n-tooltip="TIP_DEPLOY">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span class="btn-label" data-i18n="UI_DEPLOY">Deploy</span>
+      </button>
+
+      <div class="toolbar__spacer"></div>
+
+      <!-- Save -->
+      <button id="btn-save" class="toolbar__btn toolbar__btn--secondary" data-tooltip="Save your project"
+        data-i18n-tooltip="TIP_SAVE">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
+        <span class="btn-label" data-i18n="UI_SAVE">Save</span>
+      </button>
+
+      <!-- Load -->
+      <button id="btn-load" class="toolbar__btn toolbar__btn--secondary" data-tooltip="Load a saved project"
+        data-i18n-tooltip="TIP_LOAD">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        <span class="btn-label" data-i18n="UI_LOAD">Load</span>
+      </button>
+
+      <div class="toolbar__divider"></div>
+
+      <!-- Load Lesson -->
+      <button id="btn-load-lesson" class="toolbar__btn toolbar__btn--lesson"
+        data-tooltip="Browse lessons"
+        data-i18n-tooltip="TIP_LESSON">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span class="btn-label" data-i18n="UI_LESSON">Lesson</span>
+      </button>
+
+      <!-- Device library -->
+      <button id="btn-library" class="toolbar__btn toolbar__btn--secondary"
+        data-tooltip="Add or remove device libraries"
+        data-i18n-tooltip="TIP_LIBRARY">
+        <!-- Lucide: cpu -->
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="6" width="12" height="12" rx="2"/>
+          <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>
+        </svg>
+        <span class="btn-label" data-i18n="UI_LIBRARY">Library</span>
+      </button>
+
+      <div class="toolbar__divider"></div>
+
+      <!-- Light / dark toggle -->
+      <button id="btn-theme" class="toolbar__icon-btn" type="button"
+        data-tooltip="Switch between light and dark" data-i18n-tooltip="TIP_THEME"
+        aria-label="Switch between light and dark">
+        <!-- Lucide: moon (shown in light mode) -->
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>
+        </svg>
+        <!-- Lucide: sun (shown in dark mode) -->
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/>
+        </svg>
+      </button>
+
+      <!-- Language selector -->
+      <select id="select-lang" class="toolbar__select" aria-label="Select Language">
+        <option value="en">EN</option>
+        <option value="nl">NL</option>
+      </select>
+    </header>
+
+    <!-- ═══════════ Main Workspace ═══════════ -->
+    <main class="workspace-area">
+
+      <!-- ── Lesson Panel ── -->
+      <div id="lesson-panel" class="lesson-panel lesson-panel--hidden" aria-live="polite" aria-label="Lesson step">
+        <!-- Header -->
+        <div class="lesson-panel__header">
+          <div class="lesson-panel__title-row">
+            <svg class="lesson-panel__book-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            <span class="lesson-panel__title">Lesson</span>
+          </div>
+          <div class="lesson-panel__header-right">
+            <span class="lesson-panel__step-count">Step 1 of 1</span>
+            <button id="btn-lesson-close" class="lesson-panel__close"
+              aria-label="Exit lesson"
+              data-tooltip="Exit lesson"
+              data-i18n-tooltip="LESSON_TIP_EXIT">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="lesson-panel__progress">
+          <div class="lesson-panel__progress-fill"></div>
+        </div>
+
+        <!-- Step text -->
+        <div class="lesson-panel__step-text"></div>
+
+        <!-- Navigation -->
+        <div class="lesson-panel__nav">
+          <button id="btn-lesson-prev" class="lesson-panel__btn lesson-panel__btn--prev" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            <span data-i18n="LESSON_BTN_PREV">Previous</span>
+          </button>
+          <button id="btn-lesson-next" class="lesson-panel__btn lesson-panel__btn--next">
+            <span data-i18n="LESSON_BTN_NEXT">Next</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="blocklyDiv"></div>
+    </main>
+
+    <!-- ═══════════ Bottom Panel ═══════════ -->
+    <section class="bottom-panel collapsed" aria-label="Output panels">
+      <!-- Resize handle -->
+      <div class="bottom-panel__resize" role="separator" aria-orientation="horizontal"></div>
+
+      <!-- Tabs -->
+      <div class="bottom-panel__tabs">
+        <button class="bottom-panel__tab" data-tab="python">
+          <svg style="width:12px;height:12px;margin-right:4px;vertical-align:-1px" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          Python
+        </button>
+        <button class="bottom-panel__tab" data-tab="console">
+          <svg style="width:12px;height:12px;margin-right:4px;vertical-align:-1px" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5">
+            <polyline points="4 17 10 11 4 5" />
+            <line x1="12" y1="19" x2="20" y2="19" />
+          </svg>
+          Console
+        </button>
+
+        <!-- Python actions -->
+        <div class="bottom-panel__actions" id="python-actions" style="display:flex">
+          <button class="bottom-panel__action-btn" id="btn-pin-python" aria-pressed="false"
+            aria-label="Pin bottom panel" data-tooltip="Pin bottom panel" data-i18n-tooltip="TIP_PIN_CONSOLE">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M16 3l5 5-4 1-4 4-1 4-5-5 4-1 4-4zM7 17l-4 4" />
+            </svg>
+          </button>
+          <button class="bottom-panel__action-btn" id="btn-copy-code" data-tooltip="Copy Python code"
+            data-i18n-tooltip="TIP_COPY">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+          <button class="bottom-panel__action-btn" id="btn-collapse-panel" data-tooltip="Collapse panel"
+            data-i18n-tooltip="TIP_COLLAPSE">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="6 15 12 9 18 15" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Console actions -->
+        <div class="bottom-panel__actions" id="console-actions" style="display:none">
+          <button class="bottom-panel__action-btn" id="btn-pin-console" aria-pressed="false"
+            aria-label="Pin console" data-tooltip="Pin console" data-i18n-tooltip="TIP_PIN_CONSOLE">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M16 3l5 5-4 1-4 4-1 4-5-5 4-1 4-4zM7 17l-4 4" />
+            </svg>
+          </button>
+          <button class="bottom-panel__action-btn is-active" id="btn-autoscroll" data-tooltip="Auto-scroll"
+            data-i18n-tooltip="TIP_AUTOSCROLL" aria-pressed="true">
+            <!-- Lucide: arrow-down-to-line -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 17V3" />
+              <path d="m6 11 6 6 6-6" />
+              <path d="M19 21H5" />
+            </svg>
+          </button>
+          <button class="bottom-panel__action-btn" id="btn-copy-console" data-tooltip="Copy console output"
+            data-i18n-tooltip="TIP_COPY_CONSOLE">
+            <!-- Lucide: copy -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+          <button class="bottom-panel__action-btn" id="btn-clear-console" data-tooltip="Clear console"
+            data-i18n-tooltip="TIP_CLEAR">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+          <button class="bottom-panel__action-btn" id="btn-collapse-panel-2" data-tooltip="Collapse panel"
+            data-i18n-tooltip="TIP_COLLAPSE">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="6 15 12 9 18 15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel content -->
+      <div class="bottom-panel__content">
+        <div id="panel-python" class="panel-view">
+          <pre class="python-preview" id="python-code"></pre>
+        </div>
+        <div id="panel-console" class="panel-view">
+          <div class="console-output" id="console-output"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ Connection Picker Modal ═══════════ -->
+    <div id="connection-modal" class="connection-modal" role="dialog" aria-modal="true" aria-labelledby="conn-modal-title">
+      <div class="connection-modal__panel">
+        <!-- Header -->
+        <div class="connection-modal__header">
+          <h2 class="connection-modal__title" id="conn-modal-title" data-i18n="UI_CONNECT_CHOOSE">Choose connection type</h2>
+          <button id="conn-modal-close" class="connection-modal__close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Options -->
+        <div class="connection-modal__options">
+
+          <!-- USB / WebSerial -->
+          <button id="conn-opt-usb" class="conn-opt conn-opt--usb" data-tooltip="Connect via USB cable">
+            <div class="conn-opt__badge" id="conn-opt-usb-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span data-i18n="MSG_NOT_SUPPORTED_SHORT">Not supported</span>
+            </div>
+            <div class="conn-opt__icon">
+              <!-- Lucide: usb -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="10" cy="7" r="1"/>
+                <circle cx="4" cy="20" r="1"/>
+                <path d="M4.7 19.3 19 5"/>
+                <path d="m21 3-3 1 2 2Z"/>
+                <path d="M9.26 7.68 5 12l2 5"/>
+                <path d="m10 14 5 2 3.5-3.5"/>
+                <path d="m18 12 1-1 1 1-1 1Z"/>
+              </svg>
+            </div>
+            <span class="conn-opt__label" data-i18n="UI_CONNECT_USB">USB Cable</span>
+            <span class="conn-opt__desc" data-i18n="UI_CONNECT_USB_DESC">WebSerial — Chrome / Edge</span>
+          </button>
+
+          <!-- Bluetooth -->
+          <button id="conn-opt-bt" class="conn-opt conn-opt--bt" data-tooltip="Connect via Bluetooth">
+            <div class="conn-opt__badge" id="conn-opt-bt-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span data-i18n="MSG_NOT_SUPPORTED_SHORT">Not supported</span>
+            </div>
+            <div class="conn-opt__icon conn-opt__icon--bt">
+              <!-- Lucide: bluetooth -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m7 7 10 10-5 5V2l5 5L7 17"/>
+              </svg>
+            </div>
+            <span class="conn-opt__label" data-i18n="UI_CONNECT_BT">Bluetooth</span>
+            <span class="conn-opt__desc" data-i18n="UI_CONNECT_BT_DESC">Web Bluetooth — Chrome / Edge</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Unsupported Browser Modal ═══════════ -->
+    <div id="unsupported-modal" class="connection-modal" role="dialog" aria-modal="true" aria-labelledby="unsupported-modal-title">
+      <div class="connection-modal__panel">
+        <!-- Header -->
+        <div class="connection-modal__header">
+          <h2 class="connection-modal__title" id="unsupported-modal-title" data-i18n="UI_UNSUPPORTED_TITLE">Browser not supported</h2>
+          <button id="unsupported-modal-close" class="connection-modal__close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="unsupported-modal__body">
+          <div class="unsupported-modal__icon">
+            <!-- Lucide: triangle-alert -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+              <path d="M12 9v4"/>
+              <path d="M12 17h.01"/>
+            </svg>
+          </div>
+
+          <p class="unsupported-modal__text" data-i18n="UI_UNSUPPORTED_BODY">
+            This browser can't connect to the XRP robot. Connecting needs WebSerial or Web Bluetooth, which aren't available in Safari or Firefox.
+          </p>
+
+          <div class="unsupported-modal__hint">
+            <!-- Lucide: monitor -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="3" rx="2"/>
+              <line x1="8" x2="16" y1="21" y2="21"/>
+              <line x1="12" x2="12" y1="17" y2="21"/>
+            </svg>
+            <span data-i18n="UI_UNSUPPORTED_HINT">Use Google Chrome or Microsoft Edge on a desktop computer.</span>
+          </div>
+
+          <button id="unsupported-modal-ok" class="unsupported-modal__btn" data-i18n="UI_UNSUPPORTED_DISMISS">Got it</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Confirmation Modal ═══════════ -->
+    <div id="confirm-modal" class="connection-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+      <div class="connection-modal__panel">
+        <!-- Header -->
+        <div class="connection-modal__header">
+          <h2 class="connection-modal__title" id="confirm-modal-title" data-i18n="UI_DEPLOY_CONFIRM_TITLE">Save this program to the robot?</h2>
+          <button id="confirm-modal-close" class="connection-modal__close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="unsupported-modal__body">
+          <div class="unsupported-modal__icon">
+            <!-- Lucide: upload -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+
+          <p class="unsupported-modal__text" id="confirm-modal-body" data-i18n="UI_DEPLOY_CONFIRM_BODY">
+            The program will be saved on the XRP as main.py and will run by itself every time the robot is switched on.
+          </p>
+
+          <div class="unsupported-modal__hint" id="confirm-modal-detail">
+            <!-- Lucide: triangle-alert -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+              <path d="M12 9v4"/>
+              <path d="M12 17h.01"/>
+            </svg>
+            <span data-i18n="UI_DEPLOY_CONFIRM_WARN">Any program already saved on the robot will be replaced.</span>
+          </div>
+
+          <div class="confirm-modal__actions">
+            <button id="confirm-modal-cancel" class="unsupported-modal__btn unsupported-modal__btn--ghost" data-i18n="UI_CANCEL">Cancel</button>
+            <button id="confirm-modal-ok" class="unsupported-modal__btn" data-i18n="UI_DEPLOY_CONFIRM_OK">Save to XRP</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Lesson Picker Modal ═══════════ -->
+    <div id="lesson-modal" class="connection-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-modal-title">
+      <div class="connection-modal__panel lesson-modal__panel">
+        <!-- Header -->
+        <div class="connection-modal__header">
+          <h2 class="connection-modal__title" id="lesson-modal-title" data-i18n="UI_LESSON_CHOOSE">Choose a lesson</h2>
+          <button id="lesson-modal-close" class="connection-modal__close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Server lessons, populated by JS from lessons/index.json -->
+        <div class="lesson-modal__list" id="lesson-modal-list">
+          <div class="lesson-modal__status" data-i18n="MSG_LESSONS_LOADING">Loading lessons…</div>
+        </div>
+
+        <!-- Upload -->
+        <div class="lesson-modal__upload-row">
+          <button id="lesson-modal-upload" class="lesson-modal__upload-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span data-i18n="UI_LESSON_UPLOAD">Upload lesson file</span>
+          </button>
+          <div id="lesson-modal-error" class="lesson-modal__error" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Device Library Modal ═══════════ -->
+    <div id="library-modal" class="connection-modal" role="dialog" aria-modal="true" aria-labelledby="library-modal-title">
+      <div class="connection-modal__panel lesson-modal__panel library-modal__panel">
+        <!-- Header -->
+        <div class="connection-modal__header">
+          <h2 class="connection-modal__title" id="library-modal-title" data-i18n="UI_LIBRARY_TITLE">Device libraries</h2>
+          <button id="library-modal-close" class="connection-modal__close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <p class="library-modal__intro" data-i18n="UI_LIBRARY_INTRO">
+          Each library adds a category of blocks for one device, and installs its driver on the robot the first time you use it.
+        </p>
+
+        <!-- Installed and available libraries, populated by JS -->
+        <div class="lesson-modal__list" id="library-modal-list">
+          <div class="lesson-modal__status" data-i18n="MSG_LIBRARY_LOADING">Loading device libraries…</div>
+        </div>
+
+        <!-- Bring one in from elsewhere -->
+        <div class="lesson-modal__upload-row">
+          <button id="library-modal-upload" class="lesson-modal__upload-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span data-i18n="UI_LIBRARY_UPLOAD">Add from a file</span>
+          </button>
+
+          <div class="library-modal__url-row">
+            <input id="library-modal-url" class="library-modal__url" type="url" inputmode="url"
+              placeholder="https://…/device.json" data-i18n-placeholder="UI_LIBRARY_URL_PLACEHOLDER"
+              aria-label="Device library address">
+            <button id="library-modal-fetch" class="library-modal__fetch" type="button" data-i18n="UI_LIBRARY_FETCH">Fetch</button>
+          </div>
+
+          <div id="library-modal-error" class="lesson-modal__error" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
   </div>
-  <div id="readings" class="hidden" aria-label="Readings from the robot" aria-live="off"></div>
-
-  <section id="controls" aria-label="Controls"></section>
-  <button id="release">Release everything</button>
-  <section id="feedlog" class="hidden" aria-label="Messages from the robot">
-    <header class="row" style="justify-content:space-between;margin:0"><span>Messages from the robot</span><button id="clearlog" type="button">Clear</button></header>
-    <ul id="log"></ul>
-  </section>
-
-  <details>
-    <summary>How to use</summary>
-    <ol>
-      <li>Close any IDE that is connected to the robot over Bluetooth (USB is fine).</li>
-      <li>Start a program that uses <b>phone control over Bluetooth: start</b>: switch the robot on with it saved as main.py, or click Run over USB.</li>
-      <li>Tap <b>Connect</b> and choose the robot (its name starts with XRP-).</li>
-    </ol>
-    <p>Joystick: up is forward (+), right is right (+), both -100 to 100. D-pad: Up = 1, Left = 2, Right = 3, Down = 4, A = 5, B = 6. Your program decides what each input does.</p>
-    <p>Messages view: no controls, just a large block with every reading from the robot ("phone show value") and the message log ("phone print"). It shows them whether or not the tick box is ticked.</p>
-    <p>If you switch apps, lock the phone or lose the link, every input is released and the robot sees "not connected" within a second. The program must stop the motors itself.</p>
-  </details>
-  <footer id="support"></footer>
-</main>
-
-<script>
-(() => {
-'use strict';
-const NUS = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-const TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';   // phone -> robot (write)
-const RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';   // robot -> phone (indicate)
-const $ = id => document.getElementById(id);
-const enc = new TextEncoder(), dec = new TextDecoder();
-
-let device = null, txChar = null, rxChar = null;
-let linked = false;          // GATT connected
-let lastOk = 0;              // last "#xrp ok" from a listening program
-let lastHello = 0, lastSent = 0, sentKey = '', writing = false, pendingKey = null;
-let rxLine = '', replSeen = false, lastRx = 0;
-let feedWanted = false, feedSent = null, lastFeedSent = 0, currentLayout = 'joy';
-// Robot messages are on when the box is ticked, or always in the Messages view.
-function feedOn() { return feedWanted || currentLayout === 'msg'; }
-const tiles = new Map();
-let labels = ['Up', 'Left', 'Right', 'Down', 'A', 'B'];
-const held = new Map();      // pointerId -> button index
-const keysHeld = new Set();
-let stick = {x: 0, y: 0};
-const pads = [];
-
-// ---------- storage (per-viewer convenience only) ----------
-function load(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } }
-function save(k, v) { try { localStorage.setItem(k, v); } catch {} }
-
-// ---------- status ----------
-function status(text, cls) { const s = $('status'); s.textContent = text; s.className = cls || ''; }
-function listening() { return linked && Date.now() - lastOk < 1500; }
-
-// ---------- build controls ----------
-const SYM = ['▲', '◀', '▶', '▼', 'A', 'B'];
-function makePad(i, extraClass) {
-  const b = document.createElement('button');
-  b.className = 'pad p' + (i + 1) + (extraClass ? ' ' + extraClass : '');
-  b.type = 'button';
-  const sym = document.createElement('span'); sym.className = 'sym'; sym.textContent = SYM[i]; sym.setAttribute('aria-hidden', 'true');
-  const name = document.createElement('span'); name.className = 'name';
-  const hint = document.createElement('small'); hint.textContent = 'button ' + (i + 1);
-  b.append(sym, name, hint);
-  b.setAttribute('aria-pressed', 'false');
-  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture(e.pointerId); held.set(e.pointerId, i); changed(); });
-  const up = e => { if (held.delete(e.pointerId)) changed(); };
-  b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
-  b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); keysHeld.add(i); changed(); } });
-  b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); keysHeld.delete(i); changed(); } });
-  b.addEventListener('blur', () => { if (keysHeld.delete(i)) changed(); });
-  b.addEventListener('contextmenu', e => e.preventDefault());
-  pads.push({i, el: b});
-  return b;
-}
-
-function makeStick() {
-  const s = document.createElement('div');
-  s.className = 'stick'; s.setAttribute('role', 'application');
-  s.setAttribute('aria-label', 'Joystick. Drag, or use the arrow keys.'); s.tabIndex = 0;
-  const knob = document.createElement('div'); knob.className = 'knob'; s.append(knob);
-  let pid = null;
-  const setFrom = e => {
-    const r = s.getBoundingClientRect();
-    let dx = (e.clientX - r.left - r.width / 2) / (r.width * 0.36);
-    let dy = (e.clientY - r.top - r.height / 2) / (r.height * 0.36);
-    const len = Math.hypot(dx, dy); if (len > 1) { dx /= len; dy /= len; }
-    setStick(dx, -dy);
-  };
-  s.addEventListener('pointerdown', e => { e.preventDefault(); pid = e.pointerId; s.setPointerCapture(pid); s.classList.add('active'); setFrom(e); });
-  s.addEventListener('pointermove', e => { if (e.pointerId === pid) setFrom(e); });
-  const end = e => { if (e.pointerId !== pid) return; pid = null; s.classList.remove('active'); setStick(0, 0); };
-  s.addEventListener('pointerup', end); s.addEventListener('pointercancel', end); s.addEventListener('lostpointercapture', end);
-  const arrows = {ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0]};
-  const down = new Set();
-  const fromKeys = () => { let x = 0, y = 0; down.forEach(k => { x += arrows[k][0]; y += arrows[k][1]; }); const l = Math.hypot(x, y) || 1; setStick(x / l, y / l); };
-  s.addEventListener('keydown', e => { if (arrows[e.key]) { e.preventDefault(); down.add(e.key); fromKeys(); } });
-  s.addEventListener('keyup', e => { if (arrows[e.key]) { e.preventDefault(); down.delete(e.key); fromKeys(); } });
-  s.addEventListener('blur', () => { down.clear(); setStick(0, 0); });
-  s.addEventListener('contextmenu', e => e.preventDefault());
-  s._knob = knob;
-  return s;
-}
-
-function setStick(fx, fy) {
-  // Dead zone of 8 so a resting thumb reads 0.
-  let x = Math.round(fx * 100), y = Math.round(fy * 100);
-  if (Math.hypot(x, y) < 8) { x = 0; y = 0; }
-  stick = {x, y};
-  const s = document.querySelector('.stick');
-  if (s) s._knob.style.transform = `translate(${fx * 106}%, ${-fy * 106}%)`;
-  changed();
-}
-
-function build(layout) {
-  releaseAll(false);
-  pads.length = 0;
-  const wasOn = feedOn();
-  currentLayout = layout;
-  document.body.classList.toggle('msgmode', layout === 'msg');
-  if (wasOn && !feedOn()) { tiles.clear(); $('readings').textContent = ''; }
-  const c = $('controls'); c.textContent = '';
-  if (layout === 'msg') {
-    // No controls: the readings block and the log fill the page.
-  } else if (layout === 'joy') {
-    const wrap = document.createElement('div'); wrap.className = 'joy';
-    const left = document.createElement('div');
-    left.append(makeStick());
-    const ro = document.createElement('div'); ro.id = 'readout'; left.append(ro);
-    const side = document.createElement('div'); side.className = 'side';
-    side.append(makePad(4), makePad(5));
-    const small = document.createElement('div'); small.className = 'small';
-    for (let i = 0; i < 4; i++) small.append(makePad(i));
-    wrap.append(left, side, small);
-    c.append(wrap);
-  } else {
-    const wrap = document.createElement('div'); wrap.className = layout === 'dpad' ? 'dpad' : 'grid';
-    for (let i = 0; i < 6; i++) wrap.append(makePad(i));
-    c.append(wrap);
-  }
-  paint(); paintFeed(); tick(true);
-}
-
-function paint() {
-  const on = listening();
-  const mask = currentMask();
-  pads.forEach(({i, el}) => {
-    el.querySelector('.name').textContent = labels[i] || ('Button ' + (i + 1));
-    const h = !!(mask & (1 << i));
-    el.classList.toggle('held', h); el.setAttribute('aria-pressed', String(h));
-  });
-  const s = document.querySelector('.stick'); if (s) s.classList.toggle('off', !on);
-  const ro = $('readout'); if (ro) ro.textContent = `forward ${stick.y}   right ${stick.x}`;
-}
-
-// ---------- state ----------
-function currentMask() {
-  let m = 0;
-  held.forEach(i => { m |= 1 << i; });
-  keysHeld.forEach(i => { m |= 1 << i; });
-  return m;
-}
-function stateKey() { return `${currentMask()} ${stick.x} ${stick.y}`; }
-function changed() { paint(); tick(true); }
-
-function releaseAll(send = true) {
-  held.clear(); keysHeld.clear(); stick = {x: 0, y: 0};
-  const s = document.querySelector('.stick'); if (s) s._knob.style.transform = '';
-  paint(); if (send) tick(true);
-}
-
-// ---------- Bluetooth ----------
-async function write(text) {
-  if (!txChar) return;
-  // Robot side (ble_uart_peripheral) only accepts write-with-response.
-  const data = enc.encode(text);
-  if (txChar.writeValueWithResponse) await txChar.writeValueWithResponse(data);
-  else await txChar.writeValue(data);
-}
-
-async function tick(force) {
-  if (!linked || writing) { if (force && linked) pendingKey = 'x'; return; }
-  const now = Date.now();
-  let line = null;
-  if (!listening()) {
-    // Say hello until a program answers. Slower once we know only the
-    // REPL is there, so its screen is not flooded with echoes.
-    const gap = replSeen ? 2000 : 1000;
-    if (now - lastHello >= gap) { lastHello = now; line = '#xrp h\r\n'; }
-  } else {
-    const key = stateKey();
-    if (key !== sentKey || now - lastSent >= 250 || (force && key !== sentKey)) {
-      line = `#xrp s ${key}\r\n`; sentKey = key; lastSent = now;
-    } else if (feedSent !== feedOn() || now - lastFeedSent >= 3000) {
-      // Tell the program whether to send readings and log lines; repeated
-      // every 3 s in case it restarted.
-      line = `#xrp o ${feedOn() ? 1 : 0}\r\n`; feedSent = feedOn(); lastFeedSent = now;
-    }
-  }
-  if (!line) return;
-  writing = true;
-  try { await write(line); }
-  catch (e) { /* a failed write is followed by a disconnect event or the next tick */ }
-  finally {
-    writing = false;
-    if (pendingKey) { pendingKey = null; setTimeout(() => tick(true), 0); }
-  }
-}
-
-function onLine(line) {
-  line = line.replace(/\r$/, '');
-  if (line.startsWith('#xrp ok')) {
-    if (!listening()) { status('Connected: program listening.', 'live'); }
-    lastOk = Date.now(); replSeen = false; paint();
-  } else if (line.startsWith('#xrp cfg ')) {
-    const parts = line.slice(9).split('|');
-    if (parts[0]) { $('title').textContent = parts[0]; document.title = parts[0]; }
-    for (let i = 0; i < 6; i++) if (parts[i + 1] !== undefined) labels[i] = parts[i + 1].trim() || ('Button ' + (i + 1));
-    paint();
-  } else if (line.startsWith('#xrp v ')) {
-    if (!feedOn()) return;
-    const body = line.slice(7), bar = body.indexOf('|');
-    if (bar < 1) return;
-    showReading(body.slice(0, bar), body.slice(bar + 1));
-  } else if (line.startsWith('#xrp p ')) {
-    if (feedOn()) addLog(line.slice(7));
-  } else if (line.startsWith('#xrp m ')) {
-    const m = $('message'); m.textContent = line.slice(7); m.classList.add('show');
-  }
-}
-
-function onNotify(e) {
-  const v = e.target.value;
-  const text = dec.decode(new Uint8Array(v.buffer, v.byteOffset, v.byteLength), {stream: true});
-  lastRx = Date.now();
-  if (text.includes('>>>')) replSeen = true;
-  rxLine += text;
-  let n;
-  while ((n = rxLine.indexOf('\n')) !== -1) { onLine(rxLine.slice(0, n)); rxLine = rxLine.slice(n + 1); }
-  if (rxLine.length > 400) rxLine = '';
-}
-
-// ---------- robot messages (opt-in) ----------
-function showReading(name, value) {
-  let t = tiles.get(name);
-  if (!t) {
-    t = document.createElement('div'); t.className = 'tile';
-    const n = document.createElement('div'); n.className = 'n'; n.textContent = name;
-    const v = document.createElement('div'); v.className = 'v';
-    t.append(n, v); t._v = v;
-    tiles.set(name, t); $('readings').append(t);
-  }
-  if (t._v.textContent !== value) {
-    t._v.textContent = value;
-    t.classList.add('fresh'); clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('fresh'), 600);
-  }
-  paintFeed();
-}
-function addLog(text) {
-  const li = document.createElement('li');
-  const time = document.createElement('span'); time.className = 't';
-  time.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
-  li.append(time, document.createTextNode(text));
-  const log = $('log'); log.append(li);
-  while (log.children.length > 20) log.firstChild.remove();
-  log.scrollTop = log.scrollHeight;
-  paintFeed();
-}
-function paintFeed() {
-  const on = feedOn(), r = $('readings');
-  r.classList.toggle('hidden', !on || tiles.size === 0);
-  $('feedlog').classList.toggle('hidden', !on);
-  const wait = r.querySelector('.waiting');
-  if (currentLayout === 'msg' && tiles.size === 0) {
-    if (!wait) {
-      const w = document.createElement('div'); w.className = 'waiting';
-      w.textContent = 'Waiting for readings. Use "phone show value" blocks in your program.';
-      r.append(w);
-    }
-  } else if (wait) wait.remove();
-  const log = $('log');
-  if (on && !log.querySelector('li')) {
-    if (!log.querySelector('.empty')) {
-      const e = document.createElement('li'); e.className = 'empty';
-      e.textContent = 'Nothing yet. Use the "phone show value" and "phone print" blocks in your program.';
-      log.append(e);
-    }
-  } else if (log.querySelector('li:not(.empty)')) {
-    const e = log.querySelector('.empty'); if (e) e.remove();
-  }
-}
-function setFeed(on) {
-  feedWanted = on; save('xrp-phone-feed', on ? '1' : '0');
-  if (!feedOn()) { tiles.clear(); $('readings').textContent = ''; }
-  paintFeed(); tick(true);
-}
-
-function onDisconnect() {
-  linked = false; txChar = rxChar = null; lastOk = 0; feedSent = null;
-  releaseAll(false);
-  status('Disconnected. Tap Reconnect.', 'warn');
-  $('connect').textContent = 'Reconnect';
-}
-
-async function connect() {
-  if (!('bluetooth' in navigator)) { unsupported(); return; }
-  $('connect').disabled = true;
-  try {
-    if (!device || !device.gatt) {
-      status('Choose your robot (XRP-…) in the list.');
-      device = await navigator.bluetooth.requestDevice({filters: [{namePrefix: 'XRP'}], optionalServices: [NUS]});
-      device.addEventListener('gattserverdisconnected', onDisconnect);
-    }
-    status('Connecting to ' + (device.name || 'robot') + '…');
-    const server = await device.gatt.connect();
-    const svc = await server.getPrimaryService(NUS);
-    txChar = await svc.getCharacteristic(TX);
-    rxChar = await svc.getCharacteristic(RX);
-    await rxChar.startNotifications();
-    rxChar.addEventListener('characteristicvaluechanged', onNotify);
-    linked = true; lastHello = 0; replSeen = false; rxLine = '';
-    status('Connected to ' + (device.name || 'robot') + '. Waiting for a program…', 'warn');
-    $('connect').textContent = 'Disconnect';
-    tick(true);
-  } catch (e) {
-    if (e && e.name === 'NotFoundError') status('No robot chosen.');
-    else status('Could not connect: ' + (e && e.message ? e.message : e) + '. Is an IDE still connected over Bluetooth?', 'warn');
-    $('connect').textContent = device ? 'Reconnect' : 'Connect';
-  } finally { $('connect').disabled = false; }
-}
-
-async function toggle() {
-  if (linked && device) {
-    releaseAll(false);
-    try { await write(`#xrp s 0 0 0\r\n`); } catch {}
-    device.gatt.disconnect();
-    device = null; $('connect').textContent = 'Connect'; status('Not connected.');
-  } else connect();
-}
-
-function unsupported() {
-  const secure = window.isSecureContext;
-  status(secure ? 'This browser cannot use Bluetooth. Use Chrome on an Android phone.'
-                : 'Bluetooth needs a secure page. Open this page from an https:// address.', 'warn');
-  $('support').textContent = 'Web Bluetooth works in Chrome on Android (and Chrome or Edge on a laptop). iPhone Safari does not support it.';
-}
-
-// ---------- wiring ----------
-$('connect').addEventListener('click', toggle);
-$('release').addEventListener('click', () => releaseAll(true));
-$('feed').addEventListener('change', () => setFeed($('feed').checked));
-$('clearlog').addEventListener('click', () => { $('log').textContent = ''; paintFeed(); });
-$('layout').addEventListener('change', () => { save('xrp-phone-layout', $('layout').value); build($('layout').value); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(true); });
-window.addEventListener('blur', () => releaseAll(true));
-window.addEventListener('pagehide', () => { releaseAll(false); if (linked) { write('#xrp s 0 0 0\r\n').catch(() => {}); } });
-
-setInterval(() => {
-  if (linked && lastOk && !listening()) {
-    lastOk = 0; feedSent = null; releaseAll(false);
-    status(replSeen ? 'Connected, but no program is listening. Start a program that uses phone control.'
-                    : 'Connected. Waiting for a program…', 'warn');
-  } else if (linked && !lastOk && replSeen) {
-    status('Connected, but no program is listening. Start a program that uses phone control.', 'warn');
-  }
-  tick(false);
-}, 100);
-
-let layout = load('xrp-phone-layout', 'joy');
-if (!['joy', 'dpad', 'grid', 'msg'].includes(layout)) layout = 'joy';
-feedWanted = load('xrp-phone-feed', '0') === '1';
-$('layout').value = layout;
-build(layout);
-$('feed').checked = feedWanted; paintFeed();
-if (!('bluetooth' in navigator)) unsupported();
-})();
-</script>
 </body>
+
 </html>
