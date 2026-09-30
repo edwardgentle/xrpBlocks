@@ -23,6 +23,7 @@ This page consolidates the repository's recorded results through 30 September 20
 - Drive-straight carry-over and line keeping.
 - Delphi server and encrypted-pack startup, browser loading and shutdown.
 - Exported PNG font appearance when the web font is available.
+- Change 46 on the robot: accelerometer readings and units, and **motor reversed** (the wheel turns the other way and the encoder still counts up) with working program 42. The list blocks do not need hardware, but should be checked once on the robot's MicroPython.
 
 The [working-program catalogue](../working%20programs/README.md) identifies the equipment and expected behaviour for individual checks.
 

@@ -1,0 +1,2625 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w41_104",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Arcade drive with held wheel speeds (rpm). Your ArcadeS function is on the right. Give the robot about a metre of room and press the board button. Expect: forward, a gentle left curve, a spin on the spot, full forward (1 + 1 is scaled back to 0.5 + 0.5, so this is a hard curve, not faster), then stop. Below it is a greyed-out better version, \"arcade rpm\", with its own test stack; see its comment to switch over.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "w41_067",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w41_066",
+                  "fields": {
+                    "TEXT": "ArcadeS test: press the board button"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_wait_for_button",
+                "id": "w41_068",
+                "next": {
+                  "block": {
+                    "type": "xrp_wait_seconds",
+                    "id": "w41_070",
+                    "inputs": {
+                      "SECONDS": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w41_069",
+                          "fields": {
+                            "NUM": 0.5
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_print",
+                        "id": "w41_072",
+                        "inputs": {
+                          "TEXT": {
+                            "shadow": {
+                              "type": "text",
+                              "id": "w41_071",
+                              "fields": {
+                                "TEXT": "forward"
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "procedures_callnoreturn",
+                            "id": "w41_075",
+                            "extraState": {
+                              "name": "ArcadeS",
+                              "params": [
+                                "Straight",
+                                "Turn"
+                              ]
+                            },
+                            "inputs": {
+                              "ARG0": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "w41_073",
+                                  "fields": {
+                                    "NUM": 0.5
+                                  }
+                                }
+                              },
+                              "ARG1": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "w41_074",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_wait_seconds",
+                                "id": "w41_077",
+                                "inputs": {
+                                  "SECONDS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "w41_076",
+                                      "fields": {
+                                        "NUM": 2
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_print",
+                                    "id": "w41_079",
+                                    "inputs": {
+                                      "TEXT": {
+                                        "shadow": {
+                                          "type": "text",
+                                          "id": "w41_078",
+                                          "fields": {
+                                            "TEXT": "curve"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "procedures_callnoreturn",
+                                        "id": "w41_082",
+                                        "extraState": {
+                                          "name": "ArcadeS",
+                                          "params": [
+                                            "Straight",
+                                            "Turn"
+                                          ]
+                                        },
+                                        "inputs": {
+                                          "ARG0": {
+                                            "block": {
+                                              "type": "math_number",
+                                              "id": "w41_080",
+                                              "fields": {
+                                                "NUM": 0.5
+                                              }
+                                            }
+                                          },
+                                          "ARG1": {
+                                            "block": {
+                                              "type": "math_number",
+                                              "id": "w41_081",
+                                              "fields": {
+                                                "NUM": 0.25
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_wait_seconds",
+                                            "id": "w41_084",
+                                            "inputs": {
+                                              "SECONDS": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w41_083",
+                                                  "fields": {
+                                                    "NUM": 2
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_print",
+                                                "id": "w41_086",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "shadow": {
+                                                      "type": "text",
+                                                      "id": "w41_085",
+                                                      "fields": {
+                                                        "TEXT": "spin"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "procedures_callnoreturn",
+                                                    "id": "w41_089",
+                                                    "extraState": {
+                                                      "name": "ArcadeS",
+                                                      "params": [
+                                                        "Straight",
+                                                        "Turn"
+                                                      ]
+                                                    },
+                                                    "inputs": {
+                                                      "ARG0": {
+                                                        "block": {
+                                                          "type": "math_number",
+                                                          "id": "w41_087",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      },
+                                                      "ARG1": {
+                                                        "block": {
+                                                          "type": "math_number",
+                                                          "id": "w41_088",
+                                                          "fields": {
+                                                            "NUM": 0.5
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_wait_seconds",
+                                                        "id": "w41_091",
+                                                        "inputs": {
+                                                          "SECONDS": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w41_090",
+                                                              "fields": {
+                                                                "NUM": 1.5
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_print",
+                                                            "id": "w41_093",
+                                                            "inputs": {
+                                                              "TEXT": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "w41_092",
+                                                                  "fields": {
+                                                                    "TEXT": "full forward plus full turn, scaled"
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "procedures_callnoreturn",
+                                                                "id": "w41_096",
+                                                                "extraState": {
+                                                                  "name": "ArcadeS",
+                                                                  "params": [
+                                                                    "Straight",
+                                                                    "Turn"
+                                                                  ]
+                                                                },
+                                                                "inputs": {
+                                                                  "ARG0": {
+                                                                    "block": {
+                                                                      "type": "math_number",
+                                                                      "id": "w41_094",
+                                                                      "fields": {
+                                                                        "NUM": 1
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "ARG1": {
+                                                                    "block": {
+                                                                      "type": "math_number",
+                                                                      "id": "w41_095",
+                                                                      "fields": {
+                                                                        "NUM": 1
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_wait_seconds",
+                                                                    "id": "w41_098",
+                                                                    "inputs": {
+                                                                      "SECONDS": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "w41_097",
+                                                                          "fields": {
+                                                                            "NUM": 1.5
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_print",
+                                                                        "id": "w41_100",
+                                                                        "inputs": {
+                                                                          "TEXT": {
+                                                                            "shadow": {
+                                                                              "type": "text",
+                                                                              "id": "w41_099",
+                                                                              "fields": {
+                                                                                "TEXT": "stop"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "procedures_callnoreturn",
+                                                                            "id": "w41_103",
+                                                                            "extraState": {
+                                                                              "name": "ArcadeS",
+                                                                              "params": [
+                                                                                "Straight",
+                                                                                "Turn"
+                                                                              ]
+                                                                            },
+                                                                            "inputs": {
+                                                                              "ARG0": {
+                                                                                "block": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "w41_101",
+                                                                                  "fields": {
+                                                                                    "NUM": 0
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "ARG1": {
+                                                                                "block": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "w41_102",
+                                                                                  "fields": {
+                                                                                    "NUM": 0
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "w41_065",
+        "x": 640,
+        "y": 40,
+        "extraState": {
+          "params": [
+            {
+              "name": "Straight",
+              "id": "v_Straight"
+            },
+            {
+              "name": "Turn",
+              "id": "v_Turn"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Your ArcadeS function, block for block. Straight and Turn run from -1 to 1; 1 means MaxSpeed rpm. Both 0 releases the speed hold, which stops the wheels without braking.",
+            "pinned": false,
+            "height": 120,
+            "width": 420
+          }
+        },
+        "fields": {
+          "NAME": "ArcadeS"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "variables_set",
+              "id": "w41_002",
+              "fields": {
+                "VAR": {
+                  "id": "v_MaxSpeed"
+                }
+              },
+              "inputs": {
+                "VALUE": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "w41_001",
+                    "fields": {
+                      "NUM": 200
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "controls_if",
+                  "id": "w41_064",
+                  "extraState": {
+                    "hasElse": true
+                  },
+                  "inputs": {
+                    "IF0": {
+                      "block": {
+                        "type": "logic_operation",
+                        "id": "w41_009",
+                        "fields": {
+                          "OP": "AND"
+                        },
+                        "inputs": {
+                          "A": {
+                            "block": {
+                              "type": "logic_compare",
+                              "id": "w41_005",
+                              "fields": {
+                                "OP": "EQ"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "block": {
+                                    "type": "variables_get",
+                                    "id": "w41_003",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_Straight"
+                                      }
+                                    }
+                                  }
+                                },
+                                "B": {
+                                  "block": {
+                                    "type": "math_number",
+                                    "id": "w41_004",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "B": {
+                            "block": {
+                              "type": "logic_compare",
+                              "id": "w41_008",
+                              "fields": {
+                                "OP": "EQ"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "block": {
+                                    "type": "variables_get",
+                                    "id": "w41_006",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_Turn"
+                                      }
+                                    }
+                                  }
+                                },
+                                "B": {
+                                  "block": {
+                                    "type": "math_number",
+                                    "id": "w41_007",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "DO0": {
+                      "block": {
+                        "type": "xrp_motor_speed_off",
+                        "id": "w41_010",
+                        "fields": {
+                          "MOTOR": "LEFT"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_motor_speed_off",
+                            "id": "w41_011",
+                            "fields": {
+                              "MOTOR": "RIGHT"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "variables_set",
+                        "id": "w41_021",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_MaxCommand"
+                          }
+                        },
+                        "inputs": {
+                          "VALUE": {
+                            "block": {
+                              "type": "math_arithmetic",
+                              "id": "w41_020",
+                              "fields": {
+                                "OP": "ADD"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "w41_018",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  },
+                                  "block": {
+                                    "type": "math_single",
+                                    "id": "w41_014",
+                                    "fields": {
+                                      "OP": "ABS"
+                                    },
+                                    "inputs": {
+                                      "NUM": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w41_013",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "variables_get",
+                                          "id": "w41_012",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_Straight"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "B": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "w41_019",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  },
+                                  "block": {
+                                    "type": "math_single",
+                                    "id": "w41_017",
+                                    "fields": {
+                                      "OP": "ABS"
+                                    },
+                                    "inputs": {
+                                      "NUM": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "w41_016",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "variables_get",
+                                          "id": "w41_015",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_Turn"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "controls_if",
+                            "id": "w41_037",
+                            "inputs": {
+                              "IF0": {
+                                "block": {
+                                  "type": "logic_compare",
+                                  "id": "w41_024",
+                                  "fields": {
+                                    "OP": "GT"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "w41_022",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_MaxCommand"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "B": {
+                                      "block": {
+                                        "type": "math_number",
+                                        "id": "w41_023",
+                                        "fields": {
+                                          "NUM": 1
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "DO0": {
+                                "block": {
+                                  "type": "variables_set",
+                                  "id": "w41_030",
+                                  "fields": {
+                                    "VAR": {
+                                      "id": "v_Straight"
+                                    }
+                                  },
+                                  "inputs": {
+                                    "VALUE": {
+                                      "block": {
+                                        "type": "math_arithmetic",
+                                        "id": "w41_029",
+                                        "fields": {
+                                          "OP": "DIVIDE"
+                                        },
+                                        "inputs": {
+                                          "A": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w41_027",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "variables_get",
+                                              "id": "w41_025",
+                                              "fields": {
+                                                "VAR": {
+                                                  "id": "v_Straight"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "B": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w41_028",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "variables_get",
+                                              "id": "w41_026",
+                                              "fields": {
+                                                "VAR": {
+                                                  "id": "v_MaxCommand"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "variables_set",
+                                      "id": "w41_036",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_Turn"
+                                        }
+                                      },
+                                      "inputs": {
+                                        "VALUE": {
+                                          "block": {
+                                            "type": "math_arithmetic",
+                                            "id": "w41_035",
+                                            "fields": {
+                                              "OP": "DIVIDE"
+                                            },
+                                            "inputs": {
+                                              "A": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w41_033",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                },
+                                                "block": {
+                                                  "type": "variables_get",
+                                                  "id": "w41_031",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_Turn"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "B": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w41_034",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                },
+                                                "block": {
+                                                  "type": "variables_get",
+                                                  "id": "w41_032",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_MaxCommand"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": "w41_043",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_LeftEffort"
+                                  }
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "block": {
+                                      "type": "math_arithmetic",
+                                      "id": "w41_042",
+                                      "fields": {
+                                        "OP": "MINUS"
+                                      },
+                                      "inputs": {
+                                        "A": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "w41_040",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "w41_038",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_Straight"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "B": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "w41_041",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "w41_039",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_Turn"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "variables_set",
+                                    "id": "w41_049",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_RightEffort"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "VALUE": {
+                                        "block": {
+                                          "type": "math_arithmetic",
+                                          "id": "w41_048",
+                                          "fields": {
+                                            "OP": "ADD"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w41_046",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "w41_044",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_Straight"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w41_047",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "w41_045",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_Turn"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_motor_set_speed",
+                                        "id": "w41_056",
+                                        "fields": {
+                                          "MOTOR": "LEFT"
+                                        },
+                                        "inputs": {
+                                          "SPEED": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w41_055",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            },
+                                            "block": {
+                                              "type": "math_arithmetic",
+                                              "id": "w41_054",
+                                              "fields": {
+                                                "OP": "MULTIPLY"
+                                              },
+                                              "inputs": {
+                                                "A": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w41_052",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "variables_get",
+                                                    "id": "w41_050",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_LeftEffort"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "B": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w41_053",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "variables_get",
+                                                    "id": "w41_051",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_MaxSpeed"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_motor_set_speed",
+                                            "id": "w41_063",
+                                            "fields": {
+                                              "MOTOR": "RIGHT"
+                                            },
+                                            "inputs": {
+                                              "SPEED": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "w41_062",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                },
+                                                "block": {
+                                                  "type": "math_arithmetic",
+                                                  "id": "w41_061",
+                                                  "fields": {
+                                                    "OP": "MULTIPLY"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w41_059",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      },
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "w41_057",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_RightEffort"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "shadow": {
+                                                        "type": "math_number",
+                                                        "id": "w41_060",
+                                                        "fields": {
+                                                          "NUM": 0
+                                                        }
+                                                      },
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "w41_058",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_MaxSpeed"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "w41_195",
+        "x": 640,
+        "y": 900,
+        "disabledReasons": [
+          "MANUALLY_DISABLED"
+        ],
+        "extraState": {
+          "params": [
+            {
+              "name": "fwd pct",
+              "id": "v_fwd_pct"
+            },
+            {
+              "name": "turn pct",
+              "id": "v_turn_pct"
+            },
+            {
+              "name": "max rpm",
+              "id": "v_max_rpm"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Better version (switched off). What changes: fwd pct and turn pct are percent, -100 to 100, like the arcade drive block; values past 100 are clamped; anything under 5% counts as 0 so joystick jitter does not creep the robot; max rpm is an input instead of fixed inside; the inputs are never overwritten (the scaling goes into its own variable). Variable names differ from ArcadeS because Blockly treats Turn and turn as the same variable. To use it: right-click this block and choose Enable Block, do the same on the test stack below, then drag that test stack under the start block in place of the ArcadeS calls.",
+            "pinned": false,
+            "height": 200,
+            "width": 460
+          }
+        },
+        "fields": {
+          "NAME": "arcade rpm"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "variables_set",
+              "id": "w41_110",
+              "fields": {
+                "VAR": {
+                  "id": "v_fwd_pct"
+                }
+              },
+              "inputs": {
+                "VALUE": {
+                  "block": {
+                    "type": "math_constrain",
+                    "id": "w41_109",
+                    "inputs": {
+                      "VALUE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w41_106",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        },
+                        "block": {
+                          "type": "variables_get",
+                          "id": "w41_105",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_fwd_pct"
+                            }
+                          }
+                        }
+                      },
+                      "LOW": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w41_107",
+                          "fields": {
+                            "NUM": -100
+                          }
+                        }
+                      },
+                      "HIGH": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "w41_108",
+                          "fields": {
+                            "NUM": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "variables_set",
+                  "id": "w41_116",
+                  "fields": {
+                    "VAR": {
+                      "id": "v_turn_pct"
+                    }
+                  },
+                  "inputs": {
+                    "VALUE": {
+                      "block": {
+                        "type": "math_constrain",
+                        "id": "w41_115",
+                        "inputs": {
+                          "VALUE": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w41_112",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            },
+                            "block": {
+                              "type": "variables_get",
+                              "id": "w41_111",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_turn_pct"
+                                }
+                              }
+                            }
+                          },
+                          "LOW": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w41_113",
+                              "fields": {
+                                "NUM": -100
+                              }
+                            }
+                          },
+                          "HIGH": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "w41_114",
+                              "fields": {
+                                "NUM": 100
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "controls_if",
+                      "id": "w41_124",
+                      "inputs": {
+                        "IF0": {
+                          "block": {
+                            "type": "logic_compare",
+                            "id": "w41_121",
+                            "fields": {
+                              "OP": "LT"
+                            },
+                            "inputs": {
+                              "A": {
+                                "block": {
+                                  "type": "math_single",
+                                  "id": "w41_119",
+                                  "fields": {
+                                    "OP": "ABS"
+                                  },
+                                  "inputs": {
+                                    "NUM": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "w41_118",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "w41_117",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_fwd_pct"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "B": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "w41_120",
+                                  "fields": {
+                                    "NUM": 5
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "DO0": {
+                          "block": {
+                            "type": "variables_set",
+                            "id": "w41_123",
+                            "fields": {
+                              "VAR": {
+                                "id": "v_fwd_pct"
+                              }
+                            },
+                            "inputs": {
+                              "VALUE": {
+                                "block": {
+                                  "type": "math_number",
+                                  "id": "w41_122",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "controls_if",
+                          "id": "w41_132",
+                          "inputs": {
+                            "IF0": {
+                              "block": {
+                                "type": "logic_compare",
+                                "id": "w41_129",
+                                "fields": {
+                                  "OP": "LT"
+                                },
+                                "inputs": {
+                                  "A": {
+                                    "block": {
+                                      "type": "math_single",
+                                      "id": "w41_127",
+                                      "fields": {
+                                        "OP": "ABS"
+                                      },
+                                      "inputs": {
+                                        "NUM": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "w41_126",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "w41_125",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_turn_pct"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "B": {
+                                    "block": {
+                                      "type": "math_number",
+                                      "id": "w41_128",
+                                      "fields": {
+                                        "NUM": 5
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "DO0": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": "w41_131",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_turn_pct"
+                                  }
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "block": {
+                                      "type": "math_number",
+                                      "id": "w41_130",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "controls_if",
+                              "id": "w41_194",
+                              "extraState": {
+                                "hasElse": true
+                              },
+                              "inputs": {
+                                "IF0": {
+                                  "block": {
+                                    "type": "logic_operation",
+                                    "id": "w41_139",
+                                    "fields": {
+                                      "OP": "AND"
+                                    },
+                                    "inputs": {
+                                      "A": {
+                                        "block": {
+                                          "type": "logic_compare",
+                                          "id": "w41_135",
+                                          "fields": {
+                                            "OP": "EQ"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "w41_133",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_fwd_pct"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "block": {
+                                                "type": "math_number",
+                                                "id": "w41_134",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "B": {
+                                        "block": {
+                                          "type": "logic_compare",
+                                          "id": "w41_138",
+                                          "fields": {
+                                            "OP": "EQ"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "w41_136",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_turn_pct"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "block": {
+                                                "type": "math_number",
+                                                "id": "w41_137",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "DO0": {
+                                  "block": {
+                                    "type": "xrp_motor_speed_off",
+                                    "id": "w41_140",
+                                    "fields": {
+                                      "MOTOR": "LEFT"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_motor_speed_off",
+                                        "id": "w41_141",
+                                        "fields": {
+                                          "MOTOR": "RIGHT"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "ELSE": {
+                                  "block": {
+                                    "type": "variables_set",
+                                    "id": "w41_147",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_rpm_per_pct"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "VALUE": {
+                                        "block": {
+                                          "type": "math_arithmetic",
+                                          "id": "w41_146",
+                                          "fields": {
+                                            "OP": "DIVIDE"
+                                          },
+                                          "inputs": {
+                                            "A": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w41_144",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "variables_get",
+                                                "id": "w41_142",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_max_rpm"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "B": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "w41_145",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "math_number",
+                                                "id": "w41_143",
+                                                "fields": {
+                                                  "NUM": 100
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "variables_set",
+                                        "id": "w41_157",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_total"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "VALUE": {
+                                            "block": {
+                                              "type": "math_arithmetic",
+                                              "id": "w41_156",
+                                              "fields": {
+                                                "OP": "ADD"
+                                              },
+                                              "inputs": {
+                                                "A": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w41_154",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "math_single",
+                                                    "id": "w41_150",
+                                                    "fields": {
+                                                      "OP": "ABS"
+                                                    },
+                                                    "inputs": {
+                                                      "NUM": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w41_149",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        },
+                                                        "block": {
+                                                          "type": "variables_get",
+                                                          "id": "w41_148",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_fwd_pct"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "B": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "w41_155",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  },
+                                                  "block": {
+                                                    "type": "math_single",
+                                                    "id": "w41_153",
+                                                    "fields": {
+                                                      "OP": "ABS"
+                                                    },
+                                                    "inputs": {
+                                                      "NUM": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w41_152",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        },
+                                                        "block": {
+                                                          "type": "variables_get",
+                                                          "id": "w41_151",
+                                                          "fields": {
+                                                            "VAR": {
+                                                              "id": "v_turn_pct"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "controls_if",
+                                            "id": "w41_171",
+                                            "inputs": {
+                                              "IF0": {
+                                                "block": {
+                                                  "type": "logic_compare",
+                                                  "id": "w41_160",
+                                                  "fields": {
+                                                    "OP": "GT"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "w41_158",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_total"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "block": {
+                                                        "type": "math_number",
+                                                        "id": "w41_159",
+                                                        "fields": {
+                                                          "NUM": 100
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "DO0": {
+                                                "block": {
+                                                  "type": "variables_set",
+                                                  "id": "w41_170",
+                                                  "fields": {
+                                                    "VAR": {
+                                                      "id": "v_rpm_per_pct"
+                                                    }
+                                                  },
+                                                  "inputs": {
+                                                    "VALUE": {
+                                                      "block": {
+                                                        "type": "math_arithmetic",
+                                                        "id": "w41_169",
+                                                        "fields": {
+                                                          "OP": "MULTIPLY"
+                                                        },
+                                                        "inputs": {
+                                                          "A": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w41_167",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "variables_get",
+                                                              "id": "w41_161",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_rpm_per_pct"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "B": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "w41_168",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            },
+                                                            "block": {
+                                                              "type": "math_arithmetic",
+                                                              "id": "w41_166",
+                                                              "fields": {
+                                                                "OP": "DIVIDE"
+                                                              },
+                                                              "inputs": {
+                                                                "A": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w41_164",
+                                                                    "fields": {
+                                                                      "NUM": 0
+                                                                    }
+                                                                  },
+                                                                  "block": {
+                                                                    "type": "math_number",
+                                                                    "id": "w41_162",
+                                                                    "fields": {
+                                                                      "NUM": 100
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "B": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w41_165",
+                                                                    "fields": {
+                                                                      "NUM": 0
+                                                                    }
+                                                                  },
+                                                                  "block": {
+                                                                    "type": "variables_get",
+                                                                    "id": "w41_163",
+                                                                    "fields": {
+                                                                      "VAR": {
+                                                                        "id": "v_total"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_motor_set_speed",
+                                                "id": "w41_182",
+                                                "fields": {
+                                                  "MOTOR": "LEFT"
+                                                },
+                                                "inputs": {
+                                                  "SPEED": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "w41_181",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    },
+                                                    "block": {
+                                                      "type": "math_arithmetic",
+                                                      "id": "w41_180",
+                                                      "fields": {
+                                                        "OP": "MULTIPLY"
+                                                      },
+                                                      "inputs": {
+                                                        "A": {
+                                                          "shadow": {
+                                                            "type": "math_number",
+                                                            "id": "w41_178",
+                                                            "fields": {
+                                                              "NUM": 0
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "math_arithmetic",
+                                                            "id": "w41_176",
+                                                            "fields": {
+                                                              "OP": "MINUS"
+                                                            },
+                                                            "inputs": {
+                                                              "A": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "w41_174",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                },
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "w41_172",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_fwd_pct"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "B": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "w41_175",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                },
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "w41_173",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_turn_pct"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "B": {
+                                                          "shadow": {
+                                                            "type": "math_number",
+                                                            "id": "w41_179",
+                                                            "fields": {
+                                                              "NUM": 0
+                                                            }
+                                                          },
+                                                          "block": {
+                                                            "type": "variables_get",
+                                                            "id": "w41_177",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_rpm_per_pct"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_motor_set_speed",
+                                                    "id": "w41_193",
+                                                    "fields": {
+                                                      "MOTOR": "RIGHT"
+                                                    },
+                                                    "inputs": {
+                                                      "SPEED": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w41_192",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        },
+                                                        "block": {
+                                                          "type": "math_arithmetic",
+                                                          "id": "w41_191",
+                                                          "fields": {
+                                                            "OP": "MULTIPLY"
+                                                          },
+                                                          "inputs": {
+                                                            "A": {
+                                                              "shadow": {
+                                                                "type": "math_number",
+                                                                "id": "w41_189",
+                                                                "fields": {
+                                                                  "NUM": 0
+                                                                }
+                                                              },
+                                                              "block": {
+                                                                "type": "math_arithmetic",
+                                                                "id": "w41_187",
+                                                                "fields": {
+                                                                  "OP": "ADD"
+                                                                },
+                                                                "inputs": {
+                                                                  "A": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "w41_185",
+                                                                      "fields": {
+                                                                        "NUM": 0
+                                                                      }
+                                                                    },
+                                                                    "block": {
+                                                                      "type": "variables_get",
+                                                                      "id": "w41_183",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_fwd_pct"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "B": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "w41_186",
+                                                                      "fields": {
+                                                                        "NUM": 0
+                                                                      }
+                                                                    },
+                                                                    "block": {
+                                                                      "type": "variables_get",
+                                                                      "id": "w41_184",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_turn_pct"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "B": {
+                                                              "shadow": {
+                                                                "type": "math_number",
+                                                                "id": "w41_190",
+                                                                "fields": {
+                                                                  "NUM": 0
+                                                                }
+                                                              },
+                                                              "block": {
+                                                                "type": "variables_get",
+                                                                "id": "w41_188",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_rpm_per_pct"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "xrp_print",
+        "id": "w41_197",
+        "x": 40,
+        "y": 900,
+        "disabledReasons": [
+          "MANUALLY_DISABLED"
+        ],
+        "inputs": {
+          "TEXT": {
+            "shadow": {
+              "type": "text",
+              "id": "w41_196",
+              "disabledReasons": [
+                "orphan"
+              ],
+              "fields": {
+                "TEXT": "arcade rpm test: press the board button"
+              }
+            }
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_wait_for_button",
+            "id": "w41_198",
+            "disabledReasons": [
+              "orphan"
+            ],
+            "next": {
+              "block": {
+                "type": "xrp_wait_seconds",
+                "id": "w41_200",
+                "disabledReasons": [
+                  "orphan"
+                ],
+                "inputs": {
+                  "SECONDS": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "w41_199",
+                      "disabledReasons": [
+                        "orphan"
+                      ],
+                      "fields": {
+                        "NUM": 0.5
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_print",
+                    "id": "w41_202",
+                    "disabledReasons": [
+                      "orphan"
+                    ],
+                    "inputs": {
+                      "TEXT": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w41_201",
+                          "disabledReasons": [
+                            "orphan"
+                          ],
+                          "fields": {
+                            "TEXT": "forward"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "procedures_callnoreturn",
+                        "id": "w41_206",
+                        "disabledReasons": [
+                          "orphan"
+                        ],
+                        "extraState": {
+                          "name": "arcade rpm",
+                          "params": [
+                            "fwd pct",
+                            "turn pct",
+                            "max rpm"
+                          ]
+                        },
+                        "inputs": {
+                          "ARG0": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "w41_203",
+                              "disabledReasons": [
+                                "orphan"
+                              ],
+                              "fields": {
+                                "NUM": 50
+                              }
+                            }
+                          },
+                          "ARG1": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "w41_204",
+                              "disabledReasons": [
+                                "orphan"
+                              ],
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          },
+                          "ARG2": {
+                            "block": {
+                              "type": "math_number",
+                              "id": "w41_205",
+                              "disabledReasons": [
+                                "orphan"
+                              ],
+                              "fields": {
+                                "NUM": 200
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_wait_seconds",
+                            "id": "w41_208",
+                            "disabledReasons": [
+                              "orphan"
+                            ],
+                            "inputs": {
+                              "SECONDS": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "w41_207",
+                                  "disabledReasons": [
+                                    "orphan"
+                                  ],
+                                  "fields": {
+                                    "NUM": 2
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_print",
+                                "id": "w41_210",
+                                "disabledReasons": [
+                                  "orphan"
+                                ],
+                                "inputs": {
+                                  "TEXT": {
+                                    "shadow": {
+                                      "type": "text",
+                                      "id": "w41_209",
+                                      "disabledReasons": [
+                                        "orphan"
+                                      ],
+                                      "fields": {
+                                        "TEXT": "curve"
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "procedures_callnoreturn",
+                                    "id": "w41_214",
+                                    "disabledReasons": [
+                                      "orphan"
+                                    ],
+                                    "extraState": {
+                                      "name": "arcade rpm",
+                                      "params": [
+                                        "fwd pct",
+                                        "turn pct",
+                                        "max rpm"
+                                      ]
+                                    },
+                                    "inputs": {
+                                      "ARG0": {
+                                        "block": {
+                                          "type": "math_number",
+                                          "id": "w41_211",
+                                          "disabledReasons": [
+                                            "orphan"
+                                          ],
+                                          "fields": {
+                                            "NUM": 50
+                                          }
+                                        }
+                                      },
+                                      "ARG1": {
+                                        "block": {
+                                          "type": "math_number",
+                                          "id": "w41_212",
+                                          "disabledReasons": [
+                                            "orphan"
+                                          ],
+                                          "fields": {
+                                            "NUM": 25
+                                          }
+                                        }
+                                      },
+                                      "ARG2": {
+                                        "block": {
+                                          "type": "math_number",
+                                          "id": "w41_213",
+                                          "disabledReasons": [
+                                            "orphan"
+                                          ],
+                                          "fields": {
+                                            "NUM": 200
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_wait_seconds",
+                                        "id": "w41_216",
+                                        "disabledReasons": [
+                                          "orphan"
+                                        ],
+                                        "inputs": {
+                                          "SECONDS": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "w41_215",
+                                              "disabledReasons": [
+                                                "orphan"
+                                              ],
+                                              "fields": {
+                                                "NUM": 2
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_print",
+                                            "id": "w41_218",
+                                            "disabledReasons": [
+                                              "orphan"
+                                            ],
+                                            "inputs": {
+                                              "TEXT": {
+                                                "shadow": {
+                                                  "type": "text",
+                                                  "id": "w41_217",
+                                                  "disabledReasons": [
+                                                    "orphan"
+                                                  ],
+                                                  "fields": {
+                                                    "TEXT": "spin"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "procedures_callnoreturn",
+                                                "id": "w41_222",
+                                                "disabledReasons": [
+                                                  "orphan"
+                                                ],
+                                                "extraState": {
+                                                  "name": "arcade rpm",
+                                                  "params": [
+                                                    "fwd pct",
+                                                    "turn pct",
+                                                    "max rpm"
+                                                  ]
+                                                },
+                                                "inputs": {
+                                                  "ARG0": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w41_219",
+                                                      "disabledReasons": [
+                                                        "orphan"
+                                                      ],
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  },
+                                                  "ARG1": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w41_220",
+                                                      "disabledReasons": [
+                                                        "orphan"
+                                                      ],
+                                                      "fields": {
+                                                        "NUM": 50
+                                                      }
+                                                    }
+                                                  },
+                                                  "ARG2": {
+                                                    "block": {
+                                                      "type": "math_number",
+                                                      "id": "w41_221",
+                                                      "disabledReasons": [
+                                                        "orphan"
+                                                      ],
+                                                      "fields": {
+                                                        "NUM": 200
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_wait_seconds",
+                                                    "id": "w41_224",
+                                                    "disabledReasons": [
+                                                      "orphan"
+                                                    ],
+                                                    "inputs": {
+                                                      "SECONDS": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "w41_223",
+                                                          "disabledReasons": [
+                                                            "orphan"
+                                                          ],
+                                                          "fields": {
+                                                            "NUM": 1.5
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_print",
+                                                        "id": "w41_226",
+                                                        "disabledReasons": [
+                                                          "orphan"
+                                                        ],
+                                                        "inputs": {
+                                                          "TEXT": {
+                                                            "shadow": {
+                                                              "type": "text",
+                                                              "id": "w41_225",
+                                                              "disabledReasons": [
+                                                                "orphan"
+                                                              ],
+                                                              "fields": {
+                                                                "TEXT": "full forward plus full turn, scaled"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "procedures_callnoreturn",
+                                                            "id": "w41_230",
+                                                            "disabledReasons": [
+                                                              "orphan"
+                                                            ],
+                                                            "extraState": {
+                                                              "name": "arcade rpm",
+                                                              "params": [
+                                                                "fwd pct",
+                                                                "turn pct",
+                                                                "max rpm"
+                                                              ]
+                                                            },
+                                                            "inputs": {
+                                                              "ARG0": {
+                                                                "block": {
+                                                                  "type": "math_number",
+                                                                  "id": "w41_227",
+                                                                  "disabledReasons": [
+                                                                    "orphan"
+                                                                  ],
+                                                                  "fields": {
+                                                                    "NUM": 100
+                                                                  }
+                                                                }
+                                                              },
+                                                              "ARG1": {
+                                                                "block": {
+                                                                  "type": "math_number",
+                                                                  "id": "w41_228",
+                                                                  "disabledReasons": [
+                                                                    "orphan"
+                                                                  ],
+                                                                  "fields": {
+                                                                    "NUM": 100
+                                                                  }
+                                                                }
+                                                              },
+                                                              "ARG2": {
+                                                                "block": {
+                                                                  "type": "math_number",
+                                                                  "id": "w41_229",
+                                                                  "disabledReasons": [
+                                                                    "orphan"
+                                                                  ],
+                                                                  "fields": {
+                                                                    "NUM": 200
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_wait_seconds",
+                                                                "id": "w41_232",
+                                                                "disabledReasons": [
+                                                                  "orphan"
+                                                                ],
+                                                                "inputs": {
+                                                                  "SECONDS": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "w41_231",
+                                                                      "disabledReasons": [
+                                                                        "orphan"
+                                                                      ],
+                                                                      "fields": {
+                                                                        "NUM": 1.5
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_print",
+                                                                    "id": "w41_234",
+                                                                    "disabledReasons": [
+                                                                      "orphan"
+                                                                    ],
+                                                                    "inputs": {
+                                                                      "TEXT": {
+                                                                        "shadow": {
+                                                                          "type": "text",
+                                                                          "id": "w41_233",
+                                                                          "disabledReasons": [
+                                                                            "orphan"
+                                                                          ],
+                                                                          "fields": {
+                                                                            "TEXT": "tiny values ignored, robot should stay still"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "procedures_callnoreturn",
+                                                                        "id": "w41_238",
+                                                                        "disabledReasons": [
+                                                                          "orphan"
+                                                                        ],
+                                                                        "extraState": {
+                                                                          "name": "arcade rpm",
+                                                                          "params": [
+                                                                            "fwd pct",
+                                                                            "turn pct",
+                                                                            "max rpm"
+                                                                          ]
+                                                                        },
+                                                                        "inputs": {
+                                                                          "ARG0": {
+                                                                            "block": {
+                                                                              "type": "math_number",
+                                                                              "id": "w41_235",
+                                                                              "disabledReasons": [
+                                                                                "orphan"
+                                                                              ],
+                                                                              "fields": {
+                                                                                "NUM": 3
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "ARG1": {
+                                                                            "block": {
+                                                                              "type": "math_number",
+                                                                              "id": "w41_236",
+                                                                              "disabledReasons": [
+                                                                                "orphan"
+                                                                              ],
+                                                                              "fields": {
+                                                                                "NUM": 4
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "ARG2": {
+                                                                            "block": {
+                                                                              "type": "math_number",
+                                                                              "id": "w41_237",
+                                                                              "disabledReasons": [
+                                                                                "orphan"
+                                                                              ],
+                                                                              "fields": {
+                                                                                "NUM": 200
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "xrp_wait_seconds",
+                                                                            "id": "w41_240",
+                                                                            "disabledReasons": [
+                                                                              "orphan"
+                                                                            ],
+                                                                            "inputs": {
+                                                                              "SECONDS": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "w41_239",
+                                                                                  "disabledReasons": [
+                                                                                    "orphan"
+                                                                                  ],
+                                                                                  "fields": {
+                                                                                    "NUM": 1
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_print",
+                                                                                "id": "w41_242",
+                                                                                "disabledReasons": [
+                                                                                  "orphan"
+                                                                                ],
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "shadow": {
+                                                                                      "type": "text",
+                                                                                      "id": "w41_241",
+                                                                                      "disabledReasons": [
+                                                                                        "orphan"
+                                                                                      ],
+                                                                                      "fields": {
+                                                                                        "TEXT": "stop"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "procedures_callnoreturn",
+                                                                                    "id": "w41_246",
+                                                                                    "disabledReasons": [
+                                                                                      "orphan"
+                                                                                    ],
+                                                                                    "extraState": {
+                                                                                      "name": "arcade rpm",
+                                                                                      "params": [
+                                                                                        "fwd pct",
+                                                                                        "turn pct",
+                                                                                        "max rpm"
+                                                                                      ]
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "ARG0": {
+                                                                                        "block": {
+                                                                                          "type": "math_number",
+                                                                                          "id": "w41_243",
+                                                                                          "disabledReasons": [
+                                                                                            "orphan"
+                                                                                          ],
+                                                                                          "fields": {
+                                                                                            "NUM": 0
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "ARG1": {
+                                                                                        "block": {
+                                                                                          "type": "math_number",
+                                                                                          "id": "w41_244",
+                                                                                          "disabledReasons": [
+                                                                                            "orphan"
+                                                                                          ],
+                                                                                          "fields": {
+                                                                                            "NUM": 0
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "ARG2": {
+                                                                                        "block": {
+                                                                                          "type": "math_number",
+                                                                                          "id": "w41_245",
+                                                                                          "disabledReasons": [
+                                                                                            "orphan"
+                                                                                          ],
+                                                                                          "fields": {
+                                                                                            "NUM": 200
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "Straight",
+      "id": "v_Straight"
+    },
+    {
+      "name": "Turn",
+      "id": "v_Turn"
+    },
+    {
+      "name": "MaxSpeed",
+      "id": "v_MaxSpeed"
+    },
+    {
+      "name": "MaxCommand",
+      "id": "v_MaxCommand"
+    },
+    {
+      "name": "LeftEffort",
+      "id": "v_LeftEffort"
+    },
+    {
+      "name": "RightEffort",
+      "id": "v_RightEffort"
+    },
+    {
+      "name": "fwd pct",
+      "id": "v_fwd_pct"
+    },
+    {
+      "name": "turn pct",
+      "id": "v_turn_pct"
+    },
+    {
+      "name": "max rpm",
+      "id": "v_max_rpm"
+    },
+    {
+      "name": "rpm per pct",
+      "id": "v_rpm_per_pct"
+    },
+    {
+      "name": "total",
+      "id": "v_total"
+    }
+  ]
+}

@@ -84,6 +84,23 @@ export function registerMotorGenerators(pythonModule) {
     return `${motor}.brake()\n`;
   };
 
+  // Change 46. XRPLib already sets flip_dir on some motors (the left one on
+  // the standard XRP), so "reversed" means the opposite of the motor's own
+  // starting direction, remembered the first time. The encoder reading
+  // follows flip_dir in XRPLib, so speed control and positions stay correct.
+  python.forBlock['xrp_motor_reverse'] = function (block, generator) {
+    const reverse = generator.provideFunction_('xrp_motor_reverse', [
+      'def ' + generator.FUNCTION_NAME_PLACEHOLDER_ + '(motor, reversed_):',
+      '  # Remember how XRPLib set the motor up, then flip relative to that.',
+      "  if not hasattr(motor, '_xrp_dir0'):",
+      '    motor._xrp_dir0 = motor._motor.flip_dir',
+      '  motor.set_effort(0)',
+      '  motor._motor.flip_dir = motor._xrp_dir0 != reversed_',
+    ]);
+    const state = block.getFieldValue('STATE') === 'OFF' ? 'False' : 'True';
+    return `${reverse}(${getMotorVar(block)}, ${state})\n`;
+  };
+
   python.forBlock['xrp_motor_coast'] = function (block) {
     const motor = getMotorVar(block);
     return `${motor}.coast()\n`;

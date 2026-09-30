@@ -1,0 +1,1203 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "xrp_start",
+        "id": "w42_130",
+        "x": 40,
+        "y": 40,
+        "deletable": false,
+        "icons": {
+          "comment": {
+            "text": "Change 46 check. Part 1 needs no hardware: watch the Console. Expected: sum 25, average 5.0, smallest 1, largest 9, median 5; after adding \"12\" and \"abc\": sorted smallest first 1, 3, 5, 7, 9, 12, abc; largest first 12, 9, 7, 5, 3, 1, abc (words stay last); items 2 to 4 of the smallest-first list: 3, 5, 7. Part 2: lay the robot flat: Z about 1 g (9.81 m/s2), X and Y about 0; tilt it and watch X or Y change. Part 3 (press the button, wheels off the table): the left wheel turns one way, stops, then turns the OTHER way at the same effort; both position readings should go UP, which shows the encoder was reversed too.",
+            "pinned": false,
+            "height": 220,
+            "width": 460
+          }
+        },
+        "next": {
+          "block": {
+            "type": "xrp_print",
+            "id": "w42_002",
+            "inputs": {
+              "TEXT": {
+                "shadow": {
+                  "type": "text",
+                  "id": "w42_001",
+                  "fields": {
+                    "TEXT": "Part 1: maths on a list"
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "xrp_list_set",
+                "id": "w42_006",
+                "fields": {
+                  "VAR": {
+                    "id": "v_readings"
+                  }
+                },
+                "inputs": {
+                  "VALUE": {
+                    "block": {
+                      "type": "xrp_list_from_text",
+                      "id": "w42_005",
+                      "inputs": {
+                        "TEXT": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "w42_003",
+                            "fields": {
+                              "TEXT": "5,3,9,1,7"
+                            }
+                          }
+                        },
+                        "DELIM": {
+                          "shadow": {
+                            "type": "text",
+                            "id": "w42_004",
+                            "fields": {
+                              "TEXT": ","
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "xrp_print",
+                    "id": "w42_012",
+                    "inputs": {
+                      "TEXT": {
+                        "shadow": {
+                          "type": "text",
+                          "id": "w42_011",
+                          "fields": {
+                            "TEXT": ""
+                          }
+                        },
+                        "block": {
+                          "type": "text_join",
+                          "id": "w42_010",
+                          "extraState": {
+                            "itemCount": 2
+                          },
+                          "inputs": {
+                            "ADD0": {
+                              "shadow": {
+                                "type": "text",
+                                "id": "w42_008",
+                                "fields": {
+                                  "TEXT": "sum: "
+                                }
+                              }
+                            },
+                            "ADD1": {
+                              "shadow": {
+                                "type": "text",
+                                "id": "w42_009",
+                                "fields": {
+                                  "TEXT": ""
+                                }
+                              },
+                              "block": {
+                                "type": "xrp_list_stat",
+                                "id": "w42_007",
+                                "fields": {
+                                  "OP": "SUM",
+                                  "VAR": {
+                                    "id": "v_readings"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "xrp_print",
+                        "id": "w42_018",
+                        "inputs": {
+                          "TEXT": {
+                            "shadow": {
+                              "type": "text",
+                              "id": "w42_017",
+                              "fields": {
+                                "TEXT": ""
+                              }
+                            },
+                            "block": {
+                              "type": "text_join",
+                              "id": "w42_016",
+                              "extraState": {
+                                "itemCount": 2
+                              },
+                              "inputs": {
+                                "ADD0": {
+                                  "shadow": {
+                                    "type": "text",
+                                    "id": "w42_014",
+                                    "fields": {
+                                      "TEXT": "average: "
+                                    }
+                                  }
+                                },
+                                "ADD1": {
+                                  "shadow": {
+                                    "type": "text",
+                                    "id": "w42_015",
+                                    "fields": {
+                                      "TEXT": ""
+                                    }
+                                  },
+                                  "block": {
+                                    "type": "xrp_list_stat",
+                                    "id": "w42_013",
+                                    "fields": {
+                                      "OP": "AVERAGE",
+                                      "VAR": {
+                                        "id": "v_readings"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "xrp_print",
+                            "id": "w42_024",
+                            "inputs": {
+                              "TEXT": {
+                                "shadow": {
+                                  "type": "text",
+                                  "id": "w42_023",
+                                  "fields": {
+                                    "TEXT": ""
+                                  }
+                                },
+                                "block": {
+                                  "type": "text_join",
+                                  "id": "w42_022",
+                                  "extraState": {
+                                    "itemCount": 2
+                                  },
+                                  "inputs": {
+                                    "ADD0": {
+                                      "shadow": {
+                                        "type": "text",
+                                        "id": "w42_020",
+                                        "fields": {
+                                          "TEXT": "smallest: "
+                                        }
+                                      }
+                                    },
+                                    "ADD1": {
+                                      "shadow": {
+                                        "type": "text",
+                                        "id": "w42_021",
+                                        "fields": {
+                                          "TEXT": ""
+                                        }
+                                      },
+                                      "block": {
+                                        "type": "xrp_list_stat",
+                                        "id": "w42_019",
+                                        "fields": {
+                                          "OP": "MIN",
+                                          "VAR": {
+                                            "id": "v_readings"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "xrp_print",
+                                "id": "w42_030",
+                                "inputs": {
+                                  "TEXT": {
+                                    "shadow": {
+                                      "type": "text",
+                                      "id": "w42_029",
+                                      "fields": {
+                                        "TEXT": ""
+                                      }
+                                    },
+                                    "block": {
+                                      "type": "text_join",
+                                      "id": "w42_028",
+                                      "extraState": {
+                                        "itemCount": 2
+                                      },
+                                      "inputs": {
+                                        "ADD0": {
+                                          "shadow": {
+                                            "type": "text",
+                                            "id": "w42_026",
+                                            "fields": {
+                                              "TEXT": "largest: "
+                                            }
+                                          }
+                                        },
+                                        "ADD1": {
+                                          "shadow": {
+                                            "type": "text",
+                                            "id": "w42_027",
+                                            "fields": {
+                                              "TEXT": ""
+                                            }
+                                          },
+                                          "block": {
+                                            "type": "xrp_list_stat",
+                                            "id": "w42_025",
+                                            "fields": {
+                                              "OP": "MAX",
+                                              "VAR": {
+                                                "id": "v_readings"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "xrp_print",
+                                    "id": "w42_036",
+                                    "inputs": {
+                                      "TEXT": {
+                                        "shadow": {
+                                          "type": "text",
+                                          "id": "w42_035",
+                                          "fields": {
+                                            "TEXT": ""
+                                          }
+                                        },
+                                        "block": {
+                                          "type": "text_join",
+                                          "id": "w42_034",
+                                          "extraState": {
+                                            "itemCount": 2
+                                          },
+                                          "inputs": {
+                                            "ADD0": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "w42_032",
+                                                "fields": {
+                                                  "TEXT": "median: "
+                                                }
+                                              }
+                                            },
+                                            "ADD1": {
+                                              "shadow": {
+                                                "type": "text",
+                                                "id": "w42_033",
+                                                "fields": {
+                                                  "TEXT": ""
+                                                }
+                                              },
+                                              "block": {
+                                                "type": "xrp_list_stat",
+                                                "id": "w42_031",
+                                                "fields": {
+                                                  "OP": "MEDIAN",
+                                                  "VAR": {
+                                                    "id": "v_readings"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "xrp_list_add_item",
+                                        "id": "w42_038",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_readings"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "ITEM": {
+                                            "shadow": {
+                                              "type": "text",
+                                              "id": "w42_037",
+                                              "fields": {
+                                                "TEXT": "12"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "xrp_list_add_item",
+                                            "id": "w42_040",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_readings"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "ITEM": {
+                                                "shadow": {
+                                                  "type": "text",
+                                                  "id": "w42_039",
+                                                  "fields": {
+                                                    "TEXT": "abc"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "xrp_list_sort",
+                                                "id": "w42_041",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_readings"
+                                                  },
+                                                  "ORDER": "UP"
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "xrp_print",
+                                                    "id": "w42_048",
+                                                    "inputs": {
+                                                      "TEXT": {
+                                                        "shadow": {
+                                                          "type": "text",
+                                                          "id": "w42_047",
+                                                          "fields": {
+                                                            "TEXT": ""
+                                                          }
+                                                        },
+                                                        "block": {
+                                                          "type": "text_join",
+                                                          "id": "w42_046",
+                                                          "extraState": {
+                                                            "itemCount": 2
+                                                          },
+                                                          "inputs": {
+                                                            "ADD0": {
+                                                              "shadow": {
+                                                                "type": "text",
+                                                                "id": "w42_044",
+                                                                "fields": {
+                                                                  "TEXT": "smallest first: "
+                                                                }
+                                                              }
+                                                            },
+                                                            "ADD1": {
+                                                              "shadow": {
+                                                                "type": "text",
+                                                                "id": "w42_045",
+                                                                "fields": {
+                                                                  "TEXT": ""
+                                                                }
+                                                              },
+                                                              "block": {
+                                                                "type": "xrp_list_to_text",
+                                                                "id": "w42_043",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_readings"
+                                                                  }
+                                                                },
+                                                                "inputs": {
+                                                                  "DELIM": {
+                                                                    "shadow": {
+                                                                      "type": "text",
+                                                                      "id": "w42_042",
+                                                                      "fields": {
+                                                                        "TEXT": ", "
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "xrp_list_set",
+                                                        "id": "w42_052",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_part"
+                                                          }
+                                                        },
+                                                        "inputs": {
+                                                          "VALUE": {
+                                                            "block": {
+                                                              "type": "xrp_list_sublist",
+                                                              "id": "w42_051",
+                                                              "fields": {
+                                                                "VAR": {
+                                                                  "id": "v_readings"
+                                                                }
+                                                              },
+                                                              "inputs": {
+                                                                "FROM": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w42_049",
+                                                                    "fields": {
+                                                                      "NUM": 2
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "TO": {
+                                                                  "shadow": {
+                                                                    "type": "math_number",
+                                                                    "id": "w42_050",
+                                                                    "fields": {
+                                                                      "NUM": 4
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "xrp_print",
+                                                            "id": "w42_059",
+                                                            "inputs": {
+                                                              "TEXT": {
+                                                                "shadow": {
+                                                                  "type": "text",
+                                                                  "id": "w42_058",
+                                                                  "fields": {
+                                                                    "TEXT": ""
+                                                                  }
+                                                                },
+                                                                "block": {
+                                                                  "type": "text_join",
+                                                                  "id": "w42_057",
+                                                                  "extraState": {
+                                                                    "itemCount": 2
+                                                                  },
+                                                                  "inputs": {
+                                                                    "ADD0": {
+                                                                      "shadow": {
+                                                                        "type": "text",
+                                                                        "id": "w42_055",
+                                                                        "fields": {
+                                                                          "TEXT": "items 2 to 4: "
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "ADD1": {
+                                                                      "shadow": {
+                                                                        "type": "text",
+                                                                        "id": "w42_056",
+                                                                        "fields": {
+                                                                          "TEXT": ""
+                                                                        }
+                                                                      },
+                                                                      "block": {
+                                                                        "type": "xrp_list_to_text",
+                                                                        "id": "w42_054",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_part"
+                                                                          }
+                                                                        },
+                                                                        "inputs": {
+                                                                          "DELIM": {
+                                                                            "shadow": {
+                                                                              "type": "text",
+                                                                              "id": "w42_053",
+                                                                              "fields": {
+                                                                                "TEXT": ", "
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "xrp_list_sort",
+                                                                "id": "w42_060",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_readings"
+                                                                  },
+                                                                  "ORDER": "DOWN"
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "xrp_print",
+                                                                    "id": "w42_067",
+                                                                    "inputs": {
+                                                                      "TEXT": {
+                                                                        "shadow": {
+                                                                          "type": "text",
+                                                                          "id": "w42_066",
+                                                                          "fields": {
+                                                                            "TEXT": ""
+                                                                          }
+                                                                        },
+                                                                        "block": {
+                                                                          "type": "text_join",
+                                                                          "id": "w42_065",
+                                                                          "extraState": {
+                                                                            "itemCount": 2
+                                                                          },
+                                                                          "inputs": {
+                                                                            "ADD0": {
+                                                                              "shadow": {
+                                                                                "type": "text",
+                                                                                "id": "w42_063",
+                                                                                "fields": {
+                                                                                  "TEXT": "largest first: "
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "ADD1": {
+                                                                              "shadow": {
+                                                                                "type": "text",
+                                                                                "id": "w42_064",
+                                                                                "fields": {
+                                                                                  "TEXT": ""
+                                                                                }
+                                                                              },
+                                                                              "block": {
+                                                                                "type": "xrp_list_to_text",
+                                                                                "id": "w42_062",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_readings"
+                                                                                  }
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "DELIM": {
+                                                                                    "shadow": {
+                                                                                      "type": "text",
+                                                                                      "id": "w42_061",
+                                                                                      "fields": {
+                                                                                        "TEXT": ", "
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "xrp_print",
+                                                                        "id": "w42_069",
+                                                                        "inputs": {
+                                                                          "TEXT": {
+                                                                            "shadow": {
+                                                                              "type": "text",
+                                                                              "id": "w42_068",
+                                                                              "fields": {
+                                                                                "TEXT": "Part 2: accelerometer, 10 readings"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "controls_repeat_ext",
+                                                                            "id": "w42_092",
+                                                                            "inputs": {
+                                                                              "TIMES": {
+                                                                                "shadow": {
+                                                                                  "type": "math_number",
+                                                                                  "id": "w42_091",
+                                                                                  "fields": {
+                                                                                    "NUM": 10
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "DO": {
+                                                                                "block": {
+                                                                                  "type": "xrp_print",
+                                                                                  "id": "w42_088",
+                                                                                  "inputs": {
+                                                                                    "TEXT": {
+                                                                                      "shadow": {
+                                                                                        "type": "text",
+                                                                                        "id": "w42_087",
+                                                                                        "fields": {
+                                                                                          "TEXT": ""
+                                                                                        }
+                                                                                      },
+                                                                                      "block": {
+                                                                                        "type": "text_join",
+                                                                                        "id": "w42_086",
+                                                                                        "extraState": {
+                                                                                          "itemCount": 11
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "ADD0": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_075",
+                                                                                              "fields": {
+                                                                                                "TEXT": "X "
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD1": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_076",
+                                                                                              "fields": {
+                                                                                                "TEXT": ""
+                                                                                              }
+                                                                                            },
+                                                                                            "block": {
+                                                                                              "type": "xrp_imu_accel",
+                                                                                              "id": "w42_070",
+                                                                                              "fields": {
+                                                                                                "AXIS": "x",
+                                                                                                "UNIT": "G"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD2": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_077",
+                                                                                              "fields": {
+                                                                                                "TEXT": " g   Y "
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD3": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_078",
+                                                                                              "fields": {
+                                                                                                "TEXT": ""
+                                                                                              }
+                                                                                            },
+                                                                                            "block": {
+                                                                                              "type": "xrp_imu_accel",
+                                                                                              "id": "w42_071",
+                                                                                              "fields": {
+                                                                                                "AXIS": "y",
+                                                                                                "UNIT": "G"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD4": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_079",
+                                                                                              "fields": {
+                                                                                                "TEXT": " g   Z "
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD5": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_080",
+                                                                                              "fields": {
+                                                                                                "TEXT": ""
+                                                                                              }
+                                                                                            },
+                                                                                            "block": {
+                                                                                              "type": "xrp_imu_accel",
+                                                                                              "id": "w42_072",
+                                                                                              "fields": {
+                                                                                                "AXIS": "z",
+                                                                                                "UNIT": "G"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD6": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_081",
+                                                                                              "fields": {
+                                                                                                "TEXT": " g   Z "
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD7": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_082",
+                                                                                              "fields": {
+                                                                                                "TEXT": ""
+                                                                                              }
+                                                                                            },
+                                                                                            "block": {
+                                                                                              "type": "xrp_imu_accel",
+                                                                                              "id": "w42_073",
+                                                                                              "fields": {
+                                                                                                "AXIS": "z",
+                                                                                                "UNIT": "MS2"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD8": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_083",
+                                                                                              "fields": {
+                                                                                                "TEXT": " m/s2   Z "
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD9": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_084",
+                                                                                              "fields": {
+                                                                                                "TEXT": ""
+                                                                                              }
+                                                                                            },
+                                                                                            "block": {
+                                                                                              "type": "xrp_imu_accel",
+                                                                                              "id": "w42_074",
+                                                                                              "fields": {
+                                                                                                "AXIS": "z",
+                                                                                                "UNIT": "MG"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "ADD10": {
+                                                                                            "shadow": {
+                                                                                              "type": "text",
+                                                                                              "id": "w42_085",
+                                                                                              "fields": {
+                                                                                                "TEXT": " mg"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "xrp_wait_seconds",
+                                                                                      "id": "w42_090",
+                                                                                      "inputs": {
+                                                                                        "SECONDS": {
+                                                                                          "shadow": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "w42_089",
+                                                                                            "fields": {
+                                                                                              "NUM": 0.5
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "xrp_print",
+                                                                                "id": "w42_094",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "shadow": {
+                                                                                      "type": "text",
+                                                                                      "id": "w42_093",
+                                                                                      "fields": {
+                                                                                        "TEXT": "Part 3: lift the wheels, press the button"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "xrp_wait_for_button",
+                                                                                    "id": "w42_095",
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "xrp_wait_seconds",
+                                                                                        "id": "w42_097",
+                                                                                        "inputs": {
+                                                                                          "SECONDS": {
+                                                                                            "shadow": {
+                                                                                              "type": "math_number",
+                                                                                              "id": "w42_096",
+                                                                                              "fields": {
+                                                                                                "NUM": 0.5
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "xrp_motor_reset_encoder",
+                                                                                            "id": "w42_098",
+                                                                                            "fields": {
+                                                                                              "MOTOR": "LEFT"
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "xrp_motor_set_effort_percent",
+                                                                                                "id": "w42_100",
+                                                                                                "fields": {
+                                                                                                  "MOTOR": "LEFT"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "PERCENT": {
+                                                                                                    "shadow": {
+                                                                                                      "type": "math_number",
+                                                                                                      "id": "w42_099",
+                                                                                                      "fields": {
+                                                                                                        "NUM": 30
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "xrp_wait_seconds",
+                                                                                                    "id": "w42_102",
+                                                                                                    "inputs": {
+                                                                                                      "SECONDS": {
+                                                                                                        "shadow": {
+                                                                                                          "type": "math_number",
+                                                                                                          "id": "w42_101",
+                                                                                                          "fields": {
+                                                                                                            "NUM": 1
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "block": {
+                                                                                                        "type": "xrp_motor_coast",
+                                                                                                        "id": "w42_103",
+                                                                                                        "fields": {
+                                                                                                          "MOTOR": "LEFT"
+                                                                                                        },
+                                                                                                        "next": {
+                                                                                                          "block": {
+                                                                                                            "type": "xrp_wait_seconds",
+                                                                                                            "id": "w42_105",
+                                                                                                            "inputs": {
+                                                                                                              "SECONDS": {
+                                                                                                                "shadow": {
+                                                                                                                  "type": "math_number",
+                                                                                                                  "id": "w42_104",
+                                                                                                                  "fields": {
+                                                                                                                    "NUM": 0.5
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "next": {
+                                                                                                              "block": {
+                                                                                                                "type": "xrp_print",
+                                                                                                                "id": "w42_111",
+                                                                                                                "inputs": {
+                                                                                                                  "TEXT": {
+                                                                                                                    "shadow": {
+                                                                                                                      "type": "text",
+                                                                                                                      "id": "w42_110",
+                                                                                                                      "fields": {
+                                                                                                                        "TEXT": ""
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                    "block": {
+                                                                                                                      "type": "text_join",
+                                                                                                                      "id": "w42_109",
+                                                                                                                      "extraState": {
+                                                                                                                        "itemCount": 2
+                                                                                                                      },
+                                                                                                                      "inputs": {
+                                                                                                                        "ADD0": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "text",
+                                                                                                                            "id": "w42_107",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": "normal, position (should be above 0): "
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "ADD1": {
+                                                                                                                          "shadow": {
+                                                                                                                            "type": "text",
+                                                                                                                            "id": "w42_108",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": ""
+                                                                                                                            }
+                                                                                                                          },
+                                                                                                                          "block": {
+                                                                                                                            "type": "xrp_motor_get_position",
+                                                                                                                            "id": "w42_106",
+                                                                                                                            "fields": {
+                                                                                                                              "MOTOR": "LEFT"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "next": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "xrp_motor_reverse",
+                                                                                                                    "id": "w42_112",
+                                                                                                                    "fields": {
+                                                                                                                      "MOTOR": "LEFT",
+                                                                                                                      "STATE": "ON"
+                                                                                                                    },
+                                                                                                                    "next": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "xrp_motor_reset_encoder",
+                                                                                                                        "id": "w42_113",
+                                                                                                                        "fields": {
+                                                                                                                          "MOTOR": "LEFT"
+                                                                                                                        },
+                                                                                                                        "next": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "xrp_motor_set_effort_percent",
+                                                                                                                            "id": "w42_115",
+                                                                                                                            "fields": {
+                                                                                                                              "MOTOR": "LEFT"
+                                                                                                                            },
+                                                                                                                            "inputs": {
+                                                                                                                              "PERCENT": {
+                                                                                                                                "shadow": {
+                                                                                                                                  "type": "math_number",
+                                                                                                                                  "id": "w42_114",
+                                                                                                                                  "fields": {
+                                                                                                                                    "NUM": 30
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            },
+                                                                                                                            "next": {
+                                                                                                                              "block": {
+                                                                                                                                "type": "xrp_wait_seconds",
+                                                                                                                                "id": "w42_117",
+                                                                                                                                "inputs": {
+                                                                                                                                  "SECONDS": {
+                                                                                                                                    "shadow": {
+                                                                                                                                      "type": "math_number",
+                                                                                                                                      "id": "w42_116",
+                                                                                                                                      "fields": {
+                                                                                                                                        "NUM": 1
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                },
+                                                                                                                                "next": {
+                                                                                                                                  "block": {
+                                                                                                                                    "type": "xrp_motor_coast",
+                                                                                                                                    "id": "w42_118",
+                                                                                                                                    "fields": {
+                                                                                                                                      "MOTOR": "LEFT"
+                                                                                                                                    },
+                                                                                                                                    "next": {
+                                                                                                                                      "block": {
+                                                                                                                                        "type": "xrp_wait_seconds",
+                                                                                                                                        "id": "w42_120",
+                                                                                                                                        "inputs": {
+                                                                                                                                          "SECONDS": {
+                                                                                                                                            "shadow": {
+                                                                                                                                              "type": "math_number",
+                                                                                                                                              "id": "w42_119",
+                                                                                                                                              "fields": {
+                                                                                                                                                "NUM": 0.5
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        },
+                                                                                                                                        "next": {
+                                                                                                                                          "block": {
+                                                                                                                                            "type": "xrp_print",
+                                                                                                                                            "id": "w42_126",
+                                                                                                                                            "inputs": {
+                                                                                                                                              "TEXT": {
+                                                                                                                                                "shadow": {
+                                                                                                                                                  "type": "text",
+                                                                                                                                                  "id": "w42_125",
+                                                                                                                                                  "fields": {
+                                                                                                                                                    "TEXT": ""
+                                                                                                                                                  }
+                                                                                                                                                },
+                                                                                                                                                "block": {
+                                                                                                                                                  "type": "text_join",
+                                                                                                                                                  "id": "w42_124",
+                                                                                                                                                  "extraState": {
+                                                                                                                                                    "itemCount": 2
+                                                                                                                                                  },
+                                                                                                                                                  "inputs": {
+                                                                                                                                                    "ADD0": {
+                                                                                                                                                      "shadow": {
+                                                                                                                                                        "type": "text",
+                                                                                                                                                        "id": "w42_122",
+                                                                                                                                                        "fields": {
+                                                                                                                                                          "TEXT": "reversed, position (should also be above 0): "
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    },
+                                                                                                                                                    "ADD1": {
+                                                                                                                                                      "shadow": {
+                                                                                                                                                        "type": "text",
+                                                                                                                                                        "id": "w42_123",
+                                                                                                                                                        "fields": {
+                                                                                                                                                          "TEXT": ""
+                                                                                                                                                        }
+                                                                                                                                                      },
+                                                                                                                                                      "block": {
+                                                                                                                                                        "type": "xrp_motor_get_position",
+                                                                                                                                                        "id": "w42_121",
+                                                                                                                                                        "fields": {
+                                                                                                                                                          "MOTOR": "LEFT"
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            },
+                                                                                                                                            "next": {
+                                                                                                                                              "block": {
+                                                                                                                                                "type": "xrp_motor_reverse",
+                                                                                                                                                "id": "w42_127",
+                                                                                                                                                "fields": {
+                                                                                                                                                  "MOTOR": "LEFT",
+                                                                                                                                                  "STATE": "OFF"
+                                                                                                                                                },
+                                                                                                                                                "next": {
+                                                                                                                                                  "block": {
+                                                                                                                                                    "type": "xrp_print",
+                                                                                                                                                    "id": "w42_129",
+                                                                                                                                                    "inputs": {
+                                                                                                                                                      "TEXT": {
+                                                                                                                                                        "shadow": {
+                                                                                                                                                          "type": "text",
+                                                                                                                                                          "id": "w42_128",
+                                                                                                                                                          "fields": {
+                                                                                                                                                            "TEXT": "Done: the wheel should have turned opposite ways."
+                                                                                                                                                          }
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "readings",
+      "id": "v_readings",
+      "type": "List"
+    },
+    {
+      "name": "part",
+      "id": "v_part",
+      "type": "List"
+    }
+  ]
+}

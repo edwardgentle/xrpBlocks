@@ -31,7 +31,8 @@ The [OLED designer](https://edwardgentle.github.io/xrpBlocks/oled-designer/) and
 - [Fork changes](../CHANGES.md): concise overview of the classroom focus and differences from upstream.
 
 - [Change history](CHANGELOG.md): consolidated records, newest first.
-- [Replication snapshot](../XRPBlocks-replication-guide.md): historical source snapshot covering changes 1–28.
+- [Replication guide](../XRPBlocks-replication-guide.md): the current source, changes 1 to 46, with every changed file and a SHA-256 manifest.
+- [Replication snapshot, 20 September](history/XRPBlocks-replication-snapshot-changes-1-28.md): historical, changes 1 to 28.
 - [Local modifications PDF](../XRPBlocks-local-modifications.pdf): historical record covering changes 1–18.
 - [HTML addendum](XRPBlocks-local-modifications-addendum.html): historical companion document.
 

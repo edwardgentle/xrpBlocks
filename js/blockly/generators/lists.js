@@ -135,6 +135,89 @@ export function registerListGenerators(pythonModule) {
     return [`${text}.split(${delim})`, Order.MEMBER];
   };
 
+  // ── Change 46: maths on a list, sort, part of a list ──
+
+  // Items added from a text slot arrive as strings ('5'), so every helper
+  // turns numeric text into a number first. Non-numbers are skipped by the
+  // maths block and sorted after the numbers by the sort block.
+  function provideNumberOf(generator) {
+    return generator.provideFunction_('xrp_list_number', [
+      'def ' + generator.FUNCTION_NAME_PLACEHOLDER_ + '(item):',
+      '  # A number, a number stored as text, or None for anything else.',
+      '  if isinstance(item, bool):',
+      '    return None',
+      '  if isinstance(item, (int, float)):',
+      '    return item',
+      '  try:',
+      '    return int(str(item).strip())',
+      '  except ValueError:',
+      '    pass',
+      '  try:',
+      '    return float(str(item).strip())',
+      '  except ValueError:',
+      '    return None',
+    ]);
+  }
+
+  python.forBlock['xrp_list_stat'] = function (block, generator) {
+    const numberOf = provideNumberOf(generator);
+    const stat = generator.provideFunction_('xrp_list_stat', [
+      'def ' + generator.FUNCTION_NAME_PLACEHOLDER_ + '(items, op):',
+      '  # Only the items that are numbers count. An empty list reports 0.',
+      `  values = [v for v in (${numberOf}(i) for i in items) if v is not None]`,
+      '  if not values:',
+      '    return 0',
+      "  if op == 'SUM':",
+      '    return sum(values)',
+      "  if op == 'AVERAGE':",
+      '    return sum(values) / len(values)',
+      "  if op == 'MIN':",
+      '    return min(values)',
+      "  if op == 'MAX':",
+      '    return max(values)',
+      '  values = sorted(values)',
+      '  middle = len(values) // 2',
+      '  if len(values) % 2 == 1:',
+      '    return values[middle]',
+      '  return (values[middle - 1] + values[middle]) / 2',
+    ]);
+    const op = block.getFieldValue('OP') || 'SUM';
+    return [`${stat}(${varName(block, generator)}, '${op}')`, Order.FUNCTION_CALL];
+  };
+
+  python.forBlock['xrp_list_sort'] = function (block, generator) {
+    const numberOf = provideNumberOf(generator);
+    const sortList = generator.provideFunction_('xrp_list_sort', [
+      'def ' + generator.FUNCTION_NAME_PLACEHOLDER_ + '(items, largest_first):',
+      '  # Numbers (also numbers stored as text) come first, in order of size.',
+      '  # Words always come after the numbers, A to Z (Z to A for largest first).',
+      '  numbers = []',
+      '  words = []',
+      '  for item in items:',
+      `    if ${numberOf}(item) is None:`,
+      '      words.append(item)',
+      '    else:',
+      '      numbers.append(item)',
+      `  numbers.sort(key=${numberOf}, reverse=largest_first)`,
+      '  words.sort(key=str, reverse=largest_first)',
+      '  items.clear()',
+      '  items.extend(numbers)',
+      '  items.extend(words)',
+    ]);
+    const largestFirst = block.getFieldValue('ORDER') === 'DOWN' ? 'True' : 'False';
+    return `${sortList}(${varName(block, generator)}, ${largestFirst})\n` +
+      maybeWatchPrint(block, generator);
+  };
+
+  python.forBlock['xrp_list_sublist'] = function (block, generator) {
+    const from = generator.valueToCode(block, 'FROM', Order.NONE) || '1';
+    const to = generator.valueToCode(block, 'TO', Order.NONE) || '1';
+    const list = varName(block, generator);
+    // 1-based and inclusive on the block face; a new list, the original is
+    // left as it was. Positions below 1 are treated as 1.
+    return [`${list}[max(int(${from}) - 1, 0):max(int(${to}), 0)]`, Order.MEMBER];
+  };
+
   python.forBlock['xrp_list_to_text'] = function (block, generator) {
     const delim = generator.valueToCode(block, 'DELIM', Order.MEMBER) || "','";
     const list = varName(block, generator);

@@ -15,7 +15,7 @@
 | `examples/lessons/`, `lessons/` | Lesson files |
 | `working programs/` | Saved example and validation projects |
 
-Serve the current checkout as described in [Getting started](getting-started.md). Do not reconstruct the current application from the old replication snapshot.
+Serve the current checkout as described in [Getting started](getting-started.md). To rebuild the application from upstream, use the [replication guide](../XRPBlocks-replication-guide.md) (changes 1 to 46). Do not use the 20 September snapshot in `docs/history/` for that: it stops at change 28.
 
 ## Editing drivers and libraries
 
@@ -58,5 +58,7 @@ Simulation does not establish hardware behaviour. Record new robot results in [T
 ## Documentation maintenance
 
 Keep the README short and use [Documentation](README.md) as the guide map. Put instructions in the relevant topic guide, verification evidence in [Testing status](testing-status.md), and dated changes in [Change history](CHANGELOG.md).
+
+Regenerate the [replication guide](../XRPBlocks-replication-guide.md) after each numbered change with `python tools/gen_replication_guide.py . ../upstream XRPBlocks-replication-guide.md` (upstream checked out at `cd39757`; add the change to the table in the script first). It embeds every new or changed text file and writes a SHA-256 manifest with a verification script.
 
 Preserve original authorship and license notices. Historical snapshots retain their original scope; do not treat their embedded source as the current implementation.

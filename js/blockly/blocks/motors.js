@@ -176,6 +176,32 @@ export function registerMotorBlocks() {
     },
   };
 
+  // --- Reverse a motor's direction (change 46) ---
+  Blockly.Blocks['xrp_motor_reverse'] = {
+    init() {
+      this.jsonInit({
+        type: 'xrp_motor_reverse',
+        message0: '%{BKY_XRP_MOTOR_REVERSE}',
+        args0: [
+          { type: 'field_dropdown', name: 'MOTOR', options: MOTOR_OPTIONS },
+          {
+            type: 'field_dropdown',
+            name: 'STATE',
+            options: [
+              ['%{BKY_XRP_MOTOR_REVERSE_ON}', 'ON'],
+              ['%{BKY_XRP_MOTOR_REVERSE_OFF}', 'OFF'],
+            ],
+          },
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        style: 'motor_blocks',
+        tooltip: '%{BKY_XRP_MOTOR_REVERSE_TOOLTIP}',
+        helpUrl: '',
+      });
+    },
+  };
+
   // --- Coast Motor ---
   Blockly.Blocks['xrp_motor_coast'] = {
     init() {

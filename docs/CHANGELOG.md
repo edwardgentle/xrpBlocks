@@ -4,9 +4,82 @@
 
 These records preserve the development history. Setup instructions and validation statements describe their date, not necessarily the current checkout. Use [Getting started](getting-started.md) and [Development](development.md) for current instructions.
 
+- [Through 30 September 2026: changes 44 to 46](#through-30-september-2026)
 - [Through 28 September 2026: changes 29–43](#through-28-september-2026)
 - [Through 20 September 2026: changes 19–28](#through-20-september-2026)
-- [Changes 1–28: historical replication snapshot](../XRPBlocks-replication-guide.md)
+- [Changes 1 to 46: replication guide](../XRPBlocks-replication-guide.md)
+
+## Through 30 September 2026
+
+### 44. Phone control over Bluetooth, library 1.0.1
+
+`devices/ble-remote.json`, driver `lib/BLERemote.py`, phone page
+`phone/index.html`, guide [ble-remote.md](ble-remote.md). The robot's existing
+Bluetooth REPL link (Nordic UART Service) is reused: the phone page sends short
+`#xrp` lines, which the running program reads from `sys.stdin`; replies go back
+as direct 20-byte notifications. Blocks: start, page title, button label,
+update, connected, button held, button just pressed, joystick forward/back and
+left/right (-100 to 100), show text, release all. Button map: Up 1, Left 2,
+Right 3, Down 4, A 5, B 6. Inputs expire after one second. Android with Chrome
+over https only (the page is on GitHub Pages).
+
+### 45. Robot readings and messages on the phone, library 1.1.0, page 1.1.1
+
+A **Show robot messages** tick box on the phone page shows reading tiles and a
+message log; a **Messages** layout shows only those. Two new blocks: **phone
+show value [name] = [value]** and **phone print [text]**. Limits: 8 readings,
+names 16 characters, values 24, log lines 60.
+
+### 46. Maths on a list, sort, part of a list, accelerometer, motor reversed
+
+Blocks added after comparing the XRPCode 1.2.2 toolbox with XRPBlocks. English
+and Dutch labels (Dutch written by Claude, still to be checked).
+
+- **Variables (lists):** **[sum | average | smallest | largest | median] of
+  [list]** (`xrp_list_stat`); **sort [list] [smallest first | largest first]**
+  (`xrp_list_sort`); **items [1] to [3] of [list]** (`xrp_list_sublist`,
+  both ends included, a new list, the original unchanged). Numbers stored as
+  text (for example items added through a text slot) count as numbers; words
+  are skipped by the maths block and always sorted after the numbers. An empty
+  list gives 0.
+- **Sensors:** **accelerometer [X | Y | Z] in [g | m/s² | mg]**
+  (`xrp_imu_accel`). XRPLib reports mg; the block divides by 1000 for g
+  (3 decimals) or multiplies by 0.00980665 for m/s² (2 decimals). Flat and
+  still, Z reads about 1 g.
+- **Motors:** **motor [left] reversed [on | off]** (`xrp_motor_reverse`).
+  XRPLib already sets `flip_dir` on some motors (the left motor on the standard
+  XRP), so "on" means the opposite of the motor's own starting direction,
+  remembered the first time the block runs. XRPLib's encoder readings follow
+  `flip_dir`, so position and speed blocks stay correct. The motor is stopped
+  when the block runs; put it at the start of a program.
+
+Files: `js/blockly/blocks/lists.js`, `js/blockly/generators/lists.js`,
+`js/blockly/blocks/sensors.js`, `js/blockly/generators/sensors.js`,
+`js/blockly/blocks/motors.js`, `js/blockly/generators/motors.js`,
+`js/blockly/toolbox.js`, `js/ui/translations.js`. Test program:
+`working programs/42 Lists maths, accelerometer and motor reverse.json`.
+
+Checked: `node --check`; the IDE in a headless browser (English and Dutch),
+new blocks in their flyouts, Python generated and compiled with `mpy-cross`;
+the generated program run against a stand-in robot modelled on XRPLib's
+`flip_dir` behaviour (expected values below); all working programs still load
+and generate. Not yet run on the robot.
+
+### Also in this period
+
+- Working program 41: an XRPCode "ArcadeS" function rebuilt with held rpm per
+  wheel, plus a switched-off "arcade rpm" version with percent inputs, limits
+  and a dead zone.
+- The replication guide was regenerated for changes 1 to 46. The 20 September
+  snapshot (changes 1 to 28) is kept in `docs/history/`.
+
+### Libraries in the catalogue (unchanged by 46)
+
+| Library | Version |
+|---|---|
+| Phone control (Bluetooth) | 1.1.0 |
+
+The other libraries are as listed for 28 September below.
 
 ## Through 28 September 2026
 

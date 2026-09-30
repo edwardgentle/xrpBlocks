@@ -405,6 +405,103 @@ export function registerListBlocks() {
       });
     },
   };
+
+  // ── [sum|average|smallest|largest|median] of [list] (reporter, Number) ──
+  // Change 46. Items typed into a text slot ("5") still count as numbers;
+  // anything that is not a number is skipped. An empty list reports 0.
+  Blockly.Blocks['xrp_list_stat'] = {
+    init() {
+      this.jsonInit({
+        type: 'xrp_list_stat',
+        message0: '%{BKY_XRP_LIST_STAT}',
+        args0: [
+          {
+            type: 'field_dropdown',
+            name: 'OP',
+            options: [
+              ['%{BKY_XRP_LIST_STAT_SUM}', 'SUM'],
+              ['%{BKY_XRP_LIST_STAT_AVERAGE}', 'AVERAGE'],
+              ['%{BKY_XRP_LIST_STAT_MIN}', 'MIN'],
+              ['%{BKY_XRP_LIST_STAT_MAX}', 'MAX'],
+              ['%{BKY_XRP_LIST_STAT_MEDIAN}', 'MEDIAN'],
+            ],
+          },
+          {
+            type: 'field_variable',
+            name: 'VAR',
+            variable: 'list',
+            variableTypes: ['List'],
+            defaultType: 'List',
+          },
+        ],
+        output: 'Number',
+        style: 'variable_blocks',
+        tooltip: '%{BKY_XRP_LIST_STAT_TOOLTIP}',
+        helpUrl: '',
+      });
+    },
+  };
+
+  // ── sort [list] [smallest first|largest first] (statement) ──
+  // Change 46. Numbers (including numbers stored as text) sort by value and
+  // come before words, which sort alphabetically.
+  Blockly.Blocks['xrp_list_sort'] = {
+    init() {
+      this.jsonInit({
+        type: 'xrp_list_sort',
+        message0: '%{BKY_XRP_LIST_SORT}',
+        args0: [
+          {
+            type: 'field_variable',
+            name: 'VAR',
+            variable: 'list',
+            variableTypes: ['List'],
+            defaultType: 'List',
+          },
+          {
+            type: 'field_dropdown',
+            name: 'ORDER',
+            options: [
+              ['%{BKY_XRP_LIST_SORT_UP}', 'UP'],
+              ['%{BKY_XRP_LIST_SORT_DOWN}', 'DOWN'],
+            ],
+          },
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        style: 'variable_blocks',
+        tooltip: '%{BKY_XRP_LIST_SORT_TOOLTIP}',
+        helpUrl: '',
+      });
+    },
+  };
+
+  // ── items [from] to [to] of [list] (reporter, Array) ──
+  // Change 46. Both ends included, first item is 1, like the other blocks.
+  Blockly.Blocks['xrp_list_sublist'] = {
+    init() {
+      this.jsonInit({
+        type: 'xrp_list_sublist',
+        message0: '%{BKY_XRP_LIST_SUBLIST}',
+        args0: [
+          { type: 'input_value', name: 'FROM', check: 'Number' },
+          { type: 'input_value', name: 'TO', check: 'Number' },
+          {
+            type: 'field_variable',
+            name: 'VAR',
+            variable: 'list',
+            variableTypes: ['List'],
+            defaultType: 'List',
+          },
+        ],
+        inputsInline: true,
+        output: 'Array',
+        style: 'variable_blocks',
+        tooltip: '%{BKY_XRP_LIST_SUBLIST_TOOLTIP}',
+        helpUrl: '',
+      });
+    },
+  };
 }
 
 /**
@@ -505,6 +602,13 @@ export function getListFlyoutItems(workspace) {
       inputs: { ITEM: textShadow('thing') },
     },
     { kind: 'block', type: 'xrp_list_is_empty', gap: 24, fields: fieldsFor(last) },
+    // Change 46: maths on a list, sorting, and part of a list.
+    { kind: 'block', type: 'xrp_list_stat', gap: 8, fields: fieldsFor(last) },
+    { kind: 'block', type: 'xrp_list_sort', gap: 8, fields: fieldsFor(last) },
+    {
+      kind: 'block', type: 'xrp_list_sublist', gap: 24, fields: fieldsFor(last),
+      inputs: { FROM: numberShadow(1), TO: numberShadow(3) },
+    },
     {
       kind: 'block', type: 'xrp_list_to_text', gap: 8, fields: fieldsFor(last),
       inputs: { DELIM: textShadow(',') },

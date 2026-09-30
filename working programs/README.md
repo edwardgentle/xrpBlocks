@@ -67,6 +67,8 @@ Built 26 September 2026; updated 30 September 2026 (programs 23 to 40, the phone
 | 38 Phone - driving with trigger lights | Android phone, floor space | Triggers lights (brake, reverse, indicators, forward) while driving from the phone; speed and battery tiles |
 | 39 Phone - tap counter | Android phone | "just pressed" reliability: tap A 20 times quickly, the tile should read 20 |
 | 40 Phone - connection watchdog | Android phone, USB Console | green while connected, flashing red when not; counts connections; lock the phone to test |
+| 41 Arcade drive with held rpm (ArcadeS) | floor space | an XRPCode "ArcadeS" function rebuilt: held rpm per wheel from straight and turn (-1 to 1). A better "arcade rpm" version (percent, limits, dead zone) is in the file, switched off; enable it and its test stack to try it |
+| 42 Lists maths, accelerometer and motor reverse | USB Console; wheels off the table for part 3 | change 46: sum 25, average 5.0, smallest 1, largest 9, median 5; sorted lists; items 2 to 4; accelerometer X/Y/Z (Z about 1 g flat); left motor turns opposite ways with "reversed" on and off, and both positions count up |
 
 ## Manual programs
 

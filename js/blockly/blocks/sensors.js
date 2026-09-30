@@ -139,6 +139,40 @@ export function registerSensorBlocks() {
     },
   };
 
+  // --- Accelerometer, one axis, in a chosen unit (change 46) ---
+  Blockly.Blocks['xrp_imu_accel'] = {
+    init() {
+      this.jsonInit({
+        type: 'xrp_imu_accel',
+        message0: '%{BKY_XRP_IMU_ACCEL}',
+        args0: [
+          {
+            type: 'field_dropdown',
+            name: 'AXIS',
+            options: [
+              ['X', 'x'],
+              ['Y', 'y'],
+              ['Z', 'z'],
+            ],
+          },
+          {
+            type: 'field_dropdown',
+            name: 'UNIT',
+            options: [
+              ['%{BKY_XRP_IMU_ACCEL_G}', 'G'],
+              ['%{BKY_XRP_IMU_ACCEL_MS2}', 'MS2'],
+              ['%{BKY_XRP_IMU_ACCEL_MG}', 'MG'],
+            ],
+          },
+        ],
+        output: 'Number',
+        style: 'sensor_blocks',
+        tooltip: '%{BKY_XRP_IMU_ACCEL_TOOLTIP}',
+        helpUrl: '',
+      });
+    },
+  };
+
   // --- Reset one of the three angles ---
   Blockly.Blocks['xrp_imu_reset_yaw'] = {
     init() {

@@ -146,6 +146,9 @@ export function getToolboxDefinition(libraryCategories = [], pinnedCategory = nu
           { kind: 'block', type: 'xrp_motor_get_counts' },
           { kind: 'block', type: 'xrp_motor_get_speed' },
           { kind: 'block', type: 'xrp_motor_reset_encoder' },
+          { kind: 'sep', gap: '24' },
+          // Change 46: for a motor mounted the other way round.
+          { kind: 'block', type: 'xrp_motor_reverse' },
         ],
       },
 
@@ -207,6 +210,9 @@ export function getToolboxDefinition(libraryCategories = [], pinnedCategory = nu
           { kind: 'block', type: 'xrp_imu_angle' },
           { kind: 'block', type: 'xrp_imu_reset_yaw' },
           { kind: 'block', type: 'xrp_imu_calibrate' },
+          { kind: 'sep', gap: '24' },
+          // Change 46: the accelerometer in the same chip.
+          { kind: 'block', type: 'xrp_imu_accel' },
         ],
       },
 

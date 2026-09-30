@@ -40,6 +40,16 @@ export function registerSensorGenerators(pythonModule) {
     return [`imu.${reading}()`, Order.FUNCTION_CALL];
   };
 
+  // Change 46. XRPLib reports acceleration in mg (thousandths of g).
+  python.forBlock['xrp_imu_accel'] = function (block) {
+    const axis = block.getFieldValue('AXIS') || 'x';
+    const unit = block.getFieldValue('UNIT') || 'G';
+    const raw = `imu.get_acc_${axis}()`;
+    if (unit === 'MG') return [raw, Order.FUNCTION_CALL];
+    if (unit === 'MS2') return [`round(${raw} * 0.00980665, 2)`, Order.FUNCTION_CALL];
+    return [`round(${raw} / 1000, 3)`, Order.FUNCTION_CALL];
+  };
+
   python.forBlock['xrp_imu_reset_yaw'] = function (block) {
     // The block keeps its original type name so saved workspaces still load;
     // the dropdown chooses which of the three angles is zeroed.

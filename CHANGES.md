@@ -82,6 +82,16 @@ The [28 September record](docs/CHANGELOG.md#through-28-september-2026) covers:
 - Triggers library for background lights/servos
 - Export blocks to PNG
 
+### Changes 44-46
+
+The [30 September record](docs/CHANGELOG.md#through-30-september-2026) covers:
+
+- Phone control over Bluetooth (phone page, joystick, D-pad, buttons)
+- Robot readings and messages shown on the phone
+- Maths on a list (sum, average, smallest, largest, median), sort, part of a list
+- Accelerometer X, Y and Z in g, m/s² or mg
+- Reversing a motor's direction
+
 ## Practical fork notes
 
 This fork is not a neutral upstream sync. It is a classroom-oriented local build with priorities such as:
@@ -98,7 +108,7 @@ This fork is not a neutral upstream sync. It is a classroom-oriented local build
 - [Getting started](docs/getting-started.md)
 - [Detailed change history](docs/CHANGELOG.md)
 - [Testing status](docs/testing-status.md)
-- [Historical replication snapshot](XRPBlocks-replication-guide.md)
+- [Replication guide, changes 1-46](XRPBlocks-replication-guide.md) and the [historical 1-28 snapshot](docs/history/XRPBlocks-replication-snapshot-changes-1-28.md)
 
 ## Upstream status
 
