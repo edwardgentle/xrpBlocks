@@ -62,18 +62,14 @@ export function registerServoBlocks() {
         message0: '%{BKY_XRP_SERVO_SWEEP}',
         args0: [
           { type: 'field_dropdown', name: 'SERVO', options: SERVO_OPTIONS },
-        ],
-        message1: '%{BKY_XRP_SERVO_SWEEP_RANGE}',
-        args1: [
           { type: 'input_value', name: 'FROM', check: 'Number' },
           { type: 'input_value', name: 'TO', check: 'Number' },
         ],
-        message2: '%{BKY_XRP_SERVO_SWEEP_TIME}',
-        args2: [
+        message1: '%{BKY_XRP_SERVO_SWEEP_TIME}',
+        args1: [
           { type: 'input_value', name: 'SECONDS', check: 'Number' },
         ],
-        // Four arguments on one row makes a block wider than the flyout, so
-        // this one stacks its inputs instead of running them inline.
+        // Keep the sweep block to two rows so it fits in the flyout.
         inputsInline: false,
         previousStatement: null,
         nextStatement: null,
