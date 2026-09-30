@@ -59,18 +59,19 @@ export function registerServoBlocks() {
     init() {
       this.jsonInit({
         type: 'xrp_servo_sweep',
-        message0: '%{BKY_XRP_SERVO_SWEEP}',
+        message0: '%{BKY_XRP_SERVO_SWEEP} %1 from %2 to %3',
         args0: [
           { type: 'field_dropdown', name: 'SERVO', options: SERVO_OPTIONS },
+        ],
+        args1: [
           { type: 'input_value', name: 'FROM', check: 'Number' },
           { type: 'input_value', name: 'TO', check: 'Number' },
         ],
-        message1: '%{BKY_XRP_SERVO_SWEEP_TIME}',
-        args1: [
+        message1: 'in %1 seconds',
+        args2: [
           { type: 'input_value', name: 'SECONDS', check: 'Number' },
         ],
-        // Keep the sweep block to two rows so it fits in the flyout.
-        inputsInline: false,
+        inputsInline: true,
         previousStatement: null,
         nextStatement: null,
         style: 'servo_blocks',
